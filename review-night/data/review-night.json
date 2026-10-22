@@ -3,7 +3,7 @@
   "settings": {
     "setSize": 4,
     "nameMax": 16,
-    "answerMax": 40,
+    "answerMax": 60,
     "timers": {
       "trivia": 20,
       "fibWrite": 75,
@@ -31,30 +31,222 @@
       "title": "Quick Quiz",
       "intro": "Answer on your phone. Faster correct answers earn a little more.",
       "questions": [
-        { "q": "Which psalm begins “The Lord is my shepherd”?", "choices": ["Psalm 1", "Psalm 22", "Psalm 23", "Psalm 119"], "answer": 2, "note": "Psalm 23:1. Jesus called Himself the Good Shepherd (John 10:11)." },
-        { "q": "On the cross, Jesus quoted the opening line of which psalm?", "choices": ["Psalm 1", "Psalm 22", "Psalm 23", "Psalm 51"], "answer": 1, "note": "“My God, my God, why hast thou forsaken me?” (Psalm 22:1; Matthew 27:46)" },
-        { "q": "In Hebrew poetry, two or more lines that share connected ideas are called:", "choices": ["Parallelism", "Acrostic", "Rhyme", "Alliteration"], "answer": 0, "note": "Parallelism" },
-        { "q": "Proverbs 1:7 says this is the beginning of knowledge:", "choices": ["The fear of the Lord", "Prayer", "Obedience", "Wisdom"], "answer": 0, "note": "Proverbs 1:7" },
-        { "q": "When Moroni first visited Joseph Smith in 1823, he began by quoting:", "choices": ["Malachi", "Isaiah", "Daniel", "Jeremiah"], "answer": 0, "note": "Joseph Smith—History 1:36–39" },
-        { "q": "In 1836 Elijah appeared to Joseph Smith and Oliver Cowdery in this temple:", "choices": ["Kirtland", "Nauvoo", "Salt Lake", "St. George"], "answer": 0, "note": "Doctrine and Covenants 110:13–16" },
-        { "q": "The Egyptian mummies the Saints bought in 1835 led to:", "choices": ["The Book of Abraham", "The Book of Moses", "The Doctrine and Covenants", "The Joseph Smith Translation"], "answer": 0, "note": "The Book of Abraham, in the Pearl of Great Price" },
-        { "q": "Martin Harris showing characters from the gold plates to a scholar fulfilled:", "choices": ["Isaiah 29", "Isaiah 53", "Ezekiel 37", "Malachi 4"], "answer": 0, "note": "Joseph Smith—History 1:63–65" },
-        { "q": "Ava is anxious about choosing classes and a future career. The best passage for her:", "choices": ["Proverbs 3:5–6", "Isaiah 5:20", "Genesis 39:9", "Psalm 24:3–4"], "answer": 0, "note": "“Trust in the Lord with all thine heart…”" },
-        { "q": "Ethan made a serious mistake and wonders if Jesus Christ can forgive him. The best passage for him:", "choices": ["Isaiah 1:18", "Joshua 24:15", "Genesis 2:24", "Moses 7:18"], "answer": 0, "note": "“Though your sins be as scarlet, they shall be as white as snow”" }
+        {
+          "q": "Which scripture says “they were of one heart and one mind”?",
+          "choices": [
+            "Moses 1:39",
+            "Moses 7:18",
+            "Abraham 3:22–23",
+            "Joshua 24:15"
+          ],
+          "answer": 1,
+          "note": "Moses 7:18. The people of Zion dwelt in righteousness, and there was no poor among them."
+        },
+        {
+          "q": "Which scripture says Abraham's seed would “bear this ministry and Priesthood unto all nations”?",
+          "choices": [
+            "Amos 3:7",
+            "Moses 7:18",
+            "Abraham 2:9–11",
+            "Genesis 1:26–27"
+          ],
+          "answer": 2,
+          "note": "Abraham 2:9–11 (the phrase is in verse 9)."
+        },
+        {
+          "q": "“Who shall stand in his holy place?” Which scripture answers that question?",
+          "choices": [
+            "Isaiah 53:3–5",
+            "Isaiah 58:6–7",
+            "Proverbs 3:5–6",
+            "Psalm 24:3–4"
+          ],
+          "answer": 3,
+          "note": "Psalm 24:3–4. “He that hath clean hands, and a pure heart.”"
+        },
+        {
+          "q": "Caleb feels invisible at school and wonders whether his life has any purpose. Which scripture helps him most?",
+          "choices": [
+            "Moses 1:39",
+            "Joshua 24:15",
+            "Isaiah 5:20",
+            "Genesis 39:9"
+          ],
+          "answer": 0,
+          "note": "Moses 1:39. God's work and glory is to bring to pass our immortality and eternal life. Abraham 3:22–23 and Genesis 1:26–27 also fit."
+        },
+        {
+          "q": "Ava is anxious about choosing classes and a future career. Which scripture helps her most?",
+          "choices": [
+            "Malachi 3:8–10",
+            "Joshua 24:15",
+            "Proverbs 3:5–6",
+            "Isaiah 5:20"
+          ],
+          "answer": 2,
+          "note": "Proverbs 3:5–6. Trust in the Lord, and he shall direct thy paths."
+        },
+        {
+          "q": "Which scripture teaches that a man shall cleave unto his wife and they shall be one?",
+          "choices": [
+            "Moses 7:18",
+            "Genesis 2:24",
+            "Exodus 20:3–17",
+            "Jeremiah 1:4–5"
+          ],
+          "answer": 1,
+          "note": "Genesis 2:24"
+        },
+        {
+          "q": "When Moroni first visited Joseph Smith in 1823, he began by quoting from this prophet:",
+          "choices": [
+            "Malachi",
+            "Isaiah",
+            "Daniel",
+            "Jeremiah"
+          ],
+          "answer": 0,
+          "note": "Joseph Smith—History 1:36–39. Compare Malachi 4:5–6."
+        },
+        {
+          "q": "On April 3, 1836, Elijah appeared to Joseph Smith and Oliver Cowdery in this temple:",
+          "choices": [
+            "Nauvoo Temple",
+            "Salt Lake Temple",
+            "St. George Temple",
+            "Kirtland Temple"
+          ],
+          "answer": 3,
+          "note": "Doctrine and Covenants 110:13–16. Elijah turned the hearts of the fathers to the children (Malachi 4:5–6)."
+        },
+        {
+          "q": "In 1835 the Saints in Kirtland bought four Egyptian mummies along with papyrus scrolls. Joseph Smith's translation became:",
+          "choices": [
+            "The Book of Moses",
+            "The Book of Abraham",
+            "The Doctrine and Covenants",
+            "The Joseph Smith Translation"
+          ],
+          "answer": 1,
+          "note": "The Book of Abraham, in the Pearl of Great Price."
+        },
+        {
+          "q": "In 1828 Martin Harris showed characters from the gold plates to a scholar. This fulfilled a prophecy in:",
+          "choices": [
+            "Isaiah 53",
+            "Ezekiel 37",
+            "Isaiah 29",
+            "Malachi 4"
+          ],
+          "answer": 2,
+          "note": "Isaiah 29:13–14, “a marvellous work and a wonder” (Joseph Smith—History 1:63–65)."
+        }
       ]
     },
     {
       "type": "fib",
       "title": "Fake Out",
-      "intro": "Your set writes a believable fake answer. Everyone else tries to find the real one. You score for every classmate you fool.",
+      "intro": "Your set writes a believable ending. Everyone else tries to find the real one. You score for every classmate you fool.",
       "clues": [
-        { "prompt": "“Trust in the Lord with all thine heart; and lean not unto thine own ____.”", "answer": "understanding", "ref": "Proverbs 3:5", "house": ["wisdom", "strength"] },
-        { "prompt": "“They were of one heart and one mind, and dwelt in righteousness; and there was no ____ among them.”", "answer": "poor", "alt": ["poor people"], "ref": "Moses 7:18", "house": ["contention", "sin"] },
-        { "prompt": "“Who shall stand in his holy place? He that hath clean hands, and a ____ heart.”", "answer": "pure", "ref": "Psalm 24:3–4", "house": ["broken", "willing"] },
-        { "prompt": "Jacob gave Esau bread and ____, and Esau gave up his birthright.", "answer": "pottage of lentiles", "alt": ["pottage of lentils", "lentil stew", "lentils", "pottage", "red pottage", "stew"], "ref": "Genesis 25:34", "house": ["a goat", "honey and figs"] },
-        { "prompt": "Stephen met his wife, Jenn, on ____.", "answer": "ldssingleschat.com", "alt": ["ldssingleschat", "lds singles chat", "a website", "online", "the internet"], "ref": "Teacher trivia", "house": ["a mission trip", "a BYU-Idaho dance"] },
-        { "prompt": "Troy served his mission in ____.", "answer": "Buenos Aires, Argentina", "alt": ["Buenos Aires", "Argentina"], "ref": "Teacher trivia", "house": ["Lima, Peru", "Santiago, Chile"] },
-        { "prompt": "Troy played ____ on the BYU football team.", "answer": "linebacker", "alt": ["lb", "line backer"], "ref": "Teacher trivia", "house": ["kicker", "wide receiver"] }
+        {
+          "prompt": "“Trust in the Lord with all thine heart; and ____”",
+          "answer": "lean not unto thine own understanding",
+          "alt": [
+            "lean not to thine own understanding"
+          ],
+          "ref": "Proverbs 3:5",
+          "house": [
+            "call upon his name each morning",
+            "seek his counsel in all thy plans"
+          ]
+        },
+        {
+          "prompt": "“This is my work and my glory, to bring to pass the ____”",
+          "answer": "immortality and eternal life of man",
+          "alt": [
+            "immortality and eternal life"
+          ],
+          "ref": "Moses 1:39",
+          "house": [
+            "salvation and exaltation of all his children",
+            "joy and happiness of all mankind"
+          ]
+        },
+        {
+          "prompt": "“Woe unto them that call evil good, and good evil; that put darkness for ____”",
+          "answer": "light, and light for darkness",
+          "alt": [
+            "light and light for darkness",
+            "light"
+          ],
+          "ref": "Isaiah 5:20",
+          "house": [
+            "day, and day for night",
+            "wisdom, and wisdom for folly"
+          ]
+        },
+        {
+          "prompt": "“Who shall stand in his holy place? He that hath ____”",
+          "answer": "clean hands, and a pure heart",
+          "alt": [
+            "clean hands and a pure heart"
+          ],
+          "ref": "Psalm 24:3–4",
+          "house": [
+            "a humble spirit and a willing mind",
+            "a righteous life and a faithful tongue"
+          ]
+        },
+        {
+          "prompt": "Stephen met his wife, Jenn, ____",
+          "answer": "online, on ldssingleschat.com",
+          "alt": [
+            "online",
+            "on ldssingleschat.com",
+            "ldssingleschat.com",
+            "on the internet"
+          ],
+          "ref": "Teacher trivia",
+          "house": [
+            "at a BYU–Idaho dance",
+            "through a friend from church"
+          ]
+        },
+        {
+          "prompt": "“The Lord called his people Zion, because they were of ____”",
+          "answer": "one heart and one mind",
+          "ref": "Moses 7:18",
+          "house": [
+            "one family and one home",
+            "a willing heart and a humble spirit"
+          ]
+        },
+        {
+          "prompt": "Troy served his mission ____",
+          "answer": "in Buenos Aires, Argentina",
+          "alt": [
+            "buenos aires",
+            "argentina",
+            "in argentina"
+          ],
+          "ref": "Teacher trivia",
+          "house": [
+            "in Lima, Peru",
+            "in Santiago, Chile"
+          ]
+        },
+        {
+          "prompt": "Troy played football at BYU as ____",
+          "answer": "a linebacker",
+          "alt": [
+            "linebacker"
+          ],
+          "ref": "Teacher trivia",
+          "house": [
+            "a kicker",
+            "a wide receiver"
+          ]
+        }
       ]
     },
     {
@@ -62,23 +254,49 @@
       "title": "Sketch It",
       "intro": "Your set draws the same story. Everyone else guesses which story it is. Draw clearly, because you score when classmates guess right.",
       "stories": [
-        { "story": "Esau trading his birthright for a bowl of stew", "ref": "Genesis 25:29–34" },
-        { "story": "Naaman washing seven times in the Jordan River", "ref": "2 Kings 5:10–14" },
-        { "story": "David facing Goliath with a sling and a stone", "ref": "1 Samuel 17:38–50" },
-        { "story": "Elijah calling down fire on a water-soaked altar", "ref": "1 Kings 18:33–38" },
-        { "story": "Joseph fleeing and leaving his garment behind", "ref": "Genesis 39:12" },
-        { "story": "Moses receiving the stone tablets on Mount Sinai", "ref": "Exodus 31:18" },
-        { "story": "Ezekiel's two sticks becoming one in his hand", "ref": "Ezekiel 37:16–17" }
+        {
+          "story": "Joseph fleeing and leaving his garment behind",
+          "ref": "Genesis 39:9"
+        },
+        {
+          "story": "A family choosing to serve the Lord together",
+          "ref": "Joshua 24:15"
+        },
+        {
+          "story": "God creating man in His own image",
+          "ref": "Genesis 1:26–27"
+        },
+        {
+          "story": "A husband and wife becoming one",
+          "ref": "Genesis 2:24"
+        },
+        {
+          "story": "A city where everyone has one heart and one mind, with no poor among them",
+          "ref": "Moses 7:18"
+        },
+        {
+          "story": "Martin Harris showing characters from the gold plates to a scholar",
+          "ref": "Isaiah 29:13–14"
+        },
+        {
+          "story": "Elijah appearing in the Kirtland Temple",
+          "ref": "Doctrine and Covenants 110:13–16"
+        }
       ]
     },
     {
       "type": "final",
-      "title": "Never Forgotten",
+      "title": "Washed Clean",
       "intro": "Wager some or all of your points. Get it right to add your wager, miss it and you lose it.",
-      "q": "The Lord said a mother might forget her nursing child, yet He will never forget us. “Behold, I have graven thee upon the ____ of my hands.”",
-      "choices": ["backs", "palms", "fingers", "work"],
+      "q": "Ethan made a serious mistake and wonders whether Jesus Christ can forgive him. “Come now, and let us reason together, saith the Lord: though your sins be as scarlet, they shall be as ____.”",
+      "choices": [
+        "clean as water",
+        "white as snow",
+        "bright as the sun",
+        "pure as gold"
+      ],
       "answer": 1,
-      "note": "Isaiah 49:16. The Savior's hands still bear the prints of the nails (3 Nephi 11:14–15)."
+      "note": "Isaiah 1:18. Though our sins be as scarlet, through the Savior they can be as white as snow."
     }
   ]
 }
