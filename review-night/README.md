@@ -9,6 +9,7 @@ and a wagered final question. Students join on their phones with a room code.
 - `host.html` / `host.js`: the board you project from your laptop
 - `play.html` / `play.js`: the page students open on their phones
 - `audio.js`: music and sound effects, all generated in the browser (no audio files)
+- `voice.js`: reads questions aloud using the browser's built-in speech (no audio files)
 - `net.js`: the connection between them (Firebase, PeerJS, or local test mode)
 - `config.js`: settings (connection mode, phone address, clue file)
 - `data/review-night.json`: all clues, timers, and point values
@@ -91,6 +92,17 @@ Sound plays on the board only, never on phones.
 - Reveals: a chime. The end: a fanfare. Join: a soft two-note beep. Last 5 seconds: a tick
 - The Sound button on the board (or the M key) turns it all on and off
 - Browsers keep audio off until the page is clicked once. If the button says "Tap for sound", click anywhere on the board
+
+## Voice
+
+The board reads questions aloud with the laptop's built-in voice.
+
+- It reads each question and its choices, the answer at each reveal, the intro to each round, the top three on the standings, and the winner
+- While a question is being read, the timer waits and phones show "Listen to the question." Answers open when the reading ends. If the voice stalls, the game continues on its own after a short wait
+- The music gets quieter while the voice speaks
+- The Voice button on the board (or the V key) turns it on and off. In Host tools you can pick a voice, change the speed, and test it
+- Voices differ by device. Chrome and Edge usually have the best ones. Check the voice and the speed before class, and use a different voice if one sounds poor
+- Scripture references are spoken as "Moses 7, verse 18". If a name or word is read wrong, tell me and I'll add a spelling fix
 
 ## How rounds work
 

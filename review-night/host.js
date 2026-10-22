@@ -70,6 +70,51 @@
     AU.music(TIMED[ph] ? (ph === "xw" || ph === "xq" ? "final" : "play")
       : ph === "lobby" || ph === "scores" || ph === "end" ? "calm" : "off");
   }
+  const VO = window.RN_VOICE;
+  VO.onDuck = (on) => AU.duck(on);
+  const HOLD_PHASES = ["tq", "fg", "xq"]; // timer waits until the question has been read
+  const choiceLine = (cs) => cs.map((c, i) => letter(i) + ", " + c + ".").join(" ");
+  function spokenText() {
+    const r = round(), ph = S.phase;
+    switch (ph) {
+      case "intro": return "Round " + (S.r + 1) + ". " + r.title + ". " + (r.intro || "");
+      case "tq": { const q = r.questions[S.i]; return q.q + " " + choiceLine(q.choices); }
+      case "tr": { const q = r.questions[S.i]; return "The answer is " + letter(q.answer) + ", " + q.choices[q.answer] + "."; }
+      case "fw": return "Write a convincing fake. Your clue is on your phone.";
+      case "fg": return r.clues[S.sets[S.i].item].prompt + " " + choiceLine(S.opts.map((o) => o.text));
+      case "fr": { const c = r.clues[S.sets[S.i].item]; return "The real answer: " + c.answer + ". " + (c.ref || ""); }
+      case "dw": return "Draw your story. Everyone in your set draws the same one.";
+      case "dg": return "Which story is this?";
+      case "dr": return "It was: " + r.stories[S.sets[S.i].item].story + ".";
+      case "xw": return "Final question: " + r.title + ". Place your wager.";
+      case "xq": return r.q + " " + choiceLine(r.choices);
+      case "xr": return "The answer is " + letter(r.answer) + ", " + r.choices[r.answer] + ".";
+      case "scores": {
+        const t = ranked().slice(0, 3); if (!t.length) return "";
+        let x = "In first place, " + t[0].name + ", with " + t[0].score + " points.";
+        if (t[1]) x += " Then " + t[1].name + (t[2] ? ", and " + t[2].name : "") + ".";
+        return x;
+      }
+      case "end": { const t = ranked()[0]; return t ? "Well played. The winner is " + t.name + " with " + t.score + " points." : "Well played."; }
+    }
+    return "";
+  }
+  function releaseHold() {
+    if (!S.hold) return;
+    S.hold = false;
+    if (S.total) S.deadline = Date.now() + S.total;
+    update(true);
+  }
+  function speakPhase() {
+    const k = S.key, text = spokenText();
+    if (!VO.speak(text, () => { if (S.key === k) releaseHold(); })) releaseHold();
+  }
+  const voiceLabel = () => (VO.enabled() ? "Voice on" : "Voice off");
+  function toggleVoice() {
+    VO.setEnabled(!VO.enabled());
+    if (!VO.enabled()) releaseHold();
+    renderControls();
+  }
   const soundLabel = () => (AU.muted() ? "Sound off" : AU.blocked() ? "Tap for sound" : "Sound on");
   function toggleSound() {
     if (AU.blocked() && !AU.muted()) AU.unlock(); else AU.setMuted(!AU.muted());
@@ -118,7 +163,7 @@
       phase: "setup", key: 0, r: -1, i: 0,
       players: {}, order: [], removed: {},
       sets: [], subs: {}, ans: {}, opts: [], res: null, wagers: {}, drawings: [], storyOrder: [],
-      deadline: 0, total: 0, created: Date.now()
+      deadline: 0, total: 0, hold: false, created: Date.now()
     };
   }
   function save() {
@@ -129,12 +174,16 @@
     S.phase = phase; S.key++;
     if (!reveal) { S.ans = {}; S.res = null; }
     const t = TIMED[phase];
+    S.hold = false;
     if (t) { S.total = timerSecs(t) * 1000; S.deadline = Date.now() + S.total; } else { S.deadline = 0; S.total = 0; }
+    VO.cancel();
+    if (HOLD_PHASES.includes(phase) && VO.enabled()) { S.hold = true; S.deadline = 0; }
     clearTimeout(autoTimer);
     if (!reveal) sfx.whoosh();
     if (phase === "intro") setTimeout(sfx.start, 280);
     if (phase === "end") setTimeout(() => AU.fx("end"), 150);
     update(true);
+    if (VO.enabled()) setTimeout(() => { if (S.phase === phase) speakPhase(); }, phase === "intro" || phase === "end" ? 700 : 250);
   }
   function update(all) {
     save(); render();
@@ -380,6 +429,7 @@
     sendView(pid);
   }
   function handleAnswer(p, m) {
+    if (S.hold) return sendView(p.pid);
     const ph = S.phase, now = Date.now();
     const left = S.deadline ? S.deadline - now : 0;
     if (S.deadline && left < -1500) return;
@@ -436,6 +486,7 @@
     const base = { key: S.key, me: me(pid), title: D ? D.title : "" };
     const wait = (msg, sub) => Object.assign(base, { v: "wait", msg, sub: sub || "" }, timing());
     const audSub = p.role === "audience" ? "You're in the audience until the next round starts. You can still earn points by answering." : "";
+    if (S.hold && HOLD_PHASES.includes(ph) && !(ph === "fg" && inCurrentSet(pid))) return wait("Listen to the question.", "Answers open as soon as it has been read.");
     switch (ph) {
       case "setup": case "lobby": return wait("You're in.", "Watch the screen. The game starts soon.");
       case "intro": return wait(r.title, r.intro || "");
@@ -651,11 +702,12 @@
   function renderControls() {
     const c = $("#controls");
     const lbl = S.phase === "setup" ? "" : nextLabel();
-    c.innerHTML = `<button id="cSnd" class="ghost">${soundLabel()}</button><button id="cTools" class="ghost">Host tools</button>` +
+    c.innerHTML = `<button id="cSnd" class="ghost">${soundLabel()}</button>${VO.supported ? `<button id="cVoice" class="ghost">${voiceLabel()}</button>` : ""}<button id="cTools" class="ghost">Host tools</button>` +
       (round() && !["scores", "end"].includes(S.phase) ? `<button id="cSkip" class="ghost">Skip round</button>` : "") +
       (S.deadline ? `<button id="cAdd" class="ghost">+15 sec</button>` : "") +
       (lbl ? `<button id="cNext" class="primary">${lbl}</button>` : "");
     $("#cSnd").onclick = toggleSound;
+    if ($("#cVoice")) $("#cVoice").onclick = toggleVoice;
     $("#cTools").onclick = openTools;
     if ($("#cSkip")) $("#cSkip").onclick = () => ask("Skip the rest of this round?", skipRound);
     if ($("#cAdd")) $("#cAdd").onclick = addTime;
@@ -663,7 +715,7 @@
   }
   function tick(force) {
     const rv = $("#river"), fill = rv.querySelector("i"), secs = rv.querySelector(".secs");
-    if (!S || !S.deadline) { fill.style.width = "0"; secs.textContent = ""; rv.classList.remove("low"); return; }
+    if (!S || !S.deadline) { AU.intensity(0.2); fill.style.width = "0"; secs.textContent = ""; rv.classList.remove("low"); return; }
     const left = Math.max(0, S.deadline - Date.now());
     fill.style.width = (100 * left / S.total) + "%";
     AU.intensity(0.2 + 0.8 * Math.pow(1 - left / S.total, 1.4));
@@ -708,6 +760,7 @@
     const s = savedGame(); if (!s) return;
     try { const d = JSON.parse(localStorage.getItem(DATA_KEY) || "null"); if (d) D = d; } catch (e) {}
     S = s;
+    if (S.hold) { S.hold = false; if (S.total) S.deadline = Date.now() + S.total; }
     Object.values(S.players).forEach((p) => (p.connected = false));
     links.clear();
     if (S.deadline) { S.deadline = Date.now() + Math.max(10000, S.total / 2); }
@@ -727,8 +780,24 @@
       else throw new Error(n + " has an unknown type: " + r.type);
     });
   }
+  function voiceSettingsHTML() {
+    if (!VO.supported) return `<p class="muted">This browser can't read aloud. Try Chrome or Edge.</p>`;
+    const vs = VO.voices(), cur = VO.chosen() || VO.voiceName();
+    return `<div class="voiceset"><label class="chk"><input type="checkbox" id="voOn" ${VO.enabled() ? "checked" : ""}> Read questions aloud</label>
+      <label>Voice${vs.length ? "" : " (none found on this device yet)"}<select id="voSel">${vs.map((v) => `<option value="${esc(v.name)}" ${v.name === cur ? "selected" : ""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")}</select></label>
+      <label>Speed<input type="range" id="voRate" min="0.7" max="1.3" step="0.05" value="${VO.rate()}"></label>
+      <div><button id="voTest" class="ghost">Test voice</button></div></div>`;
+  }
+  function bindVoiceSettings() {
+    const on = $("#voOn"); if (!on) return;
+    on.onchange = () => { VO.setEnabled(on.checked); if (!on.checked) releaseHold(); renderControls(); };
+    $("#voSel").onchange = (e) => VO.setVoice(e.target.value);
+    $("#voRate").oninput = (e) => VO.setRate(e.target.value);
+    $("#voTest").onclick = () => VO.speak("Which scripture says, they were of one heart and one mind? A, Moses 1:39. B, Moses 7:18.", null, true);
+  }
   function openTools() {
-    $("#toolsBody").innerHTML = `<div class="setup"><div class="modqr" style="display:flex;gap:1em;align-items:center"><div>${qr(modUrl(), 4)}</div><div>Moderator code <b>${S.pin}</b><br><span class="muted">Room ${S.code}</span></div></div></div>`;
+    $("#toolsBody").innerHTML = voiceSettingsHTML() + `<div class="setup"><div class="modqr" style="display:flex;gap:1em;align-items:center"><div>${qr(modUrl(), 4)}</div><div>Moderator code <b>${S.pin}</b><br><span class="muted">Room ${S.code}</span></div></div></div>`;
+    bindVoiceSettings();
     $("#tools").showModal();
   }
   let askYes = null;
@@ -740,6 +809,7 @@
   document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "INPUT" || document.querySelector("dialog[open]")) return;
     if (e.key.toLowerCase() === "m") { toggleSound(); return; }
+    if (e.key.toLowerCase() === "v" && VO.supported) { toggleVoice(); return; }
     if (e.key === "ArrowRight" || e.key.toLowerCase() === "n") { e.preventDefault(); if (S.phase !== "setup" || D) next(); }
   });
 
