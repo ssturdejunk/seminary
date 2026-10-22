@@ -10,7 +10,8 @@
   const KEY = "rn-muted";
   let muted = false;
   try { muted = localStorage.getItem(KEY) === "1"; } catch (e) {}
-  let live = null, mode = "off", intensityNow = 0, timer = null;
+  let live = null, mode = "off", intensityNow = 0, timer = null, ducked = false;
+  const level = () => (mode === "calm" ? 0.5 : 1) * (ducked ? 0.3 : 1);
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
   // ---------- audio graph ----------
@@ -141,7 +142,7 @@
     clearInterval(timer);
     g.musicBus.gain.cancelScheduledValues(now);
     g.musicBus.gain.setTargetAtTime(0, now, 0.03);
-    g.musicBus.gain.setTargetAtTime(mode === "calm" ? 0.5 : 1, now + 0.2, 0.04);
+    g.musicBus.gain.setTargetAtTime(level(), now + 0.2, 0.04);
     g.step = 0; g.next = now + 0.22;
     timer = setInterval(() => {
       if (g.next < g.ctx.currentTime - 0.1) g.next = g.ctx.currentTime + 0.05; // tab was throttled: skip ahead
@@ -157,6 +158,11 @@
     if (!running()) return;
     if (m === "off") live.musicBus.gain.setTargetAtTime(0, live.ctx.currentTime, 0.04);
     else startMusic();
+  };
+  // Lower the music while the board is reading aloud.
+  A.duck = function (on) {
+    ducked = !!on;
+    if (running() && mode !== "off") live.musicBus.gain.setTargetAtTime(level(), live.ctx.currentTime, 0.12);
   };
   A.intensity = (x) => { intensityNow = Math.max(0, Math.min(1, x)); };
   A.fx = function (name) {

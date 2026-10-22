@@ -35,7 +35,7 @@
   .river .secs { position: absolute; left: 1.4em; bottom: 1.1em; font-family: var(--display); font-size: 2.2em; color: var(--saffron); }
   .river.low .secs { color: var(--coral); }
 
-  nav.controls { position: fixed; right: 1.2em; bottom: 1.6em; display: flex; gap: 0.5em; z-index: 5; font-size: 0.8em; }
+  nav.controls { position: fixed; right: 1.2em; bottom: 1.6em; display: flex; gap: 0.5em; z-index: 5; font-size: 0.8em; flex-wrap: wrap; justify-content: flex-end; max-width: 86vw; }
   nav.controls button { padding: 0.55em 1em; }
   nav.controls .primary { font-size: 1.15em; }
   body.quiet .status:not(.bad) { display: none; }
@@ -109,6 +109,11 @@
   .setup .modqr { display: flex; gap: 1.2em; align-items: center; }
   .setup .modqr svg { width: 8em; height: 8em; background: var(--paper); border-radius: 12px; display: block; }
   .warn { color: var(--coral); font-weight: 700; }
+  .voiceset { display: grid; gap: 0.6em; margin-bottom: 1em; }
+  .voiceset label { display: grid; gap: 0.25em; }
+  .voiceset .chk { display: flex; gap: 0.5em; align-items: center; }
+  .voiceset select { font: inherit; padding: 0.5em; border-radius: 10px; border: 0; background: var(--paper); color: var(--deep); width: 100%; }
+  .voiceset input[type=range] { accent-color: #F4B942; }
   .status { position: fixed; left: 1.4em; bottom: 1.6em; font-size: 0.7em; color: var(--mist); }
   .status.bad { color: var(--coral); }
   dialog { background: var(--tide); color: var(--paper); border: 0; border-radius: 18px; padding: 1.2em 1.4em; max-width: 30em; }
@@ -147,6 +152,7 @@
 <script src="lib/qrcode.js"></script>
 <script src="net.js"></script>
 <script src="audio.js"></script>
+<script src="voice.js"></script>
 <script src="host.js"></script>
 </body>
 </html>
