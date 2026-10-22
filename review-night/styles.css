@@ -1,0 +1,43 @@
+/* Review Night shared styles. Night-by-the-river palette, legible from the back row. */
+:root {
+  --night: #0F2B3A;
+  --deep: #0A1E29;
+  --tide: #173E52;
+  --tide-2: #1F5068;
+  --saffron: #F4B942;
+  --coral: #FF7A66;
+  --mint: #63D2A6;
+  --paper: #F5F3EE;
+  --mist: #9DB4C0;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", Verdana, system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--night);
+  color: var(--paper);
+  font-family: var(--body);
+  line-height: 1.35;
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2, h3, .display { font-family: var(--display); font-weight: 400; letter-spacing: 0.01em; margin: 0; }
+button {
+  font: inherit; color: inherit; cursor: pointer; border: 0;
+  border-radius: 14px; padding: 0.7em 1.2em;
+  background: var(--tide-2);
+}
+button:focus-visible, input:focus-visible { outline: 3px solid var(--saffron); outline-offset: 3px; }
+button.primary { background: var(--saffron); color: var(--deep); font-weight: 700; }
+button.ghost { background: transparent; box-shadow: inset 0 0 0 2px var(--tide-2); }
+button:disabled { opacity: 0.45; cursor: default; }
+input[type=text], input[type=number] {
+  font: inherit; color: var(--deep); background: var(--paper);
+  border: 0; border-radius: 12px; padding: 0.7em 0.9em; width: 100%;
+}
+.muted { color: var(--mist); }
+.hidden { display: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

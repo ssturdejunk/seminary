@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review Night: board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lilita+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body.board { overflow: hidden; font-size: clamp(16px, 1.55vw, 30px); }
+  .shell { height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+  header.bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 1em;
+    padding: 0.8em 1.4em 0.5em;
+  }
+  .where h1 { font-size: 1.6em; color: var(--saffron); }
+  .where .sub { color: var(--mist); font-size: 0.85em; }
+  .joinbox { display: flex; align-items: center; gap: 0.8em; text-align: right; }
+  .joinbox .url { font-size: 0.8em; color: var(--mist); }
+  .joinbox .code { font-family: var(--display); font-size: 2em; letter-spacing: 0.08em; line-height: 1; }
+  .joinbox .qr svg { width: 4.2em; height: 4.2em; background: var(--paper); border-radius: 8px; display: block; }
+  main#stage { padding: 0.5em 2.5em 1em; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  .fresh .rise { animation: rise 0.5s cubic-bezier(.2,.8,.2,1) both; }
+  .fresh .rise:nth-child(2) { animation-delay: 0.08s; } .fresh .rise:nth-child(3) { animation-delay: 0.16s; }
+  .fresh .rise:nth-child(4) { animation-delay: 0.24s; } .fresh .rise:nth-child(5) { animation-delay: 0.32s; }
+  .fresh .rise:nth-child(6) { animation-delay: 0.4s; } .fresh .rise:nth-child(7) { animation-delay: 0.48s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(0.8em); } to { opacity: 1; transform: none; } }
+
+  /* Timer band: the river draining across the bottom of the screen. */
+  .river { height: 0.7em; background: var(--deep); position: relative; }
+  .river i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--saffron); transition: width 0.2s linear, background 0.3s; }
+  .river.low i { background: var(--coral); }
+  .river .secs { position: absolute; left: 1.4em; bottom: 1.1em; font-family: var(--display); font-size: 2.2em; color: var(--saffron); }
+  .river.low .secs { color: var(--coral); }
+
+  nav.controls { position: fixed; right: 1.2em; bottom: 1.6em; display: flex; gap: 0.5em; z-index: 5; font-size: 0.8em; }
+  nav.controls button { padding: 0.55em 1em; }
+  nav.controls .primary { font-size: 1.15em; }
+  body.quiet .status:not(.bad) { display: none; }
+
+  .big { font-family: var(--display); font-size: 3.6em; line-height: 1.05; }
+  .prompt { font-size: 2.05em; font-weight: 700; max-width: 34em; line-height: 1.25; margin-bottom: 0.9em; }
+  .count { color: var(--mist); margin-top: 0.8em; font-size: 0.95em; }
+
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7em; }
+  .tile {
+    background: var(--tide); border-radius: 18px; padding: 0.75em 1em; font-size: 1.35em;
+    display: flex; align-items: center; gap: 0.7em; position: relative; min-height: 2.6em;
+  }
+  .tile .k { font-family: var(--display); background: var(--deep); color: var(--saffron); min-width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; font-size: 0.9em; }
+  .tile .n { margin-left: auto; font-family: var(--display); color: var(--mist); }
+  .tile.right { background: var(--mint); color: var(--deep); }
+  .tile.right .k { color: var(--mint); }
+  .tile.right .n { color: var(--deep); }
+  .tile.dim { opacity: 0.45; }
+  .tile .by { display: block; font-size: 0.62em; color: var(--mist); margin-top: 0.15em; }
+  .tile.right .by { color: var(--deep); }
+  .tile .txt { flex: 1; }
+  .note { margin-top: 0.9em; font-size: 1.05em; color: var(--paper); }
+  .note b { color: var(--saffron); }
+
+  .split { display: grid; grid-template-columns: 1fr 15em; gap: 2em; align-items: start; }
+  .board-list { background: var(--deep); border-radius: 18px; padding: 0.8em 1em; }
+  .board-list h3 { color: var(--saffron); font-size: 1.1em; margin-bottom: 0.4em; }
+  .row { display: flex; gap: 0.6em; align-items: center; padding: 0.25em 0; }
+  .row .dot { width: 0.8em; height: 0.8em; border-radius: 50%; flex: none; }
+  .row .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .pts { font-family: var(--display); }
+  .row .gain { color: var(--mint); font-size: 0.8em; min-width: 3em; text-align: right; }
+
+  .lobby { display: grid; grid-template-columns: auto 1fr; gap: 3em; align-items: center; }
+  .lobby .qrbig svg { width: 15em; height: 15em; background: var(--paper); border-radius: 18px; display: block; }
+  .lobby .code { font-family: var(--display); font-size: 6em; letter-spacing: 0.08em; line-height: 1; color: var(--saffron); }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.45em; margin-top: 1em; max-height: 9em; overflow: hidden; }
+  .chip { padding: 0.25em 0.75em; border-radius: 999px; color: var(--deep); font-weight: 700; }
+  .fresh-chip { animation: pop 0.35s ease-out; }
+  @keyframes pop { from { transform: scale(0.6); opacity: 0; } }
+
+  .sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(11em, 1fr)); gap: 0.8em; margin-top: 1em; }
+  .set { background: var(--tide); border-radius: 18px; padding: 0.7em 0.9em; }
+  .set h3 { font-size: 1.1em; color: var(--saffron); margin-bottom: 0.3em; }
+  .set .m { display: flex; justify-content: space-between; padding: 0.12em 0; }
+  .set .m.done { color: var(--mint); }
+
+  .drawings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8em; }
+  .drawing { background: var(--paper); border-radius: 16px; padding: 0.4em; color: var(--deep); position: relative; }
+  .drawing img { width: 100%; aspect-ratio: 1; display: block; border-radius: 10px; }
+  .drawing .lbl { position: absolute; top: 0.4em; left: 0.4em; font-family: var(--display); background: var(--deep); color: var(--saffron); width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; }
+  .drawing .artist { text-align: center; font-weight: 700; padding: 0.2em 0 0; }
+  .drawing.fav { box-shadow: 0 0 0 5px var(--saffron); }
+  .drawing .star { position: absolute; top: 0.4em; right: 0.5em; font-size: 1.4em; }
+  .storylist { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3em 1.2em; margin-top: 0.9em; font-size: 0.95em; }
+  .storylist div.right { color: var(--mint); font-weight: 700; }
+
+  .leader { max-width: 34em; }
+  .leader .row { font-size: 1.5em; padding: 0.35em 0.6em; border-radius: 14px; }
+  .leader .row:first-child { background: var(--tide); }
+  .leader .rank { font-family: var(--display); width: 1.6em; color: var(--saffron); }
+  .podium { display: flex; align-items: flex-end; gap: 1.2em; margin-top: 1em; }
+  .podium .p { text-align: center; width: 10em; }
+  .podium .blk { border-radius: 16px 16px 0 0; display: grid; place-items: center; font-family: var(--display); font-size: 3em; color: var(--deep); }
+  .podium .nm { font-weight: 700; font-size: 1.3em; margin-bottom: 0.3em; }
+
+  .setup { max-width: 46em; }
+  .setup p { max-width: 38em; }
+  .setup .card { background: var(--tide); border-radius: 18px; padding: 1em 1.2em; margin-top: 1em; }
+  .setup .modqr { display: flex; gap: 1.2em; align-items: center; }
+  .setup .modqr svg { width: 8em; height: 8em; background: var(--paper); border-radius: 12px; display: block; }
+  .warn { color: var(--coral); font-weight: 700; }
+  .status { position: fixed; left: 1.4em; bottom: 1.6em; font-size: 0.7em; color: var(--mist); }
+  .status.bad { color: var(--coral); }
+  dialog { background: var(--tide); color: var(--paper); border: 0; border-radius: 18px; padding: 1.2em 1.4em; max-width: 30em; }
+  dialog::backdrop { background: rgba(5, 15, 20, 0.7); }
+  dialog .acts { display: flex; gap: 0.6em; justify-content: flex-end; margin-top: 1em; flex-wrap: wrap; }
+</style>
+</head>
+<body class="board">
+<div class="shell">
+  <header class="bar">
+    <div class="where"><h1 id="where"></h1><div class="sub" id="whereSub"></div></div>
+    <div class="joinbox" id="joinbox"></div>
+  </header>
+  <main id="stage"></main>
+  <div class="river" id="river"><i></i><span class="secs"></span></div>
+  <nav class="controls" id="controls"></nav>
+</div>
+<div class="status" id="status"></div>
+<dialog id="tools">
+  <h3>Host tools</h3>
+  <p class="muted">Moderate from your phone so the projector never shows a fake answer or drawing before you see it.</p>
+  <div id="toolsBody"></div>
+  <div class="acts">
+    <button id="toolsReset" class="ghost">End and start over</button>
+    <button id="toolsClose" class="primary">Close</button>
+  </div>
+</dialog>
+<dialog id="confirm">
+  <p id="confirmText"></p>
+  <div class="acts"><button id="confirmNo" class="ghost">Cancel</button><button id="confirmYes" class="primary">Yes</button></div>
+</dialog>
+<script src="config.js"></script>
+<script src="lib/peerjs.min.js"></script>
+<script src="lib/qrcode.js"></script>
+<script src="net.js"></script>
+<script src="host.js"></script>
+</body>
+</html>
