@@ -1,0 +1,84 @@
+{
+  "title": "Old Testament Review Night",
+  "settings": {
+    "setSize": 4,
+    "nameMax": 16,
+    "answerMax": 40,
+    "timers": {
+      "trivia": 20,
+      "fibWrite": 75,
+      "fibGuess": 30,
+      "drawDraw": 90,
+      "drawGuess": 30,
+      "finalWager": 30,
+      "finalQuestion": 30
+    },
+    "points": {
+      "triviaCorrect": 100,
+      "triviaSpeedBonus": 50,
+      "fibTruth": 100,
+      "fibFooled": 50,
+      "drawCorrect": 100,
+      "drawArtistMax": 100,
+      "drawFavorite": 50,
+      "finalMaxWagerFloor": 500,
+      "finalAudienceCorrect": 100
+    }
+  },
+  "rounds": [
+    {
+      "type": "trivia",
+      "title": "Quick Quiz",
+      "intro": "Answer on your phone. Faster correct answers earn a little more.",
+      "questions": [
+        { "q": "Which psalm begins “The Lord is my shepherd”?", "choices": ["Psalm 1", "Psalm 22", "Psalm 23", "Psalm 119"], "answer": 2, "note": "Psalm 23:1. Jesus called Himself the Good Shepherd (John 10:11)." },
+        { "q": "On the cross, Jesus quoted the opening line of which psalm?", "choices": ["Psalm 1", "Psalm 22", "Psalm 23", "Psalm 51"], "answer": 1, "note": "“My God, my God, why hast thou forsaken me?” (Psalm 22:1; Matthew 27:46)" },
+        { "q": "In Hebrew poetry, two or more lines that share connected ideas are called:", "choices": ["Parallelism", "Acrostic", "Rhyme", "Alliteration"], "answer": 0, "note": "Parallelism" },
+        { "q": "Proverbs 1:7 says this is the beginning of knowledge:", "choices": ["The fear of the Lord", "Prayer", "Obedience", "Wisdom"], "answer": 0, "note": "Proverbs 1:7" },
+        { "q": "When Moroni first visited Joseph Smith in 1823, he began by quoting:", "choices": ["Malachi", "Isaiah", "Daniel", "Jeremiah"], "answer": 0, "note": "Joseph Smith—History 1:36–39" },
+        { "q": "In 1836 Elijah appeared to Joseph Smith and Oliver Cowdery in this temple:", "choices": ["Kirtland", "Nauvoo", "Salt Lake", "St. George"], "answer": 0, "note": "Doctrine and Covenants 110:13–16" },
+        { "q": "The Egyptian mummies the Saints bought in 1835 led to:", "choices": ["The Book of Abraham", "The Book of Moses", "The Doctrine and Covenants", "The Joseph Smith Translation"], "answer": 0, "note": "The Book of Abraham, in the Pearl of Great Price" },
+        { "q": "Martin Harris showing characters from the gold plates to a scholar fulfilled:", "choices": ["Isaiah 29", "Isaiah 53", "Ezekiel 37", "Malachi 4"], "answer": 0, "note": "Joseph Smith—History 1:63–65" },
+        { "q": "Ava is anxious about choosing classes and a future career. The best passage for her:", "choices": ["Proverbs 3:5–6", "Isaiah 5:20", "Genesis 39:9", "Psalm 24:3–4"], "answer": 0, "note": "“Trust in the Lord with all thine heart…”" },
+        { "q": "Ethan made a serious mistake and wonders if Jesus Christ can forgive him. The best passage for him:", "choices": ["Isaiah 1:18", "Joshua 24:15", "Genesis 2:24", "Moses 7:18"], "answer": 0, "note": "“Though your sins be as scarlet, they shall be as white as snow”" }
+      ]
+    },
+    {
+      "type": "fib",
+      "title": "Fake Out",
+      "intro": "Your set writes a believable fake answer. Everyone else tries to find the real one. You score for every classmate you fool.",
+      "clues": [
+        { "prompt": "“Trust in the Lord with all thine heart; and lean not unto thine own ____.”", "answer": "understanding", "ref": "Proverbs 3:5", "house": ["wisdom", "strength"] },
+        { "prompt": "“They were of one heart and one mind, and dwelt in righteousness; and there was no ____ among them.”", "answer": "poor", "alt": ["poor people"], "ref": "Moses 7:18", "house": ["contention", "sin"] },
+        { "prompt": "“Who shall stand in his holy place? He that hath clean hands, and a ____ heart.”", "answer": "pure", "ref": "Psalm 24:3–4", "house": ["broken", "willing"] },
+        { "prompt": "Jacob gave Esau bread and ____, and Esau gave up his birthright.", "answer": "pottage of lentiles", "alt": ["pottage of lentils", "lentil stew", "lentils", "pottage", "red pottage", "stew"], "ref": "Genesis 25:34", "house": ["a goat", "honey and figs"] },
+        { "prompt": "Stephen met his wife, Jenn, on ____.", "answer": "ldssingleschat.com", "alt": ["ldssingleschat", "lds singles chat", "a website", "online", "the internet"], "ref": "Teacher trivia", "house": ["a mission trip", "a BYU-Idaho dance"] },
+        { "prompt": "Troy served his mission in ____.", "answer": "Buenos Aires, Argentina", "alt": ["Buenos Aires", "Argentina"], "ref": "Teacher trivia", "house": ["Lima, Peru", "Santiago, Chile"] },
+        { "prompt": "Troy played ____ on the BYU football team.", "answer": "linebacker", "alt": ["lb", "line backer"], "ref": "Teacher trivia", "house": ["kicker", "wide receiver"] }
+      ]
+    },
+    {
+      "type": "draw",
+      "title": "Sketch It",
+      "intro": "Your set draws the same story. Everyone else guesses which story it is. Draw clearly, because you score when classmates guess right.",
+      "stories": [
+        { "story": "Esau trading his birthright for a bowl of stew", "ref": "Genesis 25:29–34" },
+        { "story": "Naaman washing seven times in the Jordan River", "ref": "2 Kings 5:10–14" },
+        { "story": "David facing Goliath with a sling and a stone", "ref": "1 Samuel 17:38–50" },
+        { "story": "Elijah calling down fire on a water-soaked altar", "ref": "1 Kings 18:33–38" },
+        { "story": "Joseph fleeing and leaving his garment behind", "ref": "Genesis 39:12" },
+        { "story": "Moses receiving the stone tablets on Mount Sinai", "ref": "Exodus 31:18" },
+        { "story": "Ezekiel's two sticks becoming one in his hand", "ref": "Ezekiel 37:16–17" }
+      ]
+    },
+    {
+      "type": "final",
+      "title": "Never Forgotten",
+      "intro": "Wager some or all of your points. Get it right to add your wager, miss it and you lose it.",
+      "q": "The Lord said a mother might forget her nursing child, yet He will never forget us. “Behold, I have graven thee upon the ____ of my hands.”",
+      "choices": ["backs", "palms", "fingers", "work"],
+      "answer": 1,
+      "note": "Isaiah 49:16. The Savior's hands still bear the prints of the nails (3 Nephi 11:14–15)."
+    }
+  ]
+}
