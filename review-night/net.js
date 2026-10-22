@@ -1,6 +1,8 @@
 // net.js: the connection between the board (host) and phones (clients).
-// "peer" mode uses PeerJS over the internet. "local" mode uses a
-// BroadcastChannel so tabs in one browser can test the game without a network.
+// "firebase" mode relays every message through a Firebase Realtime Database,
+// so it works on any network, including cellular.
+// "peer" mode uses PeerJS direct connections, which often fail on cellular.
+// "local" mode uses a BroadcastChannel so tabs in one browser can test the game.
 (function () {
   const PREFIX = "srn-review-";
   const PING_MS = 4000, STALE_MS = 13000;
@@ -10,6 +12,16 @@
     return new URLSearchParams(location.search).get("net") || cfg.net || "peer";
   }
   function rid() { return Math.random().toString(36).slice(2, 10); }
+  const enc = (m) => JSON.stringify(m);
+  const dec = (s) => { try { return JSON.parse(s); } catch (e) { return null; } };
+  function fbDb() {
+    if (typeof firebase === "undefined") throw new Error("firebase-missing");
+    const c = cfg.firebase || {};
+    if (!c.databaseURL || /PASTE|YOUR/i.test(c.databaseURL)) throw new Error("firebase-config");
+    if (!firebase.apps.length) firebase.initializeApp(c);
+    return firebase.database();
+  }
+  const fbStamp = () => (firebase.database.ServerValue ? firebase.database.ServerValue.TIMESTAMP : Date.now());
 
   // ---------- Host ----------
   // h: { onConnect(id), onDisconnect(id), onMessage(id, msg), onStatus(status, detail) }
@@ -33,7 +45,7 @@
       if (msg && msg.__bye) { drop(id); return; }
       h.onMessage(id, msg);
     }
-    setInterval(() => {
+    if (mode() !== "firebase") setInterval(() => {
       const now = Date.now();
       for (const [id, l] of links) if (now - l.last > STALE_MS) drop(id);
     }, 3000);
@@ -44,6 +56,33 @@
       ids() { return [...links.keys()]; },
       drop
     };
+
+    if (mode() === "firebase") {
+      let db;
+      try { db = fbDb(); } catch (e) { setTimeout(() => h.onStatus("error", e.message), 0); return api; }
+      const room = db.ref("rooms/" + code);
+      // Clear leftovers from an earlier game with this code.
+      room.child("up").remove(); room.child("down").remove();
+      const ensure = (id) => {
+        if (!links.has(id)) add(id, (msg) => room.child("down/" + id).set(enc(msg)), () => room.child("down/" + id).remove());
+      };
+      room.child("clients").on("child_added", (s) => ensure(s.key));
+      room.child("clients").on("child_removed", (s) => drop(s.key));
+      room.child("up").on("child_added", (s) => {
+        const v = s.val(); s.ref.remove();
+        if (!v || !v.from) return;
+        const msg = dec(v.msg); if (!msg) return;
+        ensure(v.from); recv(v.from, msg);
+      });
+      db.ref(".info/connected").on("value", (s) => {
+        if (s.val()) {
+          room.child("host").onDisconnect().remove();
+          room.child("host").set({ on: true, at: fbStamp() });
+          h.onStatus("online");
+        } else h.onStatus("reconnecting");
+      });
+      return api;
+    }
 
     if (mode() === "local") {
       const ch = new BroadcastChannel("rn-" + code);
@@ -116,16 +155,35 @@
       if (msg && msg.__pong) return;
       h.onMessage(msg);
     }
-    setInterval(() => {
+    if (mode() !== "firebase") setInterval(() => {
       if (closed) return;
       sendRaw({ __ping: 1 });
       if (Date.now() - last > STALE_MS) { setConnected(false); last = Date.now(); reconnect(); }
     }, PING_MS);
     document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible" && Date.now() - last > PING_MS * 2) reconnect();
+      if (mode() !== "firebase" && document.visibilityState === "visible" && Date.now() - last > PING_MS * 2) reconnect();
     });
 
     h.onStatus("connecting");
+    if (mode() === "firebase") {
+      let db;
+      try { db = fbDb(); } catch (e) { setTimeout(() => h.onStatus("lost"), 0); return { send() {}, isConnected: () => false, close() {} }; }
+      const me = "c-" + rid();
+      const room = db.ref("rooms/" + code), pres = room.child("clients/" + me);
+      db.ref(".info/connected").on("value", (s) => {
+        if (s.val()) { pres.onDisconnect().remove(); pres.set(true); setConnected(true); }
+        else setConnected(false);
+      });
+      room.child("down/" + me).on("value", (s) => { const v = s.val(); if (v) { const m = dec(v); if (m) recv(m); } });
+      room.child("host").on("value", (s) => { if (!s.exists()) h.onStatus("noroom"); });
+      sendRaw = (msg) => { room.child("up").push({ from: me, msg: enc(msg) }); };
+      window.addEventListener("pagehide", () => pres.remove());
+      return {
+        send: (msg) => sendRaw(msg),
+        isConnected: () => connected,
+        close: () => { closed = true; room.child("down/" + me).off(); room.child("host").off(); pres.remove(); }
+      };
+    }
     if (mode() === "local") {
       const me = "c-" + rid();
       const ch = new BroadcastChannel("rn-" + code);

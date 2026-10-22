@@ -35,8 +35,9 @@
         const c = $("#conn");
         if (st === "connected") {
           c.classList.add("hidden");
-          const hello = () => { if (modPin) client.send({ t: "mod", pin: modPin }); else client.send({ t: "join", pid, name }); };
-          hello();
+          // This can fire before connect() has stored the client, so send on the next tick.
+          const hello = () => { if (!client) return; if (modPin) client.send({ t: "mod", pin: modPin }); else client.send({ t: "join", pid, name }); };
+          setTimeout(hello, 0);
           // If the board's reply goes missing, ask again until a screen arrives.
           clearInterval(helloTimer);
           helloTimer = setInterval(() => { if (gotView) clearInterval(helloTimer); else hello(); }, 2500);

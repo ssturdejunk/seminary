@@ -22,6 +22,18 @@
   const norm = (s) => String(s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, " ").trim().replace(/^(a|an|the) /, "");
   const letter = (i) => String.fromCharCode(65 + i);
+  // True when a fake shares most of its meaningful words with the real answer.
+  const STOP = new Set("a an the of and to in on unto for his her my thy thine thee your you is are was be as at by with that this it or".split(" "));
+  function similar(a, b) {
+    const x = norm(a), y = norm(b);
+    if (!x || !y) return false;
+    if (x === y) return true;
+    const tx = new Set(x.split(" ").filter((w) => !STOP.has(w))), ty = new Set(y.split(" ").filter((w) => !STOP.has(w)));
+    const m = Math.min(tx.size, ty.size);
+    if (!m) return false;
+    let shared = 0; tx.forEach((w) => { if (ty.has(w)) shared++; });
+    return shared / m >= 0.6;
+  }
   const round = () => (D && S && S.r >= 0 ? D.rounds[S.r] : null);
   const set = () => D.settings || {};
   const pts = () => (set().points || {});
@@ -50,24 +62,19 @@
   }
   function shortUrl() { return playUrl().replace(/^https?:\/\//, "").split("?")[0]; }
 
-  // ---------- sound (tiny synth, no files) ----------
-  let actx = null;
-  function beep(freq, dur, type, vol) {
-    try {
-      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      const o = actx.createOscillator(), g = actx.createGain();
-      o.type = type || "sine"; o.frequency.value = freq;
-      g.gain.setValueAtTime(vol || 0.15, actx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
-      o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + dur);
-    } catch (e) {}
+  // ---------- sound (see audio.js) ----------
+  const AU = window.RN_AUDIO;
+  const sfx = { join: () => AU.fx("join"), tick: () => AU.fx("tick"), reveal: () => AU.fx("reveal"), start: () => AU.fx("start"), whoosh: () => AU.fx("whoosh") };
+  function syncMusic() {
+    const ph = S.phase;
+    AU.music(TIMED[ph] ? (ph === "xw" || ph === "xq" ? "final" : "play")
+      : ph === "lobby" || ph === "scores" || ph === "end" ? "calm" : "off");
   }
-  const sfx = {
-    join: () => beep(660, 0.15, "triangle"),
-    tick: () => beep(880, 0.07, "square", 0.06),
-    reveal: () => { beep(523, 0.2, "triangle"); setTimeout(() => beep(784, 0.35, "triangle"), 140); },
-    start: () => { beep(392, 0.15, "triangle"); setTimeout(() => beep(523, 0.15, "triangle"), 120); setTimeout(() => beep(659, 0.3, "triangle"), 240); }
-  };
+  const soundLabel = () => (AU.muted() ? "Sound off" : AU.blocked() ? "Tap for sound" : "Sound on");
+  function toggleSound() {
+    if (AU.blocked() && !AU.muted()) AU.unlock(); else AU.setMuted(!AU.muted());
+    setTimeout(renderControls, 250);
+  }
 
   // ---------- players ----------
   const people = () => S.order.map((id) => S.players[id]).filter((p) => p && !S.removed[p.pid]);
@@ -124,7 +131,9 @@
     const t = TIMED[phase];
     if (t) { S.total = timerSecs(t) * 1000; S.deadline = Date.now() + S.total; } else { S.deadline = 0; S.total = 0; }
     clearTimeout(autoTimer);
-    if (phase === "intro" || phase === "tq" || phase === "fw" || phase === "dw" || phase === "xw") sfx.start();
+    if (!reveal) sfx.whoosh();
+    if (phase === "intro") setTimeout(sfx.start, 280);
+    if (phase === "end") setTimeout(() => AU.fx("end"), 150);
     update(true);
   }
   function update(all) {
@@ -228,14 +237,14 @@
     const r = round();
     while (S.i < S.sets.length) {
       const s = S.sets[S.i], c = r.clues[s.item];
-      const truthKeys = [c.answer].concat(c.alt || []).map(norm);
+      const truthAll = [c.answer].concat(c.alt || []);
       const opts = [{ text: c.answer, truth: true, authors: [] }];
       const byKey = {};
       s.members.forEach((pid) => {
         const sub = S.subs[pid];
         if (!sub || sub.hidden || !sub.text || S.removed[pid]) return;
         const k = norm(sub.text);
-        if (!k || truthKeys.includes(k)) return;
+        if (!k || truthAll.some((t) => similar(sub.text, t))) return;
         if (byKey[k]) byKey[k].authors.push(pid);
         else { byKey[k] = { text: sub.text, truth: false, authors: [pid] }; opts.push(byKey[k]); }
       });
@@ -326,9 +335,11 @@
       onStatus(st, detail) {
         const el = $("#status");
         const words = { online: "Connected. Phones can join.", reconnecting: "Reconnecting to the connection server…", error: "Connection problem: " + (detail || "unknown") + ". Retrying." };
-        el.textContent = (RN_NET.mode() === "local" ? "Local test mode. " : "") + (words[st] || st);
+        el.textContent = (RN_NET.mode() === "local" ? "Local test mode. " : RN_NET.mode() === "peer" ? "PeerJS mode. " : "") + (words[st] || st);
         el.classList.toggle("bad", st !== "online");
         if (detail === "peerjs-missing") el.textContent = "PeerJS did not load. Check that lib/peerjs.min.js is next to this page.";
+        if (detail === "firebase-missing") el.textContent = "Firebase did not load. Check that the lib folder has both firebase files.";
+        if (detail === "firebase-config") el.textContent = "Phones can't join yet: paste your Firebase settings into config.js.";
       }
     });
   }
@@ -388,9 +399,9 @@
       if (p.set < 0) return;
       const text = String(m.v || "").replace(/\s+/g, " ").trim().slice(0, set().answerMax || 40);
       const c = round().clues[S.sets[p.set].item];
-      const truth = [c.answer].concat(c.alt || []).map(norm);
+      const truth = [c.answer].concat(c.alt || []);
       if (!norm(text)) return sendView(p.pid, "Type a fake answer first.");
-      if (truth.includes(norm(text))) return sendView(p.pid, "That's the real answer, or too close to it. Write something that sounds right but isn't.");
+      if (truth.some((t) => similar(text, t))) return sendView(p.pid, "That's the real answer, or too close to it. Write something that sounds right but isn't.");
       S.subs[p.pid] = { text, set: p.set, hidden: false };
     } else if (ph === "dw" && m.t === "img") {
       if (p.set < 0) return;
@@ -573,6 +584,7 @@
 
   function render() {
     const st = $("#stage"), r = round(), ph = S.phase;
+    syncMusic();
     const fresh = S.key !== lastKey; lastKey = S.key;
     st.classList.toggle("fresh", fresh);
     $("#where").textContent = D ? D.title : "Review Night";
@@ -639,10 +651,11 @@
   function renderControls() {
     const c = $("#controls");
     const lbl = S.phase === "setup" ? "" : nextLabel();
-    c.innerHTML = `<button id="cTools" class="ghost">Host tools</button>` +
+    c.innerHTML = `<button id="cSnd" class="ghost">${soundLabel()}</button><button id="cTools" class="ghost">Host tools</button>` +
       (round() && !["scores", "end"].includes(S.phase) ? `<button id="cSkip" class="ghost">Skip round</button>` : "") +
       (S.deadline ? `<button id="cAdd" class="ghost">+15 sec</button>` : "") +
       (lbl ? `<button id="cNext" class="primary">${lbl}</button>` : "");
+    $("#cSnd").onclick = toggleSound;
     $("#cTools").onclick = openTools;
     if ($("#cSkip")) $("#cSkip").onclick = () => ask("Skip the rest of this round?", skipRound);
     if ($("#cAdd")) $("#cAdd").onclick = addTime;
@@ -653,6 +666,7 @@
     if (!S || !S.deadline) { fill.style.width = "0"; secs.textContent = ""; rv.classList.remove("low"); return; }
     const left = Math.max(0, S.deadline - Date.now());
     fill.style.width = (100 * left / S.total) + "%";
+    AU.intensity(0.2 + 0.8 * Math.pow(1 - left / S.total, 1.4));
     const s = Math.ceil(left / 1000);
     secs.textContent = s;
     rv.classList.toggle("low", s <= 5);
@@ -725,8 +739,14 @@
   $("#toolsReset").onclick = () => { $("#tools").close(); ask("End this game and start a new one? Scores will be lost.", () => { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} location.reload(); }); };
   document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "INPUT" || document.querySelector("dialog[open]")) return;
+    if (e.key.toLowerCase() === "m") { toggleSound(); return; }
     if (e.key === "ArrowRight" || e.key.toLowerCase() === "n") { e.preventDefault(); if (S.phase !== "setup" || D) next(); }
   });
+
+  // Browsers keep audio off until the page has been clicked or a key pressed.
+  const unlockOnce = () => { if (AU.blocked()) { AU.unlock(); setTimeout(renderControls, 300); } };
+  window.addEventListener("pointerdown", unlockOnce, true);
+  window.addEventListener("keydown", unlockOnce, true);
 
   // ---------- boot ----------
   async function boot() {
