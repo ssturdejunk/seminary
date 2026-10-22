@@ -20,7 +20,7 @@
   let room = (qs.get("room") || "").toUpperCase().replace(/[^A-Z]/g, "");
   let name = store.get("rn-name") || "";
   let client = null, view = null, sig = "", gotView = false;
-  let tEnd = 0, tTotal = 0;
+  let tEnd = 0, tTotal = 0, helloTimer = null;
   let picked = null; // optimistic lock for the current key
 
   // ---------- connection ----------
@@ -35,8 +35,11 @@
         const c = $("#conn");
         if (st === "connected") {
           c.classList.add("hidden");
-          if (modPin) client.send({ t: "mod", pin: modPin });
-          else client.send({ t: "join", pid, name });
+          const hello = () => { if (modPin) client.send({ t: "mod", pin: modPin }); else client.send({ t: "join", pid, name }); };
+          hello();
+          // If the board's reply goes missing, ask again until a screen arrives.
+          clearInterval(helloTimer);
+          helloTimer = setInterval(() => { if (gotView) clearInterval(helloTimer); else hello(); }, 2500);
         } else if (st === "lost") {
           if (gotView) { c.textContent = "Reconnecting…"; c.classList.remove("hidden"); }
         } else if (st === "noroom" && !gotView) {

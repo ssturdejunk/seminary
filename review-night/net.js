@@ -65,11 +65,15 @@
       peer = new Peer(PREFIX + code, cfg.peerOptions || {});
       peer.on("open", () => h.onStatus("online"));
       peer.on("connection", (conn) => {
-        conn.on("open", () => {
-          if (links.has(conn.peer)) drop(conn.peer);
-          add(conn.peer, (msg) => conn.send(msg), () => conn.close());
-        });
-        conn.on("data", (d) => recv(conn.peer, d));
+        // Messages can arrive before PeerJS marks the connection open, so
+        // replies wait in a queue until it is ready instead of being dropped.
+        const queue = [];
+        const flush = () => { while (conn.open && queue.length) { try { conn.send(queue.shift()); } catch (e) {} } };
+        const send = (msg) => { if (conn.open && !queue.length) conn.send(msg); else { queue.push(msg); if (queue.length > 50) queue.shift(); } };
+        if (links.has(conn.peer)) drop(conn.peer);
+        add(conn.peer, send, () => conn.close());
+        conn.on("open", flush);
+        conn.on("data", (d) => { flush(); recv(conn.peer, d); });
         conn.on("close", () => drop(conn.peer));
         conn.on("error", () => {});
       });
