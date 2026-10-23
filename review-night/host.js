@@ -435,6 +435,7 @@
         if (detail === "peerjs-missing") el.textContent = "PeerJS did not load. Check that lib/peerjs.min.js is next to this page.";
         if (detail === "firebase-missing") el.textContent = "Firebase did not load. Check that the lib folder has both firebase files.";
         if (detail === "firebase-config") el.textContent = "Phones can't join yet: paste your Firebase settings into config.js.";
+        const cn = $("#connNote"); if (cn) { cn.textContent = el.textContent; cn.classList.toggle("warn", st !== "online"); }
       }
     });
   }
@@ -752,17 +753,17 @@
   }
   function renderJoin() {
     const jb = $("#joinbox");
-    if (S.phase === "setup" || S.phase === "lobby" || S.phase === "end") { jb.innerHTML = ""; return; }
+    if (S.phase === "lobby" || S.phase === "end") { jb.innerHTML = ""; return; }
     jb.innerHTML = `<div><div class="url">Join at ${esc(shortUrl())}</div><div class="code">${S.code}</div></div><div class="qr">${qr(playUrl(), 3)}</div>`;
   }
   function renderControls() {
     const c = $("#controls");
-    const lbl = S.phase === "setup" ? "" : nextLabel();
+    const lbl = nextLabel();
     const sm = document.body.classList.contains("compact"); // shorter labels on a phone
     c.innerHTML = `<button id="cSnd" class="ghost">${soundLabel()}</button>${VO.supported ? `<button id="cVoice" class="ghost">${voiceLabel()}</button>` : ""}<button id="cTools" class="ghost">${sm ? "Tools" : "Host tools"}</button>` +
       (round() && !["scores", "end"].includes(S.phase) ? `<button id="cSkip" class="ghost">${sm ? "Skip" : "Skip round"}</button>` : "") +
       (S.deadline ? `<button id="cAdd" class="ghost">${sm ? "+15s" : "+15 sec"}</button>` : "") +
-      (lbl ? `<button id="cNext" class="primary">${lbl}</button>` : "");
+      (lbl ? `<button id="cNext" class="primary" ${S.phase === "setup" && !D ? "disabled" : ""}>${lbl}</button>` : "");
     $("#cSnd").onclick = toggleSound;
     if ($("#cVoice")) $("#cVoice").onclick = toggleVoice;
     $("#cTools").onclick = openTools;
@@ -790,15 +791,17 @@
     const fileWarn = location.protocol === "file:" && !cfg.playUrl && RN_NET.mode() !== "local";
     return `<div class="setup">
       <div class="big rise" style="color:var(--saffron)">Review Night</div>
+      <div class="setup-grid">
+        <div class="card rise"><b>Phones</b><div id="connNote" class="muted">${esc($("#status").textContent)}</div>
+          <div class="muted" style="margin-top:.5em">Students can join now with the room code and QR at the top right. Press Open the lobby when you are ready.</div></div>
+        <div class="card rise"><div class="modqr"><div>${qr(modUrl(), 4)}</div><div><b>Moderate from your phone.</b> Scan this to hide fakes or drawings, remove players, and move the game forward. Code: <b>${S.pin}</b></div></div></div>
+      </div>
+      <div class="card rise"><b>Read questions aloud</b>${voiceSettingsHTML("vs")}</div>
       <div class="card rise"><b>Clues:</b> ${D ? `${esc(D.title)}, ${D.rounds.length} rounds` : `<span class="warn">No clue file loaded.</span>`}
-        <div style="margin-top:.6em"><label class="muted">Load a different clue file <input type="file" id="fileIn" accept=".json,application/json"></label></div><div id="fileErr" class="warn"></div></div>
-      <div class="card rise"><div class="modqr"><div>${qr(modUrl(), 4)}</div><div><b>Moderate from your phone.</b> Scan this before you turn on the projector. Your phone can hide fake answers and drawings, remove players, and move the game forward. Moderator code: <b>${S.pin}</b></div></div></div>
-      <div class="card rise"><b>Voice for reading questions aloud</b>${voiceSettingsHTML("vs")}</div>
+        <label class="muted" style="margin-left:1em">Load a different clue file <input type="file" id="fileIn" accept=".json,application/json"></label><div id="fileErr" class="warn"></div></div>
       ${fileWarn ? `<div class="card rise warn">This board is running from a file, so phones need the online address. Set playUrl in config.js.</div>` : ""}
-      <div style="display:flex;gap:.6em;margin-top:1.2em" class="rise">
-        <button class="primary" id="openLobby" ${D ? "" : "disabled"}>Open the lobby</button>
-        ${saved ? `<button class="ghost" id="resume">Resume the game in room ${esc(saved.code)}</button>` : ""}
-      </div></div>`;
+      ${saved ? `<div class="rise" style="margin-top:.8em"><button class="ghost" id="resume">Resume the game in room ${esc(saved.code)}</button></div>` : ""}
+      </div>`;
   }
   function bindSetup() {
     if (S.phase !== "setup") return;
@@ -809,7 +812,6 @@
         .catch((e) => { $("#fileErr").textContent = "That file could not be used: " + e.message; });
     };
     bindVoiceSettings("vs");
-    const ol = $("#openLobby"); if (ol) ol.onclick = () => go("lobby");
     const rs = $("#resume"); if (rs) rs.onclick = resume;
   }
   function savedGame() {
@@ -840,27 +842,31 @@
       else throw new Error(n + " has an unknown type: " + r.type);
     });
   }
+  let showAllVoices = false;
   function voiceSettingsHTML(px) {
     if (!VO.supported) return `<p class="muted">This browser can't read aloud. Try Chrome or Edge.</p>`;
-    const vs = VO.voices(), cur = VO.chosen() || VO.voiceName();
-    return `<div class="voiceset"><label class="chk"><input type="checkbox" id="${px}On" ${VO.enabled() ? "checked" : ""}> Read questions aloud</label>
-      <label>Voice${vs.length ? "" : " (none found on this device yet)"}<select id="${px}Sel">${vs.map((v) => `<option value="${esc(v.name)}" ${v.name === cur ? "selected" : ""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")}</select></label>
-      <label>Speed<input type="range" id="${px}Rate" min="0.7" max="1.3" step="0.05" value="${VO.rate()}"></label>
-      <div><button id="${px}Test" class="ghost">Test voice</button></div></div>`;
+    const vs = VO.voices(showAllVoices), cur = VO.chosen() || VO.voiceName(), total = VO.voiceCount();
+    return `<div class="voicerow"><label class="chk"><input type="checkbox" id="${px}On" ${VO.enabled() ? "checked" : ""}> On</label>
+      <select id="${px}Sel" aria-label="Voice">${vs.length ? vs.map((v) => `<option value="${esc(v.name)}" ${v.name === cur ? "selected" : ""}>${esc(v.label)}${/^en-US/i.test(v.lang) ? "" : " (" + esc(v.lang) + ")"}</option>`).join("") : `<option>No English voices found yet</option>`}</select>
+      <label class="chk">Speed <input type="range" id="${px}Rate" min="0.7" max="1.3" step="0.05" value="${VO.rate()}"></label>
+      <button id="${px}Test" class="ghost">Test</button>
+      ${total > 8 ? `<button id="${px}More" class="ghost">${showAllVoices ? "Show fewer" : "Show all " + total}</button>` : ""}</div>`;
   }
   function bindVoiceSettings(px) {
     const on = $("#" + px + "On"); if (!on) return;
     on.onchange = () => { VO.setEnabled(on.checked); if (!on.checked) releaseHold(); renderControls(); };
     $("#" + px + "Sel").onchange = (e) => VO.setVoice(e.target.value);
     $("#" + px + "Rate").oninput = (e) => VO.setRate(e.target.value);
+    const more = $("#" + px + "More");
+    if (more) more.onclick = () => { showAllVoices = !showAllVoices; if (px === "vs") render(); else fillTools(); };
     $("#" + px + "Test").onclick = () => VO.speak("Which scripture says, they were of one heart and one mind? A, Moses 1:39. B, Moses 7:18.", null, true);
   }
-  function openTools() {
+  function openTools() { fillTools(); $("#tools").showModal(); }
+  function fillTools() {
     const stats = D ? D.rounds.map((r) => r.title + ": " + (r.questions || r.clues || r.stories || r.finals || [1]).length).join(", ") : "";
     $("#toolsBody").innerHTML = voiceSettingsHTML("vt") + `<div class="voiceset"><div class="muted">Question banks: ${esc(stats)}</div><div><button id="resetSeen" class="ghost">Reset question history</button> <span id="resetMsg" class="muted"></span></div></div>` + `<div class="setup"><div class="modqr" style="display:flex;gap:1em;align-items:center"><div>${qr(modUrl(), 4)}</div><div>Moderator code <b>${S.pin}</b><br><span class="muted">Room ${S.code}</span></div></div></div>`;
     bindVoiceSettings("vt");
     $("#resetSeen").onclick = () => { seen = {}; try { localStorage.removeItem(SEEN_KEY); } catch (e) {} $("#resetMsg").textContent = "Cleared. The next game can draw any question."; };
-    $("#tools").showModal();
   }
   let askYes = null;
   function ask(text, yes) { $("#confirmText").textContent = text; askYes = yes; $("#confirm").showModal(); }
