@@ -1,302 +1,1348 @@
 {
-  "title": "Old Testament Review Night",
-  "settings": {
-    "setSize": 4,
-    "nameMax": 16,
-    "answerMax": 60,
-    "timers": {
-      "trivia": 20,
-      "fibWrite": 75,
-      "fibGuess": 30,
-      "drawDraw": 90,
-      "drawGuess": 30,
-      "finalWager": 30,
-      "finalQuestion": 30
-    },
-    "points": {
-      "triviaCorrect": 100,
-      "triviaSpeedBonus": 50,
-      "fibTruth": 100,
-      "fibFooled": 50,
-      "drawCorrect": 100,
-      "drawArtistMax": 100,
-      "drawFavorite": 50,
-      "finalMaxWagerFloor": 500,
-      "finalAudienceCorrect": 100
-    }
+ "title": "Old Testament Review Night",
+ "welcome": [
+  "Join on your phone with the room code.",
+  "Answer on your phone, not out loud.",
+  "Points get bigger every round, and the finale lets you wager."
+ ],
+ "settings": {
+  "setSize": 4,
+  "nameMax": 16,
+  "answerMax": 60,
+  "timers": {
+   "trivia": 30,
+   "fibWrite": 90,
+   "fibGuess": 40,
+   "drawDraw": 120,
+   "drawGuess": 40,
+   "finalWager": 40,
+   "finalQuestion": 50
   },
-  "rounds": [
+  "points": {
+   "triviaCorrect": 100,
+   "triviaSpeedBonus": 50,
+   "fibTruth": 100,
+   "fibFooled": 50,
+   "drawCorrect": 100,
+   "drawArtistMax": 100,
+   "drawFavorite": 50,
+   "finalMaxWagerFloor": 1000,
+   "finalAudienceCorrect": 100
+  }
+ },
+ "rounds": [
+  {
+   "type": "trivia",
+   "title": "Quick Quiz",
+   "mult": 1,
+   "count": 15,
+   "intro": "Fifteen questions on the scriptures we've studied.",
+   "rules": [
+    "A question and four choices appear on the screen. Pick one on your phone.",
+    "The clock starts after the question is read aloud.",
+    "A correct answer scores. A faster correct answer scores a little more."
+   ],
+   "questions": [
     {
-      "type": "trivia",
-      "title": "Quick Quiz",
-      "intro": "Answer on your phone. Faster correct answers earn a little more.",
-      "questions": [
-        {
-          "q": "Which scripture says “they were of one heart and one mind”?",
-          "choices": [
-            "Moses 1:39",
-            "Moses 7:18",
-            "Abraham 3:22–23",
-            "Joshua 24:15"
-          ],
-          "answer": 1,
-          "note": "Moses 7:18. The people of Zion dwelt in righteousness, and there was no poor among them."
-        },
-        {
-          "q": "Which scripture says Abraham's seed would “bear this ministry and Priesthood unto all nations”?",
-          "choices": [
-            "Amos 3:7",
-            "Moses 7:18",
-            "Abraham 2:9–11",
-            "Genesis 1:26–27"
-          ],
-          "answer": 2,
-          "note": "Abraham 2:9–11 (the phrase is in verse 9)."
-        },
-        {
-          "q": "“Who shall stand in his holy place?” Which scripture answers that question?",
-          "choices": [
-            "Isaiah 53:3–5",
-            "Isaiah 58:6–7",
-            "Proverbs 3:5–6",
-            "Psalm 24:3–4"
-          ],
-          "answer": 3,
-          "note": "Psalm 24:3–4. “He that hath clean hands, and a pure heart.”"
-        },
-        {
-          "q": "Caleb feels invisible at school and wonders whether his life has any purpose. Which scripture helps him most?",
-          "choices": [
-            "Moses 1:39",
-            "Joshua 24:15",
-            "Isaiah 5:20",
-            "Genesis 39:9"
-          ],
-          "answer": 0,
-          "note": "Moses 1:39. God's work and glory is to bring to pass our immortality and eternal life. Abraham 3:22–23 and Genesis 1:26–27 also fit."
-        },
-        {
-          "q": "Ava is anxious about choosing classes and a future career. Which scripture helps her most?",
-          "choices": [
-            "Malachi 3:8–10",
-            "Joshua 24:15",
-            "Proverbs 3:5–6",
-            "Isaiah 5:20"
-          ],
-          "answer": 2,
-          "note": "Proverbs 3:5–6. Trust in the Lord, and he shall direct thy paths."
-        },
-        {
-          "q": "Which scripture teaches that a man shall cleave unto his wife and they shall be one?",
-          "choices": [
-            "Moses 7:18",
-            "Genesis 2:24",
-            "Exodus 20:3–17",
-            "Jeremiah 1:4–5"
-          ],
-          "answer": 1,
-          "note": "Genesis 2:24"
-        },
-        {
-          "q": "When Moroni first visited Joseph Smith in 1823, he began by quoting from this prophet:",
-          "choices": [
-            "Malachi",
-            "Isaiah",
-            "Daniel",
-            "Jeremiah"
-          ],
-          "answer": 0,
-          "note": "Joseph Smith—History 1:36–39. Compare Malachi 4:5–6."
-        },
-        {
-          "q": "On April 3, 1836, Elijah appeared to Joseph Smith and Oliver Cowdery in this temple:",
-          "choices": [
-            "Nauvoo Temple",
-            "Salt Lake Temple",
-            "St. George Temple",
-            "Kirtland Temple"
-          ],
-          "answer": 3,
-          "note": "Doctrine and Covenants 110:13–16. Elijah turned the hearts of the fathers to the children (Malachi 4:5–6)."
-        },
-        {
-          "q": "In 1835 the Saints in Kirtland bought four Egyptian mummies along with papyrus scrolls. Joseph Smith's translation became:",
-          "choices": [
-            "The Book of Moses",
-            "The Book of Abraham",
-            "The Doctrine and Covenants",
-            "The Joseph Smith Translation"
-          ],
-          "answer": 1,
-          "note": "The Book of Abraham, in the Pearl of Great Price."
-        },
-        {
-          "q": "In 1828 Martin Harris showed characters from the gold plates to a scholar. This fulfilled a prophecy in:",
-          "choices": [
-            "Isaiah 53",
-            "Ezekiel 37",
-            "Isaiah 29",
-            "Malachi 4"
-          ],
-          "answer": 2,
-          "note": "Isaiah 29:13–14, “a marvellous work and a wonder” (Joseph Smith—History 1:63–65)."
-        }
-      ]
+     "q": "Which scripture says “Trust in the Lord with all thine heart”?",
+     "choices": [
+      "Proverbs 3:5–6",
+      "Psalm 24:3–4",
+      "Joshua 24:15",
+      "Isaiah 5:20"
+     ],
+     "answer": 0,
+     "note": "Proverbs 3:5–6. “…and he shall direct thy paths.”"
     },
     {
-      "type": "fib",
-      "title": "Fake Out",
-      "intro": "Your set writes a believable ending. Everyone else tries to find the real one. You score for every classmate you fool.",
-      "clues": [
-        {
-          "prompt": "“Trust in the Lord with all thine heart; and ____”",
-          "answer": "lean not unto thine own understanding",
-          "alt": [
-            "lean not to thine own understanding"
-          ],
-          "ref": "Proverbs 3:5",
-          "house": [
-            "call upon his name each morning",
-            "seek his counsel in all thy plans"
-          ]
-        },
-        {
-          "prompt": "“This is my work and my glory, to bring to pass the ____”",
-          "answer": "immortality and eternal life of man",
-          "alt": [
-            "immortality and eternal life"
-          ],
-          "ref": "Moses 1:39",
-          "house": [
-            "salvation and exaltation of all his children",
-            "joy and happiness of all mankind"
-          ]
-        },
-        {
-          "prompt": "“Woe unto them that call evil good, and good evil; that put darkness for ____”",
-          "answer": "light, and light for darkness",
-          "alt": [
-            "light and light for darkness",
-            "light"
-          ],
-          "ref": "Isaiah 5:20",
-          "house": [
-            "day, and day for night",
-            "wisdom, and wisdom for folly"
-          ]
-        },
-        {
-          "prompt": "“Who shall stand in his holy place? He that hath ____”",
-          "answer": "clean hands, and a pure heart",
-          "alt": [
-            "clean hands and a pure heart"
-          ],
-          "ref": "Psalm 24:3–4",
-          "house": [
-            "a humble spirit and a willing mind",
-            "a righteous life and a faithful tongue"
-          ]
-        },
-        {
-          "prompt": "Stephen met his wife, Jenn, ____",
-          "answer": "online, on ldssingleschat.com",
-          "alt": [
-            "online",
-            "on ldssingleschat.com",
-            "ldssingleschat.com",
-            "on the internet"
-          ],
-          "ref": "Teacher trivia",
-          "house": [
-            "at a BYU–Idaho dance",
-            "through a friend from church"
-          ]
-        },
-        {
-          "prompt": "“The Lord called his people Zion, because they were of ____”",
-          "answer": "one heart and one mind",
-          "ref": "Moses 7:18",
-          "house": [
-            "one family and one home",
-            "a willing heart and a humble spirit"
-          ]
-        },
-        {
-          "prompt": "Troy served his mission ____",
-          "answer": "in Buenos Aires, Argentina",
-          "alt": [
-            "buenos aires",
-            "argentina",
-            "in argentina"
-          ],
-          "ref": "Teacher trivia",
-          "house": [
-            "in Lima, Peru",
-            "in Santiago, Chile"
-          ]
-        },
-        {
-          "prompt": "Troy played football at BYU as ____",
-          "answer": "a linebacker",
-          "alt": [
-            "linebacker"
-          ],
-          "ref": "Teacher trivia",
-          "house": [
-            "a kicker",
-            "a wide receiver"
-          ]
-        }
-      ]
+     "q": "Which scripture says “Woe unto them that call evil good, and good evil”?",
+     "choices": [
+      "Isaiah 5:20",
+      "Isaiah 1:18",
+      "Genesis 39:9",
+      "Daniel 2:44–45"
+     ],
+     "answer": 0,
+     "note": "Isaiah 5:20"
     },
     {
-      "type": "draw",
-      "title": "Sketch It",
-      "intro": "Your set draws the same story. Everyone else guesses which story it is. Draw clearly, because you score when classmates guess right.",
-      "stories": [
-        {
-          "story": "Joseph fleeing and leaving his garment behind",
-          "ref": "Genesis 39:9"
-        },
-        {
-          "story": "A family choosing to serve the Lord together",
-          "ref": "Joshua 24:15"
-        },
-        {
-          "story": "God creating man in His own image",
-          "ref": "Genesis 1:26–27"
-        },
-        {
-          "story": "A husband and wife becoming one",
-          "ref": "Genesis 2:24"
-        },
-        {
-          "story": "A city where everyone has one heart and one mind, with no poor among them",
-          "ref": "Moses 7:18"
-        },
-        {
-          "story": "Martin Harris showing characters from the gold plates to a scholar",
-          "ref": "Isaiah 29:13–14"
-        },
-        {
-          "story": "Elijah appearing in the Kirtland Temple",
-          "ref": "Doctrine and Covenants 110:13–16"
-        }
-      ]
+     "q": "Which scripture says “Though your sins be as scarlet, they shall be as white as snow”?",
+     "choices": [
+      "Isaiah 1:18",
+      "Isaiah 53:3–5",
+      "Malachi 3:8–10",
+      "Psalm 24:3–4"
+     ],
+     "answer": 0,
+     "note": "Isaiah 1:18"
     },
     {
-      "type": "final",
-      "title": "Washed Clean",
-      "intro": "Wager some or all of your points. Get it right to add your wager, miss it and you lose it.",
-      "q": "Ethan made a serious mistake and wonders whether Jesus Christ can forgive him. “Come now, and let us reason together, saith the Lord: though your sins be as scarlet, they shall be as ____.”",
-      "choices": [
-        "clean as water",
-        "white as snow",
-        "bright as the sun",
-        "pure as gold"
-      ],
-      "answer": 1,
-      "note": "Isaiah 1:18. Though our sins be as scarlet, through the Savior they can be as white as snow."
+     "q": "Which scripture says “Choose you this day whom ye will serve”?",
+     "choices": [
+      "Joshua 24:15",
+      "Moses 1:39",
+      "Exodus 20:3–17",
+      "Amos 3:7"
+     ],
+     "answer": 0,
+     "note": "Joshua 24:15"
+    },
+    {
+     "q": "Which scripture asks “Who shall stand in his holy place?”",
+     "choices": [
+      "Psalm 24:3–4",
+      "Isaiah 58:13–14",
+      "Proverbs 3:5–6",
+      "Jeremiah 1:4–5"
+     ],
+     "answer": 0,
+     "note": "Psalm 24:3–4. “He that hath clean hands, and a pure heart.”"
+    },
+    {
+     "q": "Which scripture says “How then can I do this great wickedness, and sin against God?”",
+     "choices": [
+      "Genesis 39:9",
+      "Genesis 2:24",
+      "Isaiah 5:20",
+      "Moses 7:18"
+     ],
+     "answer": 0,
+     "note": "Genesis 39:9. Joseph's answer to Potiphar's wife."
+    },
+    {
+     "q": "Which scripture says “a marvellous work and a wonder”?",
+     "choices": [
+      "Isaiah 29:13–14",
+      "Daniel 2:44–45",
+      "Ezekiel 37:15–17",
+      "Malachi 4:5–6"
+     ],
+     "answer": 0,
+     "note": "Isaiah 29:13–14. The phrase is in verse 14."
+    },
+    {
+     "q": "Which scripture says “Surely he hath borne our griefs, and carried our sorrows”?",
+     "choices": [
+      "Isaiah 53:3–5",
+      "Isaiah 58:6–7",
+      "Isaiah 1:18",
+      "Psalm 24:3–4"
+     ],
+     "answer": 0,
+     "note": "Isaiah 53:3–5"
+    },
+    {
+     "q": "Which scripture says “Bring ye all the tithes into the storehouse”?",
+     "choices": [
+      "Malachi 3:8–10",
+      "Isaiah 58:6–7",
+      "Joshua 24:15",
+      "Amos 3:7"
+     ],
+     "answer": 0,
+     "note": "Malachi 3:8–10"
+    },
+    {
+     "q": "Which scripture says “call the sabbath a delight”?",
+     "choices": [
+      "Isaiah 58:13–14",
+      "Genesis 2:24",
+      "Isaiah 58:6–7",
+      "Malachi 3:8–10"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:13–14"
+    },
+    {
+     "q": "Which scripture says “Before I formed thee in the belly I knew thee”?",
+     "choices": [
+      "Jeremiah 1:4–5",
+      "Abraham 3:22–23",
+      "Ezekiel 3:16–17",
+      "Amos 3:7"
+     ],
+     "answer": 0,
+     "note": "Jeremiah 1:4–5. “…I ordained thee a prophet unto the nations.”"
+    },
+    {
+     "q": "Which scripture says “I have made thee a watchman unto the house of Israel”?",
+     "choices": [
+      "Ezekiel 3:16–17",
+      "Jeremiah 1:4–5",
+      "Daniel 2:44–45",
+      "Isaiah 29:13–14"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 3:16–17"
+    },
+    {
+     "q": "Which scripture says “take thee one stick… and they shall become one in thine hand”?",
+     "choices": [
+      "Ezekiel 37:15–17",
+      "Ezekiel 3:16–17",
+      "Genesis 2:24",
+      "Daniel 2:44–45"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 37:15–17. The Bible and the Book of Mormon."
+    },
+    {
+     "q": "Which scripture says the God of heaven will “set up a kingdom, which shall never be destroyed”?",
+     "choices": [
+      "Daniel 2:44–45",
+      "Isaiah 29:13–14",
+      "Malachi 4:5–6",
+      "Moses 7:18"
+     ],
+     "answer": 0,
+     "note": "Daniel 2:44–45"
+    },
+    {
+     "q": "Which scripture says the Lord “revealeth his secret unto his servants the prophets”?",
+     "choices": [
+      "Amos 3:7",
+      "Ezekiel 3:16–17",
+      "Jeremiah 1:4–5",
+      "Isaiah 29:13–14"
+     ],
+     "answer": 0,
+     "note": "Amos 3:7"
+    },
+    {
+     "q": "Which scripture says Elijah will “turn the heart of the fathers to the children”?",
+     "choices": [
+      "Malachi 4:5–6",
+      "Genesis 2:24",
+      "Moses 7:18",
+      "Amos 3:7"
+     ],
+     "answer": 0,
+     "note": "Malachi 4:5–6"
+    },
+    {
+     "q": "Which scripture says “Thou shalt have no other gods before me”?",
+     "choices": [
+      "Exodus 20:3–17",
+      "Joshua 24:15",
+      "Genesis 1:26–27",
+      "Isaiah 58:13–14"
+     ],
+     "answer": 0,
+     "note": "Exodus 20:3–17. The Ten Commandments."
+    },
+    {
+     "q": "Which scripture says “God created man in his own image”?",
+     "choices": [
+      "Genesis 1:26–27",
+      "Moses 1:39",
+      "Genesis 2:24",
+      "Abraham 3:22–23"
+     ],
+     "answer": 0,
+     "note": "Genesis 1:26–27"
+    },
+    {
+     "q": "Which scripture says “a man… shall cleave unto his wife: and they shall be one”?",
+     "choices": [
+      "Genesis 2:24",
+      "Moses 7:18",
+      "Genesis 1:26–27",
+      "Ezekiel 37:15–17"
+     ],
+     "answer": 0,
+     "note": "Genesis 2:24"
+    },
+    {
+     "q": "Which scripture says “This is my work and my glory—to bring to pass the immortality and eternal life of man”?",
+     "choices": [
+      "Moses 1:39",
+      "Abraham 3:22–23",
+      "Genesis 1:26–27",
+      "Moses 7:18"
+     ],
+     "answer": 0,
+     "note": "Moses 1:39"
+    },
+    {
+     "q": "Which scripture says the people “were of one heart and one mind”?",
+     "choices": [
+      "Moses 7:18",
+      "Moses 1:39",
+      "Genesis 2:24",
+      "Abraham 2:9–11"
+     ],
+     "answer": 0,
+     "note": "Moses 7:18. The people of Zion, with no poor among them."
+    },
+    {
+     "q": "Which scripture says Abraham's seed would “bear this ministry and Priesthood unto all nations”?",
+     "choices": [
+      "Abraham 2:9–11",
+      "Moses 7:18",
+      "Daniel 2:44–45",
+      "Amos 3:7"
+     ],
+     "answer": 0,
+     "note": "Abraham 2:9–11. The phrase is in verse 9."
+    },
+    {
+     "q": "Which scripture says we “were organized before the world was”?",
+     "choices": [
+      "Abraham 3:22–23",
+      "Moses 1:39",
+      "Jeremiah 1:4–5",
+      "Genesis 1:26–27"
+     ],
+     "answer": 0,
+     "note": "Abraham 3:22–23"
+    },
+    {
+     "q": "Maya's friends want her to watch a movie with content she knows isn't right. Which scripture helps her most?",
+     "choices": [
+      "Genesis 39:9",
+      "Malachi 3:8–10",
+      "Daniel 2:44–45",
+      "Isaiah 58:6–7"
+     ],
+     "answer": 0,
+     "note": "Genesis 39:9. Joseph fled temptation and said sin is against God. Isaiah 5:20 and Joshua 24:15 also fit."
+    },
+    {
+     "q": "Ethan made a serious mistake and wonders whether Jesus Christ can forgive him. Which scripture helps him most?",
+     "choices": [
+      "Isaiah 1:18",
+      "Genesis 2:24",
+      "Malachi 4:5–6",
+      "Ezekiel 3:16–17"
+     ],
+     "answer": 0,
+     "note": "Isaiah 1:18. “…they shall be as white as snow.”"
+    },
+    {
+     "q": "Ava is anxious about choosing classes and a future career. Which scripture helps her most?",
+     "choices": [
+      "Proverbs 3:5–6",
+      "Genesis 2:24",
+      "Isaiah 5:20",
+      "Malachi 4:5–6"
+     ],
+     "answer": 0,
+     "note": "Proverbs 3:5–6. Trust in the Lord, and he shall direct thy paths."
+    },
+    {
+     "q": "Caleb feels invisible at school and wonders whether his life has any purpose. Which scripture helps him most?",
+     "choices": [
+      "Moses 1:39",
+      "Isaiah 58:13–14",
+      "Malachi 3:8–10",
+      "Daniel 2:44–45"
+     ],
+     "answer": 0,
+     "note": "Moses 1:39. God's work and glory is our immortality and eternal life. Abraham 3:22–23 and Genesis 1:26–27 also fit."
+    },
+    {
+     "q": "Liam asks, “Why would anyone need a prophet today?” Which scripture helps most?",
+     "choices": [
+      "Amos 3:7",
+      "Genesis 2:24",
+      "Proverbs 3:5–6",
+      "Isaiah 58:6–7"
+     ],
+     "answer": 0,
+     "note": "Amos 3:7. The Lord reveals His secrets to His servants the prophets. Ezekiel 3:16–17 and Isaiah 29:13–14 also fit."
+    },
+    {
+     "q": "Sam asks why Sunday should feel different from the other days of the week. Which scripture helps most?",
+     "choices": [
+      "Isaiah 58:13–14",
+      "Genesis 39:9",
+      "Daniel 2:44–45",
+      "Malachi 4:5–6"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:13–14. Call the sabbath a delight."
+    },
+    {
+     "q": "Jordan's friend asks why he pays ten percent of his income to the Church. Which scripture helps most?",
+     "choices": [
+      "Malachi 3:8–10",
+      "Joshua 24:15",
+      "Isaiah 1:18",
+      "Exodus 20:3–17"
+     ],
+     "answer": 0,
+     "note": "Malachi 3:8–10. The Lord promises to open the windows of heaven."
+    },
+    {
+     "q": "Riley feels like no one understands the pain they carry. Which scripture teaches that the Savior carried our griefs?",
+     "choices": [
+      "Isaiah 53:3–5",
+      "Isaiah 58:13–14",
+      "Genesis 1:26–27",
+      "Daniel 2:44–45"
+     ],
+     "answer": 0,
+     "note": "Isaiah 53:3–5"
+    },
+    {
+     "q": "Sophie wonders whether God knew her before she was born. Which scripture helps most?",
+     "choices": [
+      "Jeremiah 1:4–5",
+      "Exodus 20:3–17",
+      "Isaiah 58:6–7",
+      "Malachi 3:8–10"
+     ],
+     "answer": 0,
+     "note": "Jeremiah 1:4–5. Abraham 3:22–23 also fits."
+    },
+    {
+     "q": "Lucas wonders how the Lord warns His people of danger. Which scripture teaches that a prophet is like a watchman?",
+     "choices": [
+      "Ezekiel 3:16–17",
+      "Genesis 2:24",
+      "Isaiah 1:18",
+      "Proverbs 3:5–6"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 3:16–17. Amos 3:7 also fits."
+    },
+    {
+     "q": "Zoe's friend says the Bible is enough and we don't need the Book of Mormon. Which scripture shows the two working together?",
+     "choices": [
+      "Ezekiel 37:15–17",
+      "Genesis 1:26–27",
+      "Malachi 3:8–10",
+      "Isaiah 58:13–14"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 37:15–17"
+    },
+    {
+     "q": "Amos 3:7 says the Lord reveals His secrets to:",
+     "choices": [
+      "His servants the prophets",
+      "Every king",
+      "The priests only",
+      "The scribes"
+     ],
+     "answer": 0,
+     "note": "Amos 3:7"
+    },
+    {
+     "q": "Isaiah 58:6–7 describes the blessings of:",
+     "choices": [
+      "A proper fast",
+      "Paying tithing",
+      "Keeping the Sabbath",
+      "Temple marriage"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:6–7"
+    },
+    {
+     "q": "Malachi 3:8–10 describes the blessings of:",
+     "choices": [
+      "Paying tithing",
+      "A proper fast",
+      "Keeping the Sabbath",
+      "Honoring parents"
+     ],
+     "answer": 0,
+     "note": "Malachi 3:8–10"
+    },
+    {
+     "q": "Isaiah 58:13–14 teaches how to treat:",
+     "choices": [
+      "The Sabbath day",
+      "A fast day",
+      "The tenth part of your income",
+      "Your neighbors"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:13–14"
+    },
+    {
+     "q": "In Ezekiel 37:15–17, the two sticks that become one represent:",
+     "choices": [
+      "The Bible and the Book of Mormon",
+      "Judah and Egypt",
+      "The Church and the temple",
+      "Moses and Aaron"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 37:15–17"
+    },
+    {
+     "q": "Daniel 2:44–45 foretold a kingdom that would:",
+     "choices": [
+      "Never be destroyed",
+      "Fall in the latter days",
+      "Divide into two nations",
+      "Be given to the kings of the earth"
+     ],
+     "answer": 0,
+     "note": "Daniel 2:44–45"
+    },
+    {
+     "q": "Abraham 2:9–11 promised that Abraham's seed would bear the ministry and Priesthood to:",
+     "choices": [
+      "All nations",
+      "Only the tribe of Levi",
+      "Only Israel",
+      "Only Egypt"
+     ],
+     "answer": 0,
+     "note": "Abraham 2:9–11"
+    },
+    {
+     "q": "Fill in the blank: “Lean not unto thine own ____.”",
+     "choices": [
+      "understanding",
+      "wisdom",
+      "strength",
+      "judgment"
+     ],
+     "answer": 0,
+     "note": "Proverbs 3:5–6"
+    },
+    {
+     "q": "Fill in the blank: “He that hath clean hands, and a pure ____.”",
+     "choices": [
+      "heart",
+      "mind",
+      "soul",
+      "spirit"
+     ],
+     "answer": 0,
+     "note": "Psalm 24:3–4"
+    },
+    {
+     "q": "Fill in the blank: “Thou shalt not take the name of the Lord thy God in ____.”",
+     "choices": [
+      "vain",
+      "jest",
+      "anger",
+      "secret"
+     ],
+     "answer": 0,
+     "note": "Exodus 20:3–17 (verse 7)"
+    },
+    {
+     "q": "Fill in the blank: “Remember the sabbath day, to keep it ____.”",
+     "choices": [
+      "holy",
+      "sacred",
+      "quiet",
+      "blessed"
+     ],
+     "answer": 0,
+     "note": "Exodus 20:3–17 (verse 8)"
+    },
+    {
+     "q": "Fill in the blank: “God created man in his own ____.”",
+     "choices": [
+      "image",
+      "glory",
+      "name",
+      "strength"
+     ],
+     "answer": 0,
+     "note": "Genesis 1:26–27"
+    },
+    {
+     "q": "Fill in the blank: “Surely he hath borne our ____, and carried our sorrows.”",
+     "choices": [
+      "griefs",
+      "burdens",
+      "sins",
+      "pains"
+     ],
+     "answer": 0,
+     "note": "Isaiah 53:3–5"
+    },
+    {
+     "q": "Fill in the blank: “Though your sins be as ____, they shall be as white as snow.”",
+     "choices": [
+      "scarlet",
+      "crimson",
+      "purple",
+      "black"
+     ],
+     "answer": 0,
+     "note": "Isaiah 1:18"
+    },
+    {
+     "q": "Fill in the blank: “Son of man, I have made thee a ____ unto the house of Israel.”",
+     "choices": [
+      "watchman",
+      "shepherd",
+      "teacher",
+      "judge"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 3:16–17"
+    },
+    {
+     "q": "Fill in the blank: “Bring ye all the ____ into the storehouse.”",
+     "choices": [
+      "tithes",
+      "firstfruits",
+      "sacrifices",
+      "talents"
+     ],
+     "answer": 0,
+     "note": "Malachi 3:8–10"
+    },
+    {
+     "q": "Fill in the blank: “Is not this the fast that I have chosen? to loose the bands of ____.”",
+     "choices": [
+      "wickedness",
+      "sorrow",
+      "pride",
+      "poverty"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:6–7"
+    },
+    {
+     "q": "Fill in the blank: “Is it not to deal thy bread to the ____?”",
+     "choices": [
+      "hungry",
+      "weary",
+      "stranger",
+      "widow"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:6–7"
+    },
+    {
+     "q": "Fill in the blank: “Come now, and let us ____ together, saith the Lord.”",
+     "choices": [
+      "reason",
+      "pray",
+      "labor",
+      "rejoice"
+     ],
+     "answer": 0,
+     "note": "Isaiah 1:18"
+    },
+    {
+     "q": "Fill in the blank: “In all thy ways acknowledge him, and he shall direct thy ____.”",
+     "choices": [
+      "paths",
+      "steps",
+      "hearts",
+      "works"
+     ],
+     "answer": 0,
+     "note": "Proverbs 3:5–6"
+    },
+    {
+     "q": "Fill in the blank: “Take thee one ____, and write upon it, For Judah.”",
+     "choices": [
+      "stick",
+      "scroll",
+      "stone",
+      "branch"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 37:15–17"
+    },
+    {
+     "q": "Fill in the blank: “The ____ was cut out of the mountain without hands.”",
+     "choices": [
+      "stone",
+      "wall",
+      "tower",
+      "sword"
+     ],
+     "answer": 0,
+     "note": "Daniel 2:44–45"
+    },
+    {
+     "q": "Fill in the blank: “Before thou camest forth out of the womb I sanctified thee, and I ordained thee a prophet unto the ____.”",
+     "choices": [
+      "nations",
+      "people",
+      "tribes",
+      "cities"
+     ],
+     "answer": 0,
+     "note": "Jeremiah 1:4–5"
+    },
+    {
+     "q": "As spirits we “were organized ____ the world was.” Which word completes it?",
+     "choices": [
+      "before",
+      "after",
+      "while",
+      "until"
+     ],
+     "answer": 0,
+     "note": "Abraham 3:22–23"
+    },
+    {
+     "q": "When Moroni first visited Joseph Smith in 1823, he began by quoting from this prophet:",
+     "choices": [
+      "Malachi",
+      "Isaiah",
+      "Daniel",
+      "Jeremiah"
+     ],
+     "answer": 0,
+     "note": "Joseph Smith—History 1:36–39. Compare Malachi 4:5–6."
+    },
+    {
+     "q": "On April 3, 1836, Elijah appeared to Joseph Smith and Oliver Cowdery in this temple:",
+     "choices": [
+      "Kirtland Temple",
+      "Nauvoo Temple",
+      "Salt Lake Temple",
+      "St. George Temple"
+     ],
+     "answer": 0,
+     "note": "Doctrine and Covenants 110:13–16. Compare Malachi 4:5–6."
+    },
+    {
+     "q": "In 1835 the Saints in Kirtland bought four Egyptian mummies with papyrus scrolls. Joseph Smith's translation became:",
+     "choices": [
+      "The Book of Abraham",
+      "The Book of Moses",
+      "The Doctrine and Covenants",
+      "The Joseph Smith Translation"
+     ],
+     "answer": 0,
+     "note": "The Book of Abraham, in the Pearl of Great Price."
+    },
+    {
+     "q": "In 1828 Martin Harris showed characters from the gold plates to a scholar. This fulfilled a prophecy in:",
+     "choices": [
+      "Isaiah 29",
+      "Isaiah 53",
+      "Ezekiel 37",
+      "Malachi 4"
+     ],
+     "answer": 0,
+     "note": "Isaiah 29:13–14 (Joseph Smith—History 1:63–65)."
+    },
+    {
+     "q": "What is the most important skill in seeking personal revelation?",
+     "choices": [
+      "Learning to recognize the Holy Ghost",
+      "Memorizing many scriptures",
+      "Fasting every week",
+      "Praying for a long time"
+     ],
+     "answer": 0,
+     "note": "From the Acquiring Spiritual Knowledge lesson."
+    },
+    {
+     "q": "Elder Ronald A. Rasband said the Spirit most often communicates to us:",
+     "choices": [
+      "As a feeling",
+      "In an audible voice",
+      "Through dreams and visions",
+      "Through angels"
+     ],
+     "answer": 0,
+     "note": "From the Acquiring Spiritual Knowledge lesson."
+    },
+    {
+     "q": "When you have gospel questions, one way to act in faith is to:",
+     "choices": [
+      "Keep the commandments",
+      "Wait until every question is answered",
+      "Stop going to church for a while",
+      "Only study with people who agree with you"
+     ],
+     "answer": 0,
+     "note": "Also: rely on what you already know, and trust in the Lord."
     }
-  ]
+   ]
+  },
+  {
+   "type": "fib",
+   "title": "Fake Out",
+   "mult": 2,
+   "count": 8,
+   "intro": "Write a believable fake ending, then find the real one.",
+   "rules": [
+    "Your set of 3 or 4 gets one clue. Write a fake ending that sounds real.",
+    "Everyone else sees the real ending mixed in with the fakes and picks the one they trust.",
+    "Pick the real one and score. Fool a classmate with your fake and score every time."
+   ],
+   "clues": [
+    {
+     "prompt": "“Trust in the Lord with all thine heart; and ____”",
+     "answer": "lean not unto thine own understanding",
+     "alt": [
+      "lean not to thine own understanding"
+     ],
+     "ref": "Proverbs 3:5–6",
+     "house": [
+      "call upon his name each morning",
+      "seek his counsel in all thy plans"
+     ]
+    },
+    {
+     "prompt": "“In all thy ways acknowledge him, and ____”",
+     "answer": "he shall direct thy paths",
+     "alt": [
+      "he will direct thy paths",
+      "he shall direct thy path"
+     ],
+     "ref": "Proverbs 3:5–6",
+     "house": [
+      "he shall guide thee in peace",
+      "thou shalt find rest unto thy soul"
+     ]
+    },
+    {
+     "prompt": "“This is my work and my glory, to bring to pass the ____”",
+     "answer": "immortality and eternal life of man",
+     "alt": [
+      "immortality and eternal life"
+     ],
+     "ref": "Moses 1:39",
+     "house": [
+      "salvation and exaltation of all his children",
+      "joy and happiness of all mankind"
+     ]
+    },
+    {
+     "prompt": "“Woe unto them that call evil good, and good evil; that put darkness for ____”",
+     "answer": "light, and light for darkness",
+     "alt": [
+      "light and light for darkness",
+      "light"
+     ],
+     "ref": "Isaiah 5:20",
+     "house": [
+      "day, and day for night",
+      "wisdom, and wisdom for folly"
+     ]
+    },
+    {
+     "prompt": "“Who shall stand in his holy place? He that hath ____”",
+     "answer": "clean hands, and a pure heart",
+     "alt": [
+      "clean hands and a pure heart"
+     ],
+     "ref": "Psalm 24:3–4",
+     "house": [
+      "a humble spirit and a willing mind",
+      "a righteous life and a faithful tongue"
+     ]
+    },
+    {
+     "prompt": "“Come now, and let us reason together, saith the Lord: though your sins be as scarlet, ____”",
+     "answer": "they shall be as white as snow",
+     "alt": [
+      "white as snow"
+     ],
+     "ref": "Isaiah 1:18",
+     "house": [
+      "they shall be made clean as water",
+      "they shall fade like the morning"
+     ]
+    },
+    {
+     "prompt": "“…choose you this day whom ye will serve… but as for me and my house, ____”",
+     "answer": "we will serve the Lord",
+     "alt": [],
+     "ref": "Joshua 24:15",
+     "house": [
+      "we will walk in his ways",
+      "we will keep his commandments"
+     ]
+    },
+    {
+     "prompt": "“How then can I do this great wickedness, and ____”",
+     "answer": "sin against God",
+     "alt": [],
+     "ref": "Genesis 39:9",
+     "house": [
+      "bring shame upon my master",
+      "dishonor my father's house"
+     ]
+    },
+    {
+     "prompt": "“Therefore shall a man leave his father and his mother, and shall cleave unto his wife: and ____”",
+     "answer": "they shall be one flesh",
+     "alt": [
+      "they shall be one",
+      "one flesh"
+     ],
+     "ref": "Genesis 2:24",
+     "house": [
+      "they shall share one home",
+      "they shall be joined in covenant"
+     ]
+    },
+    {
+     "prompt": "“The Lord called his people Zion, because they were of ____”",
+     "answer": "one heart and one mind",
+     "alt": [],
+     "ref": "Moses 7:18",
+     "house": [
+      "one family and one home",
+      "a willing heart and a humble spirit"
+     ]
+    },
+    {
+     "prompt": "“Surely the Lord God will do nothing, but ____”",
+     "answer": "he revealeth his secret unto his servants the prophets",
+     "alt": [
+      "he revealeth his secret unto his servants",
+      "he revealeth his secret to his prophets"
+     ],
+     "ref": "Amos 3:7",
+     "house": [
+      "he sendeth a warning to his people",
+      "he giveth his word to the watchmen"
+     ]
+    },
+    {
+     "prompt": "“Therefore, behold, I will proceed to do a marvellous work among this people, even ____”",
+     "answer": "a marvellous work and a wonder",
+     "alt": [
+      "marvellous work and a wonder"
+     ],
+     "ref": "Isaiah 29:13–14",
+     "house": [
+      "a great and mighty wonder",
+      "a wonder unto all nations"
+     ]
+    },
+    {
+     "prompt": "“Surely he hath borne our griefs, and ____”",
+     "answer": "carried our sorrows",
+     "alt": [],
+     "ref": "Isaiah 53:3–5",
+     "house": [
+      "lifted our burdens",
+      "taken away our fears"
+     ]
+    },
+    {
+     "prompt": "“Before I formed thee in the belly I knew thee; and before thou camest forth out of the womb I sanctified thee, and ____”",
+     "answer": "I ordained thee a prophet unto the nations",
+     "alt": [
+      "ordained thee a prophet unto the nations",
+      "i ordained thee a prophet"
+     ],
+     "ref": "Jeremiah 1:4–5",
+     "house": [
+      "I called thee to teach my people",
+      "I appointed thee a witness to the world"
+     ]
+    },
+    {
+     "prompt": "“…the God of heaven set up a kingdom, which ____”",
+     "answer": "shall never be destroyed",
+     "alt": [
+      "never be destroyed"
+     ],
+     "ref": "Daniel 2:44–45",
+     "house": [
+      "shall fill all the earth",
+      "shall stand in the latter days"
+     ]
+    },
+    {
+     "prompt": "“And he shall turn the heart of the fathers to the children, and ____”",
+     "answer": "the heart of the children to their fathers",
+     "alt": [],
+     "ref": "Malachi 4:5–6",
+     "house": [
+      "the children shall honour their fathers",
+      "the fathers shall bless their sons"
+     ]
+    },
+    {
+     "prompt": "“…call the sabbath ____”",
+     "answer": "a delight",
+     "alt": [
+      "delight"
+     ],
+     "ref": "Isaiah 58:13–14",
+     "house": [
+      "a blessing",
+      "a day of rest"
+     ]
+    },
+    {
+     "prompt": "“Bring ye all the tithes into the storehouse, that there may be meat in mine house, and prove me now herewith, saith the Lord of hosts, if I will not open you ____”",
+     "answer": "the windows of heaven, and pour you out a blessing",
+     "alt": [
+      "the windows of heaven"
+     ],
+     "ref": "Malachi 3:8–10",
+     "house": [
+      "the gates of heaven, and send you rain",
+      "the treasures of heaven, and fill your barns"
+     ]
+    },
+    {
+     "prompt": "“Son of man, I have made thee ____”",
+     "answer": "a watchman unto the house of Israel",
+     "alt": [
+      "a watchman"
+     ],
+     "ref": "Ezekiel 3:16–17",
+     "house": [
+      "a shepherd unto the house of Judah",
+      "a teacher unto all the nations"
+     ]
+    },
+    {
+     "prompt": "“Remember the sabbath day, ____”",
+     "answer": "to keep it holy",
+     "alt": [
+      "keep it holy"
+     ],
+     "ref": "Exodus 20:3–17",
+     "house": [
+      "to honour the Lord thy God",
+      "that thy days may be blessed"
+     ]
+    },
+    {
+     "prompt": "Stephen met his wife, Jenn, ____",
+     "answer": "online, on ldssingleschat.com",
+     "alt": [
+      "online",
+      "on ldssingleschat.com",
+      "ldssingleschat.com",
+      "on the internet"
+     ],
+     "ref": "Teacher trivia",
+     "house": [
+      "at a BYU–Idaho dance",
+      "through a friend from church"
+     ]
+    },
+    {
+     "prompt": "Troy served his mission ____",
+     "answer": "in Buenos Aires, Argentina",
+     "alt": [
+      "buenos aires",
+      "argentina",
+      "in argentina"
+     ],
+     "ref": "Teacher trivia",
+     "house": [
+      "in Lima, Peru",
+      "in Santiago, Chile"
+     ]
+    },
+    {
+     "prompt": "Troy played football at BYU as ____",
+     "answer": "a linebacker",
+     "alt": [
+      "linebacker"
+     ],
+     "ref": "Teacher trivia",
+     "house": [
+      "a kicker",
+      "a wide receiver"
+     ]
+    },
+    {
+     "prompt": "Stephen can do a ____ voice.",
+     "answer": "Kermit the Frog",
+     "alt": [
+      "kermit"
+     ],
+     "ref": "Teacher trivia",
+     "house": [
+      "Mickey Mouse",
+      "Donald Duck"
+     ]
+    },
+    {
+     "prompt": "Stephen has a dog named ____",
+     "answer": "Smokey",
+     "alt": [],
+     "ref": "Teacher trivia",
+     "house": [
+      "Buddy",
+      "Cooper"
+     ]
+    },
+    {
+     "prompt": "Troy keeps ____ tanks at home.",
+     "answer": "fish",
+     "alt": [
+      "fish tanks"
+     ],
+     "ref": "Teacher trivia",
+     "house": [
+      "turtle",
+      "lizard"
+     ]
+    },
+    {
+     "prompt": "Stephen went back to school in his 30s and graduated from ____",
+     "answer": "BYU–Idaho",
+     "alt": [
+      "byu idaho",
+      "byui"
+     ],
+     "ref": "Teacher trivia",
+     "house": [
+      "Utah State University",
+      "Texas State University"
+     ]
+    },
+    {
+     "prompt": "Between them, Troy and Stephen have ____ children.",
+     "answer": "seven",
+     "alt": [
+      "7",
+      "7 children",
+      "seven children"
+     ],
+     "ref": "Teacher trivia",
+     "house": [
+      "five",
+      "nine"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "draw",
+   "title": "Sketch It",
+   "mult": 3,
+   "count": 7,
+   "intro": "Draw a scripture story and guess your classmates' drawings.",
+   "rules": [
+    "Your set draws the same story on your phone. No words or letters.",
+    "Everyone else sees the drawings and guesses which story it is.",
+    "Guess right and score. Draw clearly, because you score when classmates guess your story. Pick a favorite drawing for a bonus."
+   ],
+   "stories": [
+    {
+     "story": "Joseph fleeing and leaving his garment behind",
+     "ref": "Genesis 39:9"
+    },
+    {
+     "story": "A family choosing to serve the Lord together",
+     "ref": "Joshua 24:15"
+    },
+    {
+     "story": "God creating man in His own image",
+     "ref": "Genesis 1:26–27"
+    },
+    {
+     "story": "A husband and wife becoming one",
+     "ref": "Genesis 2:24"
+    },
+    {
+     "story": "A city of people with one heart and one mind, and no poor among them",
+     "ref": "Moses 7:18"
+    },
+    {
+     "story": "Moses with the Ten Commandments on tablets of stone",
+     "ref": "Exodus 20:3–17"
+    },
+    {
+     "story": "Two sticks becoming one in a hand",
+     "ref": "Ezekiel 37:15–17"
+    },
+    {
+     "story": "A watchman on a tower warning the people",
+     "ref": "Ezekiel 3:16–17"
+    },
+    {
+     "story": "Scarlet sins becoming white as snow",
+     "ref": "Isaiah 1:18"
+    },
+    {
+     "story": "Elijah appearing in the Kirtland Temple",
+     "ref": "Doctrine and Covenants 110:13–16"
+    },
+    {
+     "story": "Martin Harris showing characters from the gold plates to a scholar",
+     "ref": "Isaiah 29:13–14"
+    },
+    {
+     "story": "The hearts of fathers and children turning toward each other",
+     "ref": "Malachi 4:5–6"
+    },
+    {
+     "story": "The windows of heaven opening to pour out blessings",
+     "ref": "Malachi 3:8–10"
+    },
+    {
+     "story": "Sharing bread with the hungry",
+     "ref": "Isaiah 58:6–7"
+    },
+    {
+     "story": "Climbing the hill of the Lord with clean hands",
+     "ref": "Psalm 24:3–4"
+    }
+   ]
+  },
+  {
+   "type": "final",
+   "title": "The Final Question",
+   "mult": 1,
+   "count": 1,
+   "intro": "One hard question. Everything is on the line.",
+   "rules": [
+    "Wager first, anywhere from nothing up to your whole score.",
+    "The question has five or six close choices, so read carefully.",
+    "Right: you win your wager. Wrong: you lose it. Audience members who answer correctly score too."
+   ],
+   "finals": [
+    {
+     "q": "“Though your sins be as scarlet, they shall be as white as snow; though they be red like crimson, they shall be as ____.”",
+     "choices": [
+      "wool",
+      "fleece",
+      "linen",
+      "silk",
+      "cloud"
+     ],
+     "answer": 0,
+     "note": "Isaiah 1:18. Both halves promise cleansing through the Savior."
+    },
+    {
+     "q": "“Surely the Lord God will do nothing, but he revealeth his ____ unto his servants the prophets.”",
+     "choices": [
+      "secret",
+      "will",
+      "purpose",
+      "word",
+      "mind"
+     ],
+     "answer": 0,
+     "note": "Amos 3:7"
+    },
+    {
+     "q": "“Thou shalt not take the name of the Lord thy God in vain; for the Lord will not hold him ____ that taketh his name in vain.”",
+     "choices": [
+      "guiltless",
+      "blameless",
+      "innocent",
+      "righteous",
+      "forgiven"
+     ],
+     "answer": 0,
+     "note": "Exodus 20:3–17 (verse 7)"
+    },
+    {
+     "q": "“…and call the sabbath a delight, the holy of the Lord, ____.”",
+     "choices": [
+      "honourable",
+      "blessed",
+      "righteous",
+      "glorious",
+      "peaceful"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:13–14 (verse 13)"
+    },
+    {
+     "q": "“…open you the windows of heaven, and pour you out a blessing, that there shall not be room enough to ____ it.”",
+     "choices": [
+      "receive",
+      "hold",
+      "contain",
+      "keep",
+      "store"
+     ],
+     "answer": 0,
+     "note": "Malachi 3:8–10 (verse 10)"
+    },
+    {
+     "q": "“…take another stick, and write upon it, For ____, the stick of Ephraim, and for all the house of Israel his companions.”",
+     "choices": [
+      "Joseph",
+      "Benjamin",
+      "Manasseh",
+      "Reuben",
+      "Dan",
+      "Levi"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 37:15–17 (verse 16)"
+    },
+    {
+     "q": "“…the kingdom shall not be left to other ____, but it shall break in pieces and consume all these kingdoms.”",
+     "choices": [
+      "people",
+      "nations",
+      "kings",
+      "rulers",
+      "generations"
+     ],
+     "answer": 0,
+     "note": "Daniel 2:44–45 (verse 44)"
+    },
+    {
+     "q": "“…choose you this day whom ye will serve; whether the gods which your fathers served that were on the other side of the ____.”",
+     "choices": [
+      "flood",
+      "river",
+      "sea",
+      "desert",
+      "mountain"
+     ],
+     "answer": 0,
+     "note": "Joshua 24:15"
+    },
+    {
+     "q": "“He is despised and rejected of men; a man of sorrows, and acquainted with ____.”",
+     "choices": [
+      "grief",
+      "pain",
+      "sickness",
+      "suffering",
+      "sorrow"
+     ],
+     "answer": 0,
+     "note": "Isaiah 53:3–5 (verse 3)"
+    },
+    {
+     "q": "Which commandment comes directly after “Thou shalt not take the name of the Lord thy God in vain”?",
+     "choices": [
+      "Remember the sabbath day, to keep it holy",
+      "Honour thy father and thy mother",
+      "Thou shalt not kill",
+      "Thou shalt not steal",
+      "Thou shalt have no other gods before me"
+     ],
+     "answer": 0,
+     "note": "Exodus 20:3–17 (verses 7 and 8)"
+    },
+    {
+     "q": "“Is not this the fast that I have chosen? to loose the bands of wickedness, to undo the heavy burdens, and to let the oppressed go free, and that ye break every ____?”",
+     "choices": [
+      "yoke",
+      "chain",
+      "bond",
+      "burden",
+      "fetter"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:6–7 (verse 6)"
+    },
+    {
+     "q": "“Before I formed thee in the belly I knew thee; and before thou camest forth out of the womb I ____ thee, and I ordained thee a prophet unto the nations.”",
+     "choices": [
+      "sanctified",
+      "blessed",
+      "called",
+      "chose",
+      "anointed"
+     ],
+     "answer": 0,
+     "note": "Jeremiah 1:4–5 (verse 5)"
+    }
+   ]
+  }
+ ]
 }

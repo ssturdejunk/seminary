@@ -10,11 +10,14 @@
   try { Object.assign(cfg, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
   let voices = [], gen = 0, fallback = null, active = false;
   V.onDuck = null; // called with true while speaking, false when done
+  V.onVoices = null; // called when the list of voices changes
 
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} };
   function load() {
     if (!supported) return;
+    const before = voices.length;
     voices = speechSynthesis.getVoices().filter((v) => /^en/i.test(v.lang));
+    if (voices.length !== before && V.onVoices) V.onVoices();
   }
   if (supported) {
     load();
