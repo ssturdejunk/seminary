@@ -9,11 +9,11 @@ window.RN_CONFIG = {
 
   // Paste the settings from your Firebase project here (see README).
   firebase: {
-    apiKey: "AIzaSyAh4GLNVZ-5n5B7fIYNxCVG6H5H5RElvME",
-    authDomain: "cpseminaryss.firebaseapp.com",
-    databaseURL: "https://cpseminaryss-default-rtdb.firebaseio.com",
-    projectId: "cpseminaryss",
-    appId: "1:191817141776:web:129028f95f48f1b9830495"
+    apiKey: "PASTE_API_KEY",
+    authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
+    databaseURL: "PASTE_DATABASE_URL",
+    projectId: "PASTE_PROJECT_ID",
+    appId: "PASTE_APP_ID"
   },
 
   // Address of play.html as phones should open it. Leave empty to use the

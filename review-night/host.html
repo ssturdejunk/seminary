@@ -21,7 +21,7 @@
   .joinbox .url { font-size: 0.8em; color: var(--mist); }
   .joinbox .code { font-family: var(--display); font-size: 2em; letter-spacing: 0.08em; line-height: 1; }
   .joinbox .qr svg { width: 4.2em; height: 4.2em; background: var(--paper); border-radius: 8px; display: block; }
-  main#stage { padding: 0.5em 2.5em 1em; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  main#stage { padding: 0.5em 2.5em 5.2em; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
   .fresh .rise { animation: rise 0.5s cubic-bezier(.2,.8,.2,1) both; }
   .fresh .rise:nth-child(2) { animation-delay: 0.08s; } .fresh .rise:nth-child(3) { animation-delay: 0.16s; }
   .fresh .rise:nth-child(4) { animation-delay: 0.24s; } .fresh .rise:nth-child(5) { animation-delay: 0.32s; }
@@ -49,6 +49,24 @@
     background: var(--tide); border-radius: 18px; padding: 0.75em 1em; font-size: 1.35em;
     display: flex; align-items: center; gap: 0.7em; position: relative; min-height: 2.6em;
   }
+  .tiles.many { gap: 0.5em; }
+  .tiles.many .tile { font-size: 1.12em; min-height: 2.2em; padding: 0.55em 0.9em; }
+  .intro { max-width: 70em; }
+  .intro-top { display: flex; justify-content: space-between; align-items: center; gap: 1em; }
+  .rchips { display: flex; gap: 0.4em; }
+  .rchip { width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; background: var(--tide); color: var(--mist); font-family: var(--display); }
+  .rchip.on { background: var(--saffron); color: var(--deep); }
+  .rchip.done { background: var(--mint); color: var(--deep); }
+  .intro-title { display: flex; align-items: baseline; gap: 0.6em; flex-wrap: wrap; margin-top: 0.1em; }
+  .intro-title .big { color: var(--saffron); font-size: 3.6em; }
+  .intro-title .mult { font-family: var(--display); background: var(--coral); color: var(--deep); border-radius: 999px; padding: 0.1em 0.7em; font-size: 1.5em; }
+  .intro .lead { font-size: 1.3em; margin: 0.2em 0 0.7em; }
+  .intro-cols { display: grid; grid-template-columns: 1.35fr 1fr; gap: 1em; }
+  .intro .card { background: var(--tide); border-radius: 18px; padding: 0.8em 1.1em; }
+  .intro .card h3 { color: var(--saffron); font-size: 1.1em; margin-bottom: 0.3em; }
+  .intro .card ol, .intro .card ul { margin: 0; padding-left: 1.2em; font-size: 1.02em; }
+  .intro .card li { margin: 0.25em 0; }
+  .intro-foot { margin-top: 0.8em; font-size: 0.9em; }
   .tile .k { font-family: var(--display); background: var(--deep); color: var(--saffron); min-width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; font-size: 0.9em; }
   .tile .n { margin-left: auto; font-family: var(--display); color: var(--mist); }
   .tile.right { background: var(--mint); color: var(--deep); }
@@ -86,12 +104,12 @@
 
   .drawings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8em; }
   .drawing { background: var(--paper); border-radius: 16px; padding: 0.4em; color: var(--deep); position: relative; }
-  .drawing img { width: 100%; aspect-ratio: 1; display: block; border-radius: 10px; }
+  .drawing img { width: auto; max-width: 100%; height: 100%; max-height: 31vh; aspect-ratio: 1; display: block; margin: 0 auto; border-radius: 10px; }
   .drawing .lbl { position: absolute; top: 0.4em; left: 0.4em; font-family: var(--display); background: var(--deep); color: var(--saffron); width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; }
   .drawing .artist { text-align: center; font-weight: 700; padding: 0.2em 0 0; }
   .drawing.fav { box-shadow: 0 0 0 5px var(--saffron); }
   .drawing .star { position: absolute; top: 0.4em; right: 0.5em; font-size: 1.4em; }
-  .storylist { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3em 1.2em; margin-top: 0.9em; font-size: 0.95em; }
+  .storylist { display: grid; grid-template-columns: 1fr 1fr; gap: 0.15em 1.2em; margin-top: 0.6em; font-size: 0.9em; line-height: 1.25; }
   .storylist div.right { color: var(--mint); font-weight: 700; }
 
   .leader { max-width: 34em; }
@@ -116,6 +134,44 @@
   .voiceset input[type=range] { accent-color: #F4B942; }
   .status { position: fixed; left: 1.4em; bottom: 1.6em; font-size: 0.7em; color: var(--mist); }
   .status.bad { color: var(--coral); }
+  /* ---------- phone layout: switched on by host.js for narrow or short screens ---------- */
+  html.compact, html.compact body { height: auto; }
+  body.compact { min-height: 100%; overflow: auto; font-size: 16px; }
+  .compact .shell { display: block; height: auto; min-height: 100vh; min-height: 100dvh; }
+  .compact header.bar { padding: 0.9em 0.9em 0.3em; flex-wrap: wrap; }
+  .compact .where h1 { font-size: 1.15em; }
+  .compact .joinbox { gap: 0.5em; }
+  .compact .joinbox .code { font-size: 1.5em; }
+  .compact .joinbox .qr svg { width: 3em; height: 3em; }
+  .compact main#stage { padding: 0.4em 0.9em 8.8em; overflow: visible; justify-content: flex-start; }
+  .compact .river { position: fixed; top: 0; left: 0; right: 0; z-index: 8; height: 0.45em; }
+  .compact .river .secs { top: 0.7em; bottom: auto; left: auto; right: 0.8em; font-size: 1.6em; }
+  .compact nav.controls { left: 0; right: 0; bottom: 0; max-width: none; justify-content: stretch; padding: 0.6em 0.7em calc(0.6em + env(safe-area-inset-bottom, 0px)); background: var(--deep); border-top: 1px solid var(--tide-2); font-size: 1em; gap: 0.4em; }
+  .compact nav.controls button { flex: 1 1 auto; padding: 0.6em 0.4em; font-size: 0.85em; min-height: 44px; white-space: nowrap; }
+  .compact nav.controls .primary { order: -1; flex: 1 1 100%; padding: 0.85em; font-size: 1.15em; }
+  .compact .status { position: static; margin-top: 0.25em; font-size: 0.72em; }
+  .compact .big { font-size: 2.2em !important; }
+  .compact .prompt { font-size: 1.3em; margin-bottom: 0.6em; }
+  .compact .tiles { grid-template-columns: 1fr; }
+  .compact .tile, .compact .tiles.many .tile { font-size: 1.05em; min-height: 2.4em; padding: 0.6em 0.8em; }
+  .compact .split { grid-template-columns: 1fr; gap: 1em; }
+  .compact .lobby { grid-template-columns: 1fr; gap: 1em; justify-items: center; text-align: center; }
+  .compact .lobby .qrbig svg { width: min(62vw, 15em); height: min(62vw, 15em); }
+  .compact .lobby .code { font-size: 3.6em; }
+  .compact .chips { justify-content: center; max-height: none; }
+  .compact .intro-title .big { font-size: 2.3em !important; }
+  .compact .intro-title .mult { font-size: 1em; }
+  .compact .intro .lead { font-size: 1.05em; }
+  .compact .intro-cols { grid-template-columns: 1fr; }
+  .compact .drawings { grid-template-columns: repeat(2, 1fr) !important; }
+  .compact .drawing img { max-height: 26vh; }
+  .compact .storylist { grid-template-columns: 1fr; }
+  .compact .leader .row { font-size: 1.05em; }
+  .compact .podium { gap: 0.5em; }
+  .compact .podium .p { width: 6.5em; }
+  .compact .podium .blk { font-size: 2em; }
+  .compact dialog { width: calc(100vw - 1.6em); max-height: 88vh; overflow: auto; }
+  @media (min-width: 600px) { .compact nav.controls .primary { order: 0; flex: 0 0 auto; padding: 0.7em 1.2em; font-size: 1em; } }
   dialog { background: var(--tide); color: var(--paper); border: 0; border-radius: 18px; padding: 1.2em 1.4em; max-width: 30em; }
   dialog::backdrop { background: rgba(5, 15, 20, 0.7); }
   dialog .acts { display: flex; gap: 0.6em; justify-content: flex-end; margin-top: 1em; flex-wrap: wrap; }
@@ -124,14 +180,13 @@
 <body class="board">
 <div class="shell">
   <header class="bar">
-    <div class="where"><h1 id="where"></h1><div class="sub" id="whereSub"></div></div>
+    <div class="where"><h1 id="where"></h1><div class="sub" id="whereSub"></div><div class="status" id="status"></div></div>
     <div class="joinbox" id="joinbox"></div>
   </header>
   <main id="stage"></main>
   <div class="river" id="river"><i></i><span class="secs"></span></div>
   <nav class="controls" id="controls"></nav>
 </div>
-<div class="status" id="status"></div>
 <dialog id="tools">
   <h3>Host tools</h3>
   <p class="muted">Moderate from your phone so the projector never shows a fake answer or drawing before you see it.</p>

@@ -23,7 +23,7 @@
     .replace(/[^a-z0-9]+/g, " ").trim().replace(/^(a|an|the) /, "");
   const letter = (i) => String.fromCharCode(65 + i);
   // True when a fake shares most of its meaningful words with the real answer.
-  const STOP = new Set("a an the of and to in on unto for his her my thy thine thee your you is are was be as at by with that this it or".split(" "));
+  const STOP = new Set("a an the of and to in on unto for his her my thy thine thee your you is are was be as at by with that this it or they shall will shalt he she we i them him who which not no so but if then".split(" "));
   function similar(a, b) {
     const x = norm(a), y = norm(b);
     if (!x || !y) return false;
@@ -34,7 +34,49 @@
     let shared = 0; tx.forEach((w) => { if (ty.has(w)) shared++; });
     return shared / m >= 0.6;
   }
-  const round = () => (D && S && S.r >= 0 ? D.rounds[S.r] : null);
+  const round = () => (S && S.rounds && S.r >= 0 ? S.rounds[S.r] : null);
+  const mult = () => (round() && round().mult) || 1;
+
+  // ---------- question bank: each game draws a fresh deck ----------
+  // The clue file holds banks. At the start of a game the board draws `count` items
+  // per round, preferring ones this laptop has shown least, and reshuffles the choices.
+  const SEEN_KEY = "rn-seen-v1";
+  let seen = {};
+  try { seen = JSON.parse(localStorage.getItem(SEEN_KEY) || "{}") || {}; } catch (e) { seen = {}; }
+  const saveSeen = () => { try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (e) {} };
+  const markSeen = (id) => { seen[id] = (seen[id] || 0) + 1; saveSeen(); };
+  function pick(pool, n, idOf) {
+    const rows = pool.map((it) => ({ it, c: seen[idOf(it)] || 0, r: Math.random() }));
+    rows.sort((a, b) => a.c - b.c || a.r - b.r);
+    return shuffle(rows.slice(0, Math.min(n, rows.length)).map((x) => x.it));
+  }
+  function reshuffle(q) {
+    if (q.fixed) return q;
+    const idx = shuffle(q.choices.map((_, i) => i));
+    return Object.assign({}, q, { choices: idx.map((i) => q.choices[i]), answer: idx.indexOf(q.answer) });
+  }
+  function buildDeck() {
+    return D.rounds.map((r) => {
+      const c = JSON.parse(JSON.stringify(r)), n = (len, def) => Math.min(r.count || def || len, len);
+      if (r.type === "trivia") c.questions = pick(r.questions, n(r.questions.length), (q) => q.q).map(reshuffle);
+      else if (r.type === "fib") c.clues = pick(r.clues, n(r.clues.length, 8), (x) => x.prompt);
+      else if (r.type === "draw") c.stories = pick(r.stories, n(r.stories.length, 7), (x) => x.story);
+      else if (r.type === "final") {
+        const f = reshuffle(pick(r.finals || [r], 1, (x) => x.q)[0]);
+        c.q = f.q; c.choices = f.choices; c.answer = f.answer; c.note = f.note;
+      }
+      return c;
+    });
+  }
+  const ensureDeck = () => { if (!S.rounds) S.rounds = buildDeck(); };
+  function roundPoints(r) {
+    const P = pts(), m = r.mult || 1;
+    if (r.type === "trivia") return ["Correct answer: " + (P.triviaCorrect || 100) * m, "Speed bonus: up to " + (P.triviaSpeedBonus || 0) * m + " more"];
+    if (r.type === "fib") return ["Pick the real ending: " + (P.fibTruth || 100) * m, "Each classmate your fake fools: " + (P.fibFooled || 50) * m];
+    if (r.type === "draw") return ["Guess the right story: " + (P.drawCorrect || 100) * m, "Your drawing: up to " + (P.drawArtistMax || 100) * m + ", based on how many guess it", "Class favorite drawing: " + (P.drawFavorite || 50) * m + " bonus"];
+    return ["Wager up to your score (up to " + (P.finalMaxWagerFloor || 500) + " if you're lower)", "Right: win your wager. Wrong: lose it", "Audience: " + (P.finalAudienceCorrect || 100) + " for a right answer"];
+  }
+  const multWords = (m) => (m === 2 ? "Double points." : m === 3 ? "Triple points." : m > 1 ? "Points times " + m + "." : "");
   const set = () => D.settings || {};
   const pts = () => (set().points || {});
   const timerSecs = (name) => ((set().timers || {})[name] || 30);
@@ -68,16 +110,17 @@
   function syncMusic() {
     const ph = S.phase;
     AU.music(TIMED[ph] ? (ph === "xw" || ph === "xq" ? "final" : "play")
-      : ph === "lobby" || ph === "scores" || ph === "end" ? "calm" : "off");
+      : ph === "lobby" ? "organ" : ph === "scores" || ph === "end" ? "calm" : "off");
   }
   const VO = window.RN_VOICE;
   VO.onDuck = (on) => AU.duck(on);
+  VO.onVoices = () => { if (S && S.phase === "setup") render(); }; // the voice list can arrive after the page loads
   const HOLD_PHASES = ["tq", "fg", "xq"]; // timer waits until the question has been read
   const choiceLine = (cs) => cs.map((c, i) => letter(i) + ", " + c + ".").join(" ");
   function spokenText() {
     const r = round(), ph = S.phase;
     switch (ph) {
-      case "intro": return "Round " + (S.r + 1) + ". " + r.title + ". " + (r.intro || "");
+      case "intro": return (S.r === 0 ? "Welcome to " + D.title + ". " : "") + "Round " + (S.r + 1) + ". " + r.title + ". " + multWords(r.mult || 1) + " " + (r.intro || "") + " " + (r.rules || []).join(" ");
       case "tq": { const q = r.questions[S.i]; return q.q + " " + choiceLine(q.choices); }
       case "tr": { const q = r.questions[S.i]; return "The answer is " + letter(q.answer) + ", " + q.choices[q.answer] + "."; }
       case "fw": return "Write a convincing fake. Your clue is on your phone.";
@@ -163,7 +206,7 @@
       phase: "setup", key: 0, r: -1, i: 0,
       players: {}, order: [], removed: {},
       sets: [], subs: {}, ans: {}, opts: [], res: null, wagers: {}, drawings: [], storyOrder: [],
-      deadline: 0, total: 0, hold: false, created: Date.now()
+      deadline: 0, total: 0, hold: false, rounds: null, created: Date.now()
     };
   }
   function save() {
@@ -173,6 +216,7 @@
     const reveal = ["tr", "fr", "dr", "xr"].includes(phase);
     S.phase = phase; S.key++;
     if (!reveal) { S.ans = {}; S.res = null; }
+    if (phase === "tq") markSeen(round().questions[S.i].q);
     const t = TIMED[phase];
     S.hold = false;
     if (t) { S.total = timerSecs(t) * 1000; S.deadline = Date.now() + S.total; } else { S.deadline = 0; S.total = 0; }
@@ -213,6 +257,7 @@
     }
   }
   function nextRound() {
+    ensureDeck();
     S.r++; S.i = 0;
     if (S.r >= D.rounds.length) go("end"); else go("intro");
   }
@@ -220,10 +265,11 @@
     const r = round();
     S.i = 0;
     if (r.type === "trivia") return go("tq");
-    if (r.type === "final") { promoteAudience(); S.wagers = {}; return go("xw"); }
+    if (r.type === "final") { promoteAudience(); S.wagers = {}; markSeen(r.q); return go("xw"); }
     promoteAudience();
     const items = r.type === "fib" ? r.clues : r.stories;
     buildSets(items.length);
+    S.sets.forEach((s) => markSeen(r.type === "fib" ? r.clues[s.item].prompt : r.stories[s.item].story));
     if (r.type === "draw") S.storyOrder = shuffle(r.stories.map((_, i) => i));
     if (!S.sets.length) return go("scores");
     go(r.type === "fib" ? "fw" : "dw");
@@ -274,7 +320,7 @@
     for (const pid in S.ans) {
       const a = S.ans[pid]; if (!S.players[pid] || S.removed[pid]) continue;
       counts[a.v] = (counts[a.v] || 0) + 1;
-      if (a.v === q.answer) addScore(pid, (P.triviaCorrect || 100) + Math.round((P.triviaSpeedBonus || 0) * Math.max(0, a.left) / S.total), gains);
+      if (a.v === q.answer) addScore(pid, mult() * ((P.triviaCorrect || 100) + Math.round((P.triviaSpeedBonus || 0) * Math.max(0, a.left) / S.total)), gains);
     }
     S.res = { counts, gains, right: Object.keys(S.ans).filter((pid) => S.ans[pid].v === q.answer) , picks: S.ans };
     sfx.reveal();
@@ -313,8 +359,8 @@
       if (!S.players[pid] || S.removed[pid] || inCurrentSet(pid)) continue;
       const o = S.opts[S.ans[pid].v]; if (!o) continue;
       picks[S.ans[pid].v].push(pid);
-      if (o.truth) addScore(pid, P.fibTruth || 100, gains);
-      else o.authors.forEach((a) => addScore(a, P.fibFooled || 50, gains));
+      if (o.truth) addScore(pid, (P.fibTruth || 100) * mult(), gains);
+      else o.authors.forEach((a) => addScore(a, (P.fibFooled || 50) * mult(), gains));
     }
     S.res = { picks, gains };
     sfx.reveal();
@@ -340,13 +386,13 @@
       if (!S.players[pid] || S.removed[pid] || inCurrentSet(pid)) continue;
       const a = S.ans[pid]; guessers++;
       counts[a.v] = (counts[a.v] || 0) + 1;
-      if (a.v === right) { correct++; addScore(pid, P.drawCorrect || 100, gains); }
+      if (a.v === right) { correct++; addScore(pid, (P.drawCorrect || 100) * mult(), gains); }
       if (a.fav >= 0 && a.fav < favs.length) favs[a.fav]++;
     }
-    if (guessers) S.drawings.forEach((d) => addScore(d.pid, Math.round((P.drawArtistMax || 100) * correct / guessers), gains));
+    if (guessers) S.drawings.forEach((d) => addScore(d.pid, Math.round((P.drawArtistMax || 100) * mult() * correct / guessers), gains));
     const top = Math.max(0, ...favs);
     const favIdx = top > 0 ? favs.map((n, i) => (n === top ? i : -1)).filter((i) => i >= 0) : [];
-    favIdx.forEach((i) => addScore(S.drawings[i].pid, P.drawFavorite || 50, gains));
+    favIdx.forEach((i) => addScore(S.drawings[i].pid, (P.drawFavorite || 50) * mult(), gains));
     S.res = { counts, gains, guessers, correct, favIdx, favs };
     sfx.reveal();
     go("dr");
@@ -489,7 +535,7 @@
     if (S.hold && HOLD_PHASES.includes(ph) && !(ph === "fg" && inCurrentSet(pid))) return wait("Listen to the question.", "Answers open as soon as it has been read.");
     switch (ph) {
       case "setup": case "lobby": return wait("You're in.", "Watch the screen. The game starts soon.");
-      case "intro": return wait(r.title, r.intro || "");
+      case "intro": return wait(r.title, ((r.mult || 1) > 1 ? "Points are ×" + r.mult + " this round. " : "") + (r.intro || ""));
       case "scores": return wait(rankLine(pid), "Next round coming up.");
       case "end": return Object.assign(base, { v: "end", msg: rankLine(pid, true) });
       case "tq": { const q = r.questions[S.i]; return Object.assign(base, { v: "choose", prompt: q.q, choices: q.choices, picked: a ? a.v : null }, timing()); }
@@ -591,7 +637,7 @@
     if (S.phase === "lobby") return "Lobby";
     if (S.phase === "end") return "Final scores";
     if (!r) return "";
-    let t = r.title;
+    let t = r.title + ((r.mult || 1) > 1 ? " · ×" + r.mult + " points" : "");
     if (S.phase === "tq" || S.phase === "tr") t += ", question " + (S.i + 1) + " of " + r.questions.length;
     if (["fg", "fr", "dg", "dr"].includes(S.phase)) t += ", set " + (S.i + 1) + " of " + S.sets.length;
     return t;
@@ -651,12 +697,22 @@
         <div class="chips">${ps.map((p) => `<span class="chip ${p.pid === S.lastJoin ? "fresh-chip" : ""}" style="background:${p.color}">${esc(p.name)}</span>`).join("")}</div>
         <div class="count">${ps.length} joined</div></div></div>`;
     } else if (ph === "intro") {
-      h = `<div class="rise muted">Round ${S.r + 1} of ${D.rounds.length}</div><div class="big rise" style="color:var(--saffron);font-size:6em">${esc(r.title)}</div><p class="rise" style="font-size:1.4em;max-width:30em">${esc(r.intro || "")}</p>`;
+      const m = r.mult || 1;
+      const chips = D.rounds.map((x, i) => `<span class="rchip ${i === S.r ? "on" : i < S.r ? "done" : ""}" title="${esc(x.title)}">${i + 1}</span>`).join("");
+      h = `<div class="intro">
+        <div class="intro-top rise"><span class="muted">${S.r === 0 ? "Welcome to " + esc(D.title) + ". " : ""}Round ${S.r + 1} of ${D.rounds.length}</span><span class="rchips">${chips}</span></div>
+        <div class="intro-title rise"><span class="big">${esc(r.title)}</span>${m > 1 ? `<span class="mult">×${m} points</span>` : ""}</div>
+        <p class="lead rise">${esc(r.intro || "")}</p>
+        <div class="intro-cols">
+          <div class="card rise"><h3>How it works</h3><ol>${(r.rules || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ol></div>
+          <div class="card rise"><h3>Points${m > 1 ? ` (×${m} this round)` : ""}</h3><ul>${roundPoints(r).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
+        </div>
+        <div class="intro-foot rise muted">${(D.welcome || []).map(esc).join(" · ")}</div></div>`;
     } else if (ph === "tq" || ph === "tr" || ph === "xq" || ph === "xr") {
       const q = ph[0] === "t" ? r.questions[S.i] : { q: r.q, choices: r.choices, answer: r.answer, note: r.note };
       const rev = ph.endsWith("r");
       const tiles = q.choices.map((c, i) => `<div class="tile rise ${rev ? (i === q.answer ? "right" : "dim") : ""}"><span class="k">${letter(i)}</span><span class="txt">${esc(c)}</span>${rev ? `<span class="n">${S.res.counts[i] || 0}</span>` : ""}</div>`).join("");
-      const main = `<div class="prompt rise">${esc(q.q)}</div><div class="tiles">${tiles}</div>${rev && q.note ? `<div class="note rise">${esc(q.note)}</div>` : answeredLine()}`;
+      const main = `<div class="prompt rise">${esc(q.q)}</div><div class="tiles ${q.choices.length > 4 ? "many" : ""}">${tiles}</div>${rev && q.note ? `<div class="note rise">${esc(q.note)}</div>` : answeredLine()}`;
       h = rev ? `<div class="split"><div>${main}</div><div class="board-list rise"><h3>${ph === "xr" ? "Standings" : "Top 5"}</h3>${leaderHTML(ph === "xr" ? 8 : 5, S.res.gains)}</div></div>` : main;
     } else if (ph === "fw" || ph === "dw") {
       h = `<div class="big rise">${ph === "fw" ? "Write a convincing fake" : "Draw your story"}</div><p class="rise muted" style="font-size:1.2em">${ph === "fw" ? "Check your phone for your set's clue." : "Check your phone for your set's story. Everyone in a set draws the same one."}</p>${setsHTML()}`;
@@ -702,9 +758,10 @@
   function renderControls() {
     const c = $("#controls");
     const lbl = S.phase === "setup" ? "" : nextLabel();
-    c.innerHTML = `<button id="cSnd" class="ghost">${soundLabel()}</button>${VO.supported ? `<button id="cVoice" class="ghost">${voiceLabel()}</button>` : ""}<button id="cTools" class="ghost">Host tools</button>` +
-      (round() && !["scores", "end"].includes(S.phase) ? `<button id="cSkip" class="ghost">Skip round</button>` : "") +
-      (S.deadline ? `<button id="cAdd" class="ghost">+15 sec</button>` : "") +
+    const sm = document.body.classList.contains("compact"); // shorter labels on a phone
+    c.innerHTML = `<button id="cSnd" class="ghost">${soundLabel()}</button>${VO.supported ? `<button id="cVoice" class="ghost">${voiceLabel()}</button>` : ""}<button id="cTools" class="ghost">${sm ? "Tools" : "Host tools"}</button>` +
+      (round() && !["scores", "end"].includes(S.phase) ? `<button id="cSkip" class="ghost">${sm ? "Skip" : "Skip round"}</button>` : "") +
+      (S.deadline ? `<button id="cAdd" class="ghost">${sm ? "+15s" : "+15 sec"}</button>` : "") +
       (lbl ? `<button id="cNext" class="primary">${lbl}</button>` : "");
     $("#cSnd").onclick = toggleSound;
     if ($("#cVoice")) $("#cVoice").onclick = toggleVoice;
@@ -736,6 +793,7 @@
       <div class="card rise"><b>Clues:</b> ${D ? `${esc(D.title)}, ${D.rounds.length} rounds` : `<span class="warn">No clue file loaded.</span>`}
         <div style="margin-top:.6em"><label class="muted">Load a different clue file <input type="file" id="fileIn" accept=".json,application/json"></label></div><div id="fileErr" class="warn"></div></div>
       <div class="card rise"><div class="modqr"><div>${qr(modUrl(), 4)}</div><div><b>Moderate from your phone.</b> Scan this before you turn on the projector. Your phone can hide fake answers and drawings, remove players, and move the game forward. Moderator code: <b>${S.pin}</b></div></div></div>
+      <div class="card rise"><b>Voice for reading questions aloud</b>${voiceSettingsHTML("vs")}</div>
       ${fileWarn ? `<div class="card rise warn">This board is running from a file, so phones need the online address. Set playUrl in config.js.</div>` : ""}
       <div style="display:flex;gap:.6em;margin-top:1.2em" class="rise">
         <button class="primary" id="openLobby" ${D ? "" : "disabled"}>Open the lobby</button>
@@ -750,6 +808,7 @@
       f.text().then((t) => { const d = JSON.parse(t); validate(d); D = d; try { localStorage.setItem(DATA_KEY, t); } catch (e) {} render(); })
         .catch((e) => { $("#fileErr").textContent = "That file could not be used: " + e.message; });
     };
+    bindVoiceSettings("vs");
     const ol = $("#openLobby"); if (ol) ol.onclick = () => go("lobby");
     const rs = $("#resume"); if (rs) rs.onclick = resume;
   }
@@ -773,31 +832,34 @@
     d.settings = d.settings || {};
     d.rounds.forEach((r, i) => {
       const n = "Round " + (i + 1);
+      if (r.count != null && !(r.count >= 1)) throw new Error(n + " has a bad count.");
       if (r.type === "trivia") { if (!r.questions || !r.questions.length) throw new Error(n + " has no questions."); r.questions.forEach((q, j) => { if (!q.choices || q.answer == null || !q.choices[q.answer]) throw new Error(n + ", question " + (j + 1) + " needs choices and a valid answer number (counting from 0)."); }); }
       else if (r.type === "fib") { if (!r.clues || !r.clues.length) throw new Error(n + " has no clues."); r.clues.forEach((c, j) => { if (!c.prompt || !c.answer) throw new Error(n + ", clue " + (j + 1) + " needs a prompt and an answer."); }); }
       else if (r.type === "draw") { if (!r.stories || r.stories.length < 2) throw new Error(n + " needs at least 2 stories."); }
-      else if (r.type === "final") { if (!r.choices || r.answer == null || !r.choices[r.answer]) throw new Error(n + " needs choices and a valid answer number."); }
+      else if (r.type === "final") { (r.finals || [r]).forEach((f, j) => { if (!f.q || !f.choices || f.answer == null || !f.choices[f.answer]) throw new Error(n + ", final question " + (j + 1) + " needs a question, choices, and a valid answer number."); }); }
       else throw new Error(n + " has an unknown type: " + r.type);
     });
   }
-  function voiceSettingsHTML() {
+  function voiceSettingsHTML(px) {
     if (!VO.supported) return `<p class="muted">This browser can't read aloud. Try Chrome or Edge.</p>`;
     const vs = VO.voices(), cur = VO.chosen() || VO.voiceName();
-    return `<div class="voiceset"><label class="chk"><input type="checkbox" id="voOn" ${VO.enabled() ? "checked" : ""}> Read questions aloud</label>
-      <label>Voice${vs.length ? "" : " (none found on this device yet)"}<select id="voSel">${vs.map((v) => `<option value="${esc(v.name)}" ${v.name === cur ? "selected" : ""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")}</select></label>
-      <label>Speed<input type="range" id="voRate" min="0.7" max="1.3" step="0.05" value="${VO.rate()}"></label>
-      <div><button id="voTest" class="ghost">Test voice</button></div></div>`;
+    return `<div class="voiceset"><label class="chk"><input type="checkbox" id="${px}On" ${VO.enabled() ? "checked" : ""}> Read questions aloud</label>
+      <label>Voice${vs.length ? "" : " (none found on this device yet)"}<select id="${px}Sel">${vs.map((v) => `<option value="${esc(v.name)}" ${v.name === cur ? "selected" : ""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")}</select></label>
+      <label>Speed<input type="range" id="${px}Rate" min="0.7" max="1.3" step="0.05" value="${VO.rate()}"></label>
+      <div><button id="${px}Test" class="ghost">Test voice</button></div></div>`;
   }
-  function bindVoiceSettings() {
-    const on = $("#voOn"); if (!on) return;
+  function bindVoiceSettings(px) {
+    const on = $("#" + px + "On"); if (!on) return;
     on.onchange = () => { VO.setEnabled(on.checked); if (!on.checked) releaseHold(); renderControls(); };
-    $("#voSel").onchange = (e) => VO.setVoice(e.target.value);
-    $("#voRate").oninput = (e) => VO.setRate(e.target.value);
-    $("#voTest").onclick = () => VO.speak("Which scripture says, they were of one heart and one mind? A, Moses 1:39. B, Moses 7:18.", null, true);
+    $("#" + px + "Sel").onchange = (e) => VO.setVoice(e.target.value);
+    $("#" + px + "Rate").oninput = (e) => VO.setRate(e.target.value);
+    $("#" + px + "Test").onclick = () => VO.speak("Which scripture says, they were of one heart and one mind? A, Moses 1:39. B, Moses 7:18.", null, true);
   }
   function openTools() {
-    $("#toolsBody").innerHTML = voiceSettingsHTML() + `<div class="setup"><div class="modqr" style="display:flex;gap:1em;align-items:center"><div>${qr(modUrl(), 4)}</div><div>Moderator code <b>${S.pin}</b><br><span class="muted">Room ${S.code}</span></div></div></div>`;
-    bindVoiceSettings();
+    const stats = D ? D.rounds.map((r) => r.title + ": " + (r.questions || r.clues || r.stories || r.finals || [1]).length).join(", ") : "";
+    $("#toolsBody").innerHTML = voiceSettingsHTML("vt") + `<div class="voiceset"><div class="muted">Question banks: ${esc(stats)}</div><div><button id="resetSeen" class="ghost">Reset question history</button> <span id="resetMsg" class="muted"></span></div></div>` + `<div class="setup"><div class="modqr" style="display:flex;gap:1em;align-items:center"><div>${qr(modUrl(), 4)}</div><div>Moderator code <b>${S.pin}</b><br><span class="muted">Room ${S.code}</span></div></div></div>`;
+    bindVoiceSettings("vt");
+    $("#resetSeen").onclick = () => { seen = {}; try { localStorage.removeItem(SEEN_KEY); } catch (e) {} $("#resetMsg").textContent = "Cleared. The next game can draw any question."; };
     $("#tools").showModal();
   }
   let askYes = null;
@@ -818,8 +880,27 @@
   window.addEventListener("pointerdown", unlockOnce, true);
   window.addEventListener("keydown", unlockOnce, true);
 
+  // Phone layout: used for narrow or short screens. Add ?compact=1 or ?compact=0 to the address to force it.
+  const compactQuery = window.matchMedia("(max-width: 900px), (max-height: 520px)");
+  function applyLayout() {
+    const f = new URLSearchParams(location.search).get("compact");
+    const on = f === "1" ? true : f === "0" ? false : compactQuery.matches;
+    document.body.classList.toggle("compact", on);
+    document.documentElement.classList.toggle("compact", on);
+    if (S) renderControls();
+  }
+  if (compactQuery.addEventListener) compactQuery.addEventListener("change", applyLayout); else if (compactQuery.addListener) compactQuery.addListener(applyLayout);
+
+  // Keep the screen awake while the board is open (phones dim and sleep otherwise).
+  let wakeLock = null;
+  async function keepAwake() {
+    try { if (navigator.wakeLock && document.visibilityState === "visible") wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {}
+  }
+  document.addEventListener("visibilitychange", keepAwake);
+
   // ---------- boot ----------
   async function boot() {
+    applyLayout(); keepAwake();
     newGame();
     const url = new URLSearchParams(location.search).get("data") || cfg.dataUrl;
     if (url) {

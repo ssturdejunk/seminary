@@ -11,7 +11,7 @@
   let muted = false;
   try { muted = localStorage.getItem(KEY) === "1"; } catch (e) {}
   let live = null, mode = "off", intensityNow = 0, timer = null, ducked = false;
-  const level = () => (mode === "calm" ? 0.5 : 1) * (ducked ? 0.3 : 1);
+  const level = () => (mode === "calm" ? 0.5 : mode === "organ" ? 0.9 : 1) * (ducked ? 0.3 : 1);
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
   // ---------- audio graph ----------
@@ -100,6 +100,66 @@
     }
   }
 
+  // ---------- pipe organ (lobby) ----------
+  // An original hymn-style prelude in G major: 32 chords of two beats, as
+  // [pedal bass, tenor, alto, soprano] in MIDI notes. Four phrases (A, B, A, D).
+  const PH_A = [[43, 62, 67, 71], [48, 64, 67, 72], [50, 62, 66, 69], [43, 62, 67, 71],
+                [52, 64, 67, 71], [45, 64, 69, 72], [50, 60, 66, 69], [43, 59, 62, 67]];
+  const PH_B = [[43, 67, 71, 74], [48, 64, 67, 72], [47, 62, 67, 71], [45, 60, 64, 69],
+                [47, 62, 66, 71], [48, 64, 67, 72], [45, 64, 69, 72], [50, 66, 69, 74]];
+  const PH_D = [[48, 64, 67, 72], [43, 62, 67, 71], [45, 64, 69, 72], [50, 66, 69, 74],
+                [52, 64, 67, 71], [48, 64, 67, 72], [50, 57, 66, 72], [43, 62, 67, 71]];
+  const ORGAN_SEQ = PH_A.concat(PH_B, PH_A, PH_D);
+  const ORGAN_BPM = 66;
+
+  function organWave(g) {
+    if (!g.organWave) {
+      const amps = [0, 1, 0.5, 0.25, 0.3, 0.05, 0.12, 0.03, 0.07, 0.03], real = new Float32Array(amps.length);
+      g.organWave = g.ctx.createPeriodicWave(real, Float32Array.from(amps));
+    }
+    return g.organWave;
+  }
+  // Organ output: a dry path plus a darkened church-hall reverb.
+  function organOut(g) {
+    if (g.organBus) return g.organBus;
+    const c = g.ctx, bus = c.createGain(), dry = c.createGain(), wet = c.createGain(), conv = c.createConvolver(), lp = c.createBiquadFilter();
+    const len = Math.floor(c.sampleRate * 2.6), ir = c.createBuffer(2, len, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5); }
+    conv.buffer = ir; lp.type = "lowpass"; lp.frequency.value = 2600;
+    bus.gain.value = 0.15; // many voices add up, so keep the organ well below full scale
+    dry.gain.value = 0.65; wet.gain.value = 0.5;
+    bus.connect(dry); bus.connect(conv); conv.connect(lp); lp.connect(wet);
+    dry.connect(g.musicBus); wet.connect(g.musicBus);
+    g.organBus = bus; return bus;
+  }
+  function organNote(g, dest, t, midi, dur, vol) {
+    const c = g.ctx, w = organWave(g);
+    [-4, 4].forEach((cents) => { // two slightly detuned oscillators for a fuller, ensemble sound
+      const o = c.createOscillator(), a = c.createGain();
+      o.setPeriodicWave(w); o.frequency.setValueAtTime(mtof(midi), t); o.detune.value = cents;
+      a.gain.setValueAtTime(0.0001, t);
+      a.gain.linearRampToValueAtTime(vol * 0.5, t + 0.07);
+      a.gain.setValueAtTime(vol * 0.5, t + dur - 0.05);
+      a.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.35);
+      o.connect(a); a.connect(dest); o.start(t); o.stop(t + dur + 0.4);
+    });
+  }
+  function organEvent(g, ev, t, dur, full) {
+    const out = organOut(g);
+    organNote(g, out, t, ev[0], dur, 0.9);        // pedal 8'
+    organNote(g, out, t, ev[0] - 12, dur, 0.45);  // pedal 16'
+    for (let i = 1; i < 4; i++) organNote(g, out, t, ev[i], dur, i === 3 ? 0.8 : 0.65);
+    if (full) { organNote(g, out, t, ev[3] + 12, dur, 0.3); organNote(g, out, t, ev[2] + 12, dur, 0.22); } // louder phrases add a 4' rank
+  }
+  function scheduleOrgan(g, upTo) {
+    const ev = (60 / ORGAN_BPM) * 2;
+    while (g.next < upTo) {
+      const n = g.step % ORGAN_SEQ.length;
+      organEvent(g, ORGAN_SEQ[n], g.next, ev + 0.08, (n >= 8 && n < 16) || n >= 24);
+      g.next += ev; g.step++;
+    }
+  }
+
   // ---------- effects ----------
   const FX = {
     join(g, t) { tone(g, g.fxBus, t, 76, 0.18, "triangle", 0.18); tone(g, g.fxBus, t + 0.08, 83, 0.24, "triangle", 0.15); },
@@ -146,11 +206,12 @@
     g.step = 0; g.next = now + 0.22;
     timer = setInterval(() => {
       if (g.next < g.ctx.currentTime - 0.1) g.next = g.ctx.currentTime + 0.05; // tab was throttled: skip ahead
-      schedule(g, tune, g.ctx.currentTime + 0.18, () => (mode === "calm" ? 0.12 : intensityNow));
+      if (mode === "organ") scheduleOrgan(g, g.ctx.currentTime + 0.18);
+      else schedule(g, tune, g.ctx.currentTime + 0.18, () => (mode === "calm" ? 0.12 : intensityNow));
     }, 30);
   }
 
-  // m: "off", "calm" (lobby and scores), "play" (timed phases), "final" (final question)
+  // m: "off", "organ" (lobby), "calm" (standings), "play" (timed phases), "final" (final question)
   A.music = function (m) {
     if (m === mode) return;
     mode = m; clearInterval(timer); timer = null;
@@ -185,6 +246,7 @@
     g.musicBus.gain.value = 1;
     items.forEach((it) => {
       if (it.fx) FX[it.fx](g, it.t);
+      else if (it.music === "organ") { g.step = 0; g.next = it.t0; scheduleOrgan(g, it.t1); }
       else { g.step = 0; g.next = it.t0; schedule(g, TUNES[it.music], it.t1, (t) => it.I(t - it.t0)); }
     });
     return (await c.startRendering()).getChannelData(0);
