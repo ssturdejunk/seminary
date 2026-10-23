@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="styles.css">
 <style>
   body.board { overflow: hidden; font-size: clamp(16px, 1.55vw, 30px); }
-  .shell { height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+  .shell { height: 100vh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
   header.bar {
     display: flex; justify-content: space-between; align-items: center; gap: 1em;
     padding: 0.8em 1.4em 0.5em;
@@ -21,7 +21,10 @@
   .joinbox .url { font-size: 0.8em; color: var(--mist); }
   .joinbox .code { font-family: var(--display); font-size: 2em; letter-spacing: 0.08em; line-height: 1; }
   .joinbox .qr svg { width: 4.2em; height: 4.2em; background: var(--paper); border-radius: 8px; display: block; }
-  main#stage { padding: 0.5em 2.5em 5.2em; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  /* Content centers when it fits and scrolls from the top when it doesn't, so nothing can be cut off. */
+  main#stage { padding: 0.5em 2.5em 5.2em; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
+  main#stage > :first-child { margin-top: auto; }
+  main#stage > :last-child { margin-bottom: auto; }
   .fresh .rise { animation: rise 0.5s cubic-bezier(.2,.8,.2,1) both; }
   .fresh .rise:nth-child(2) { animation-delay: 0.08s; } .fresh .rise:nth-child(3) { animation-delay: 0.16s; }
   .fresh .rise:nth-child(4) { animation-delay: 0.24s; } .fresh .rise:nth-child(5) { animation-delay: 0.32s; }
@@ -127,6 +130,13 @@
   .setup .modqr { display: flex; gap: 1.2em; align-items: center; }
   .setup .modqr svg { width: 8em; height: 8em; background: var(--paper); border-radius: 12px; display: block; }
   .warn { color: var(--coral); font-weight: 700; }
+  .voicerow { display: flex; flex-wrap: wrap; gap: 0.5em 1em; align-items: center; margin-top: 0.5em; }
+  .voicerow select { font: inherit; padding: 0.45em; border-radius: 10px; border: 0; background: var(--paper); color: var(--deep); max-width: 22em; }
+  .voicerow input[type=range] { width: 8em; accent-color: #F4B942; }
+  .voicerow button { padding: 0.45em 0.9em; }
+  .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+  .setup-grid .card { margin-top: 1em; }
+  .setup .modqr svg { width: 6.5em; height: 6.5em; }
   .voiceset { display: grid; gap: 0.6em; margin-bottom: 1em; }
   .voiceset label { display: grid; gap: 0.25em; }
   .voiceset .chk { display: flex; gap: 0.5em; align-items: center; }
@@ -155,6 +165,7 @@
   .compact .tiles { grid-template-columns: 1fr; }
   .compact .tile, .compact .tiles.many .tile { font-size: 1.05em; min-height: 2.4em; padding: 0.6em 0.8em; }
   .compact .split { grid-template-columns: 1fr; gap: 1em; }
+  .compact .setup-grid { grid-template-columns: 1fr; }
   .compact .lobby { grid-template-columns: 1fr; gap: 1em; justify-items: center; text-align: center; }
   .compact .lobby .qrbig svg { width: min(62vw, 15em); height: min(62vw, 15em); }
   .compact .lobby .code { font-size: 3.6em; }
