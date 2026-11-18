@@ -21,7 +21,7 @@ window.RN_CONFIG = {
   playUrl: "",
 
   // Clue file the board loads at startup. You can also pick a file on the setup screen.
-  dataUrl: "data/review-night.json",
+  dataUrl: "data/old-testament.json",
 
   // Options passed to PeerJS in "peer" mode. Empty uses the free public PeerJS server.
   peerOptions: {}
