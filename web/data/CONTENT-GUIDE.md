@@ -7,6 +7,10 @@ The game is the same every year. Only the content files change.
 - **Pack:** everything for one course. Loading a pack replaces the content. `old-testament.json` is a pack.
 - **Extras:** extra questions, clues, or stories that get added to the pack. Use extras for things that belong to one class or teacher, such as teacher trivia. `class-extras.local.json` (kept on your computer, never committed) is an extras file. An extras file has `"extras": true` at the top.
 
+## Writing content in a spreadsheet
+
+The easiest way to write a pack is the **Review Night Content** Google Sheet: one tab per game, one row per item, with a Verified column for checking scripture text in Gospel Library and an Ideas tab for brainstorming. To make a fresh copy, run `python3 tools/content_sheet.py make content.xlsx` and upload it to Google Drive. To turn a filled sheet into a pack, download it as .xlsx and run `python3 tools/content_sheet.py topack content.xlsx web/data/your-course.json` (add `--verified-only` to leave out unchecked rows). Then follow the steps below from step 3.
+
 ## Steps for a new course
 
 1. Copy `template.json` and rename it, for example `new-testament-2027.json`.

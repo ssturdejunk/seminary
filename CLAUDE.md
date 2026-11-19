@@ -8,6 +8,7 @@ Live site: https://ssturdejunk.github.io/seminary/review-night/host.html
 - `review-night/` What GitHub Pages serves today (the live site). Do not edit it directly; when a `web/` change is approved, copy `web/` over it.
 - `web/`      The source of the site. Copy its contents to `review-night/` to deploy. No build step, vanilla JS, no framework.
 - `offline/`  Backup edition for when internet fails (students use dry-erase boards, host taps who was right). `python3 offline/build.py` writes one self-contained file to `dist/review-night-offline.html`. Only `app.js`, `style.css`, `template.html` are offline-specific; it inlines `web/pack.js`, `web/audio.js`, `web/voice.js` and the pack/extras named in `web/config.js`.
+- `tools/content_sheet.py` Content workbook <-> pack. `make OUT.xlsx` builds the blank workbook (one tab per game, Verified column); `topack IN.xlsx OUT.json [--verified-only]` builds a pack and lists unverified rows. The teacher's copy lives in Google Sheets ("Review Night Content"); export it as .xlsx through Drive and run topack. Tested by `tests/content_sheet_test.py`.
 - `tests/`    `node tests/validate_content.js` (content rules), `python3 tests/smoke.py` (Playwright: board + phone in local mode, plus offline build loads) and `python3 tests/full_game.py` (six scripted games with 6s timers and exact score checks, using generated content). Run all three before every commit.
 
 ## Architecture (web/)
