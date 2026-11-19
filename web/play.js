@@ -100,7 +100,7 @@
     if (m.total) { tEnd = Date.now() + m.left; tTotal = m.total; $("#tbar").classList.remove("hidden"); }
     else { tEnd = 0; $("#tbar").classList.add("hidden"); }
 
-    const sticky = ["write", "draw", "wager"].includes(m.v) || (m.v === "order" && !m.locked);
+    const sticky = ["write", "draw", "wager", "vote"].includes(m.v) || (m.v === "order" && !m.locked);
     const s = sticky ? m.key + ":" + m.v : JSON.stringify(Object.assign({}, m, { me: 0, left: 0, total: 0 }));
     if (s === sig) { if (sticky) patch(m); return; }
     sig = s;
@@ -135,6 +135,23 @@
         client.send({ t: "fav", key: m.key, v: Number(b.dataset.i) });
         app.innerHTML = `<div class="h">Thanks.</div><div class="sub">Watch the screen.</div>`;
       });
+    },
+    vote(m) {
+      let mine = (m.picked || []).slice();
+      const draw = () => {
+        app.innerHTML = `<div class="h">Vote for tonight's games</div><div class="sub">Pick up to ${m.max}. The top ${m.cap} are played, and the class favorite comes last for the most points.</div>
+          <div class="choices votes">${m.options.map((o) => `<button data-i="${o.i}" class="${mine.includes(o.i) ? "on" : ""}"><span class="k">${mine.includes(o.i) ? "✓" : ""}</span><span><b>${esc(o.title)}</b><br><span class="small">${esc(o.blurb)}</span></span></button>`).join("")}</div>
+          <div class="${mine.length ? "sent" : "sub"}" style="margin-top:.8em">${mine.length ? mine.length + " of " + m.max + " picked. You can change your picks until the game starts." : "Tap a game to vote for it."}</div>`;
+        app.querySelectorAll(".votes button").forEach((b) => b.onclick = () => {
+          const i = Number(b.dataset.i), k = mine.indexOf(i);
+          if (k >= 0) mine.splice(k, 1);
+          else if (mine.length < m.max) mine.push(i);
+          else return;
+          client.send({ t: "vote", key: m.key, v: mine.slice() });
+          draw();
+        });
+      };
+      draw();
     },
     order(m) {
       if (seqKey !== m.key) { seq = []; seqKey = m.key; }

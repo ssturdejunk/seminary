@@ -15,6 +15,9 @@ Game 1 (every round type, chosen and reordered on the setup screen):
 Game 2: Put It in Order only; the wager question is an order (only a perfect order wins).
 Game 3: Apply It last; the wager falls back to the pack's finals bank.
 Game 4: final wager turned off; the game ends after the last round's standings.
+Game 6: all six games get votes, so the 5-round cap drops one.
+Game 5: students vote in the lobby (up to 3 picks); top 5 by votes, least popular first, unpicked games dropped.
+(Game 1 also has voting on with no votes cast, so the host's order is used.)
 """
 import os, sys, json, threading, http.server, time, math
 from playwright.sync_api import sync_playwright
@@ -91,9 +94,9 @@ class Game:
 
     # ----- setup screen: tonight's rounds -----
     def plan(self): return self.host.evaluate("""() => { const all = JSON.parse(localStorage.getItem('rn-plan-v1') || '{}'); const v = Object.values(all)[0]; return v || null; }""")
-    def cur_plan(self): return self.plan() or {"order": list(range(6)), "wager": True}  # nothing saved yet = defaults
+    def cur_plan(self): return self.plan() or {"order": list(range(6)), "wager": True, "vote": True}  # nothing saved yet = defaults
     def checked(self, i): return self.host.locator(f'.rrow input[data-r="{i}"]').is_checked()
-    def set_plan(self, want, wager):
+    def set_plan(self, want, wager, vote=False):
         for i in want:
             if not self.checked(i): self.host.click(f'.rrow input[data-r="{i}"]')
         for i in range(6):
@@ -101,8 +104,9 @@ class Game:
         for t, i in enumerate(want):
             while self.cur_plan()["order"].index(i) > t: self.host.click(f'.rrow [data-up="{i}"]')
         if self.host.locator("#planWager").is_checked() != wager: self.host.click("#planWager")
+        if self.host.locator("#planVote").is_checked() != vote: self.host.click("#planVote")
         p = self.cur_plan()
-        check(p["order"] == want and p["wager"] == wager, f"{self.name}: setup screen saved rounds {want}, wager {'on' if wager else 'off'}")
+        check(p["order"] == want and p["wager"] == wager and p.get("vote", True) == vote, f"{self.name}: setup screen saved rounds {want}, wager {'on' if wager else 'off'}, vote {'on' if vote else 'off'}")
         check(self.host.locator("#cNext").is_visible() and self.host.locator("#cNext").is_enabled(), f"{self.name}: Start button still visible after choosing rounds")
 
     # ----- phones -----
@@ -200,7 +204,7 @@ with sync_playwright() as pw:
     g = Game(ctx, "G1")
     check(g.plan() is None and all(g.checked(i) for i in range(6)), "G1: by default every round in the pack is chosen, in pack order")
     want = [TF, ORDER, FIB, DRAW, APPLY, TRIVIA]
-    g.set_plan(want, True)
+    g.set_plan(want, True, vote=True)   # voting on, but nobody votes: the host's order is used, uncapped
     mults = [t.strip() for t in g.host.locator(".rrow .rmult").all_inner_texts()][:6]
     check(mults == ["×1", "×2", "×3", "×3", "×3", "×3"], f"G1: multipliers follow position {mults}")
     g.nxt(); g.wait_phase("lobby")
@@ -395,6 +399,55 @@ with sync_playwright() as pw:
     check(g.host.locator("#cNext").inner_text().strip() == "Finish", "G4: last standings button says Finish")
     g.nxt(); g.wait_phase("end")
     check(True, "G4: game ended without a wager")
+    g.close()
+
+    # =================== Game 5: students vote ===================
+    g = Game(ctx, "G5")
+    g.set_plan([TRIVIA, TF, ORDER, FIB, DRAW, APPLY], True, vote=True)
+    g.nxt(); g.wait_phase("lobby")
+    for l in "ABCD": g.join(l)
+    k = g.key()
+    for l in "ABCD": g.view(l, k, ["vote"])
+    check(g.page("A").locator(".votes button").count() == 6, "G5: the ballot lists the 6 ticked games")
+    picks = {"A": [TF, ORDER, TRIVIA], "B": [TF, ORDER, FIB], "C": [TF, TRIVIA, APPLY], "D": [TF]}
+    for l, ps in picks.items():
+        for i in ps: g.page(l).locator(f'.votes button[data-i="{i}"]').click()
+    # A tries a 4th pick on the phone (ignored there) and a raw 4-pick vote (rejected by the board).
+    g.page("A").locator(f'.votes button[data-i="{DRAW}"]').click()
+    g.page("A").evaluate("""([code, pid, key, v]) => { const ch = new BroadcastChannel('rn-' + code), from = 'c-test-' + pid;
+        ch.postMessage({ to: 'host', from, msg: { t: 'join', pid, name: '' } }); ch.postMessage({ to: 'host', from, msg: { t: 'vote', key, v } }); }""",
+        [g.code, g.pid("A"), k, [TF, ORDER, TRIVIA, DRAW]])
+    g.host.wait_for_function("n => Object.keys(RN_HOST.state().votes).length >= n", arg=4, timeout=5000)
+    time.sleep(0.5)
+    votes = g.H("return S.votes")
+    check(sorted(votes[g.pid("A")]) == sorted(picks["A"]), f"G5: A's votes stay at 3 picks ({votes[g.pid('A')]})")
+    check(all(sorted(votes[g.pid(l)]) == sorted(picks[l]) for l in picks), "G5: board recorded every student's picks")
+    check("4 voted" in g.host.locator("#stage").inner_text(), "G5: lobby board shows the tally and 4 voters")
+    g.nxt(); g.wait_phase("intro")
+    types = g.H("return S.rounds.map(r => r.type)")
+    check(len(types) == 5, f"G5: 5 rounds played (Sketch It had no votes and was dropped): {types}")
+    check(set(types[:2]) == {"fib", "apply"} and set(types[2:4]) == {"order", "trivia"} and types[4] == "tf",
+          f"G5: least popular first, favorite last: {types}")
+    check(g.H("return S.rounds.map(r => r.mult).join(',')") == "1,2,3,3,3", "G5: multipliers follow the voted order")
+    check(g.H("return S.wagerQ && S.wagerQ.src") == "True or False", "G5: the wager comes from the favorite (last) round")
+    check("You voted" in g.host.locator("#stage").inner_text(), "G5: first intro shows the vote result")
+    g.close()
+
+    # =================== Game 6: all six games get votes, so the 5-round cap drops one ===================
+    g = Game(ctx, "G6")
+    g.set_plan([TRIVIA, TF, ORDER, FIB, DRAW, APPLY], True, vote=True)
+    g.nxt(); g.wait_phase("lobby")
+    for l in "ABCD": g.join(l)
+    k = g.key()
+    picks = {"A": [TF, ORDER, TRIVIA], "B": [TF, ORDER, FIB], "C": [TF, TRIVIA, APPLY], "D": [TF, DRAW]}
+    for l, ps in picks.items():
+        g.view(l, k, ["vote"])
+        for i in ps: g.page(l).locator(f'.votes button[data-i="{i}"]').click()
+    g.host.wait_for_function("() => Object.values(RN_HOST.state().votes).reduce((a, v) => a + v.length, 0) >= 11", timeout=5000)
+    g.nxt(); g.wait_phase("intro")
+    types = g.H("return S.rounds.map(r => r.type)")
+    check(len(types) == 5 and types[-1] == "tf" and set(types[2:4]) == {"order", "trivia"} and len({"fib", "apply", "draw"} & set(types[:2])) == 2,
+          f"G6: capped at 5 rounds, one of the 1-vote games dropped, favorite last: {types}")
     g.close()
 
     check(not errs, "no uncaught page errors" + (": " + "; ".join(errs[:3]) if errs else ""))

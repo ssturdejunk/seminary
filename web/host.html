@@ -94,6 +94,8 @@
   .lobby { display: grid; grid-template-columns: auto 1fr; gap: 3em; align-items: center; }
   .lobby .qrbig svg { width: 15em; height: 15em; background: var(--paper); border-radius: 18px; display: block; }
   .lobby .code { font-family: var(--display); font-size: 6em; letter-spacing: 0.08em; line-height: 1; color: var(--saffron); }
+  .lobby.voting .code { font-size: 4.2em; }
+  .lobby.voting .chips { font-size: 0.92em; }
   .chips { display: flex; flex-wrap: wrap; gap: 0.45em; margin-top: 1em; max-height: 9em; overflow: hidden; }
   .chip { padding: 0.25em 0.75em; border-radius: 999px; color: var(--deep); font-weight: 700; }
   .fresh-chip { animation: pop 0.35s ease-out; }
@@ -117,6 +119,12 @@
   .tiles.order { grid-template-columns: 1fr; max-width: 40em; gap: 0.45em; }
   .tiles.order .tile { min-height: 2em; padding: 0.5em 0.9em; }
   .tiles.answers { grid-template-columns: 1fr; max-width: 46em; }
+  .tally { margin-top: 0.8em; max-width: 44em; display: grid; grid-template-columns: 1fr 1fr; column-gap: 1.6em; }
+  .tally > .muted { grid-column: 1 / -1; margin-bottom: 0.2em; }
+  .trow { display: grid; grid-template-columns: 8.5em 1fr 1.6em; gap: 0.5em; align-items: center; margin-top: 0.3em; }
+  .trow .tbar { height: 0.9em; background: var(--deep); border-radius: 6px; overflow: hidden; }
+  .trow .tbar i { display: block; height: 100%; background: var(--saffron); }
+  .trow .tn { font-family: var(--display); text-align: right; }
   .rlist { margin-top: 0.5em; display: grid; gap: 0.35em; }
   .rrow { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; background: var(--deep); border-radius: 12px; padding: 0.35em 0.7em; }
   .rrow.off { opacity: 0.6; }

@@ -36,6 +36,7 @@ A pack can include any of these. The host picks which rounds to play tonight, an
 ## Choosing rounds and the final wager
 
 - On the setup screen, **Rounds tonight** lists every round in the pack. Tick the ones to play and use the arrows to order them. The choice is remembered in that browser for that pack.
+- **Let students vote** (on by default; `settings.vote: false` turns the default off): in the lobby, students pick up to `settings.votePicks` (3) of the ticked games on their phones and the board shows a live tally. At the start, the top `settings.maxRounds` (5) are played, least popular first and the favorite last. Games nobody picked are left out. If nobody votes, your ticked order is used.
 - Points multiply by position: first round ×1, second ×2, third and later ×3. Change this with `settings.multipliers`, for example `[1, 1, 2, 2, 3]` (the last number repeats).
 - **End with a final wager** (on by default; `settings.finalWager: false` turns the default off): after the last round's standings, everyone bets up to their score, or up to `finalMaxWagerFloor` if they're lower, on one more question. A right answer wins the bet, a wrong answer loses it. Late joiners answer for a flat `finalAudienceCorrect` bonus.
 - The wager question is one more item from the last round: a Quick Quiz question, a True or False statement, a Put It in Order puzzle (only a perfect order wins), or a Fake Out clue (real ending among the house fakes). If the last round is Sketch It or Apply It, it uses the `finals` bank, then any unused Quick Quiz or True or False item.
