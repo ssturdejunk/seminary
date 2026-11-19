@@ -49,3 +49,15 @@ Fixes (approved and done, Nov 2026): the 22 quote-to-reference and 16 fill-in-th
 - Remove the in-round repeats in item 1.
 - Code: when building tonight's deck, skip an item whose scripture reference is already used by another round
   in the same game, so cross-round giveaways can't happen.
+
+## Sheet status (Nov 2026)
+- "Review Night Content" (Google Sheets) now holds: the Doctrinal Mastery list (Verified = Yes, teacher-provided),
+  all existing Old Testament pack items (Verified blank = not yet checked; Moses/Abraham/D&C items marked No),
+  and drafts from the teacher's decks for lessons 162, 163, 168, 172, 185 plus Apply It situations for life lessons
+  (all Verified = No, with a source note in Comments). The Ideas tab has one row per lesson 161–186.
+- Lesson titles for 161–186 come from the teacher's "Old Testament Seminary Manual — Lesson Index" doc (titles and
+  one-line purposes only, no lesson content).
+- Leader-quote items have no scripture reference, so the give-away guard can't see them: keep each quote in one
+  game only (Fake Out leader-quote drafts were held back for that reason).
+- To build the pack: export the sheet as .xlsx, run `tools/content_sheet.py topack`, check, then replace
+  `web/data/old-testament.json` (use --verified-only once the teacher has marked rows Yes).
