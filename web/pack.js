@@ -103,6 +103,21 @@
     return d;
   };
 
+  // ---------- scripture references ----------
+  // Passages a piece of text mentions, as "book chapter" (lowercase): "Isaiah 1:18" and "Isaiah 1" both
+  // give "isaiah 1". Chapter level, so a lesson-wide reference ("Numbers 21") still matches a verse in it.
+  const BOOKS = ("Genesis Exodus Leviticus Numbers Deuteronomy Joshua Judges Ruth Samuel Kings Chronicles Ezra Nehemiah Esther Job Psalms Psalm " +
+    "Proverbs Ecclesiastes Solomon Isaiah Jeremiah Lamentations Ezekiel Daniel Hosea Joel Amos Obadiah Jonah Micah Nahum Habakkuk Zephaniah " +
+    "Haggai Zechariah Malachi Matthew Mark Luke John Acts Romans Corinthians Galatians Ephesians Philippians Colossians Thessalonians Timothy " +
+    "Titus Philemon Hebrews James Peter Jude Revelation Nephi Jacob Enos Jarom Omni Mosiah Alma Helaman Mormon Ether Moroni Moses Abraham " +
+    "Covenants History").split(" ");
+  const REF_RE = new RegExp("(?:([1-4]) )?(" + BOOKS.join("|") + ")\\.? (\\d+)(?::\\d+)?", "g");
+  P.refsIn = function (text) {
+    const out = new Set();
+    String(text || "").replace(REF_RE, (m, n, book, ch) => { out.add(((n ? n + " " : "") + book.replace(/^Psalms$/, "Psalm")).toLowerCase() + " " + ch); return m; });
+    return [...out];
+  };
+
   // ---------- Doctrinal Mastery drills ----------
   // A pack may list its Doctrinal Mastery passages as "mastery": [{ ref, phrase, quoted }], where
   // quoted is only the text inside quotation marks. These are turned into extra items for rounds the

@@ -63,11 +63,10 @@
   const markSeen = (id) => { seen[id] = (seen[id] || 0) + 1; saveSeen(); };
   // Scripture references an item is about (its ref, note, statement, and correct answer), as
   // "book chapter:verse", so one game doesn't use the same passage in two places.
-  const REF_RE = /(?:[1-3] )?[A-Z][a-z]+(?: [A-Z][a-z]+)? \d+:\d+/g;
   function refsOf(it) {
     const right = it.choices && typeof it.answer === "number" ? it.choices[it.answer] : it.answer;
     const txt = [it.ref, it.note, it.s, right, it.story, it.prompt, it.q].filter((x) => typeof x === "string").join(" ");
-    return [...new Set((txt.match(REF_RE) || []).map((x) => x.toLowerCase()))];
+    return RN_PACK.refsIn(txt);
   }
   // Everything an item can show on a screen, flattened for "does it contain this answer?" checks.
   const flat = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();

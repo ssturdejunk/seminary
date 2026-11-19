@@ -40,10 +40,10 @@ with sync_playwright() as p:
     check(not errs, "no uncaught page errors" + (": " + "; ".join(errs[:3]) if errs else ""))
     # Real pack, several game builds: no round may show a later Fake Out ending or the wager answer
     # for the same passage, and generated Doctrinal Mastery drills stay at most half of a round.
-    GIVE = """() => { const S = RN_HOST.state(), RE = /(?:[1-3] )?[A-Z][a-z]+(?: [A-Z][a-z]+)? \\d+:\\d+/g;
+    GIVE = """() => { const S = RN_HOST.state(), RE = null;
       const flat = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
       const refs = (it) => { const r = it.choices && typeof it.answer === 'number' ? it.choices[it.answer] : it.answer;
-        return [...new Set(([it.ref, it.note, it.s, r, it.story, it.prompt, it.q].filter((x) => typeof x === 'string').join(' ').match(RE) || []).map((x) => x.toLowerCase()))]; };
+        return RN_PACK.refsIn([it.ref, it.note, it.s, r, it.story, it.prompt, it.q].filter((x) => typeof x === 'string').join(' ')); };
       const vis = (it) => flat([it.q, it.s, it.prompt, it.story, it.note, typeof it.answer === 'string' ? it.answer : ''].concat(it.choices || [], it.items || []).join(' '));
       const items = S.rounds.map((r) => r.questions || r.puzzles || r.clues || r.stories || r.prompts || []);
       const bad = [];
