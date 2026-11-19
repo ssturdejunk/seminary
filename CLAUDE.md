@@ -42,6 +42,7 @@ Live site: https://ssturdejunk.github.io/seminary/review-night/host.html
 - Local run: `cd web && python3 -m http.server 8000`, open `http://localhost:8000/host.html?net=local`
 
 ## Good next steps
+0. Read `CONTENT-PLAN.md` first: current content decisions, sources, the duplicate review, and proposals awaiting the teacher's OK.
 1. Add a Seminary-wide pack for the next course (use `web/data/CONTENT-GUIDE.md`), keep `old-testament.json` as an example.
 2. Check the unverified quotes in the Old Testament pack.
 3. Add a trivia-elimination variant (Trivia Murder Party style) as an optional setting, off by default (proposal agreed in chat, not built).

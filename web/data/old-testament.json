@@ -1244,5 +1244,128 @@
     }
    ]
   }
+ ],
+ "_masteryHelp": "Doctrinal Mastery passages and key phrases, as provided by the teacher from Gospel Library (Nov 2026). Not used by the game yet; planned source for the Doctrinal Mastery drill games.",
+ "mastery": [
+  {
+   "ref": "Moses 1:39",
+   "phrase": "“This is my work and my glory—to bring to pass the immortality and eternal life of man.”",
+   "quoted": "This is my work and my glory—to bring to pass the immortality and eternal life of man."
+  },
+  {
+   "ref": "Moses 7:18",
+   "phrase": "“The Lord called his people Zion, because they were of one heart and one mind.”",
+   "quoted": "The Lord called his people Zion, because they were of one heart and one mind."
+  },
+  {
+   "ref": "Abraham 2:9–11",
+   "phrase": "The Lord promised Abraham that his seed would “bear this ministry and Priesthood unto all nations.”",
+   "quoted": "bear this ministry and Priesthood unto all nations."
+  },
+  {
+   "ref": "Abraham 3:22–23",
+   "phrase": "As spirits we “were organized before the world was.”",
+   "quoted": "were organized before the world was."
+  },
+  {
+   "ref": "Genesis 1:26–27",
+   "phrase": "“God created man in his own image.”",
+   "quoted": "God created man in his own image."
+  },
+  {
+   "ref": "Genesis 2:24",
+   "phrase": "“A man … shall cleave unto his wife: and they shall be one.”",
+   "quoted": "A man … shall cleave unto his wife: and they shall be one."
+  },
+  {
+   "ref": "Genesis 39:9",
+   "phrase": "“How then can I do this great wickedness, and sin against God?”",
+   "quoted": "How then can I do this great wickedness, and sin against God?"
+  },
+  {
+   "ref": "Exodus 20:3–17",
+   "phrase": "The Ten Commandments",
+   "quoted": ""
+  },
+  {
+   "ref": "Joshua 24:15",
+   "phrase": "“Choose you this day whom ye will serve.”",
+   "quoted": "Choose you this day whom ye will serve."
+  },
+  {
+   "ref": "Psalm 24:3–4",
+   "phrase": "“Who shall stand in his holy place? He that hath clean hands, and a pure heart.”",
+   "quoted": "Who shall stand in his holy place? He that hath clean hands, and a pure heart."
+  },
+  {
+   "ref": "Proverbs 3:5–6",
+   "phrase": "“Trust in the Lord with all thine heart … and he shall direct thy paths.”",
+   "quoted": "Trust in the Lord with all thine heart … and he shall direct thy paths."
+  },
+  {
+   "ref": "Isaiah 1:18",
+   "phrase": "“Though your sins be as scarlet, they shall be as white as snow.”",
+   "quoted": "Though your sins be as scarlet, they shall be as white as snow."
+  },
+  {
+   "ref": "Isaiah 5:20",
+   "phrase": "“Woe unto them that call evil good, and good evil.”",
+   "quoted": "Woe unto them that call evil good, and good evil."
+  },
+  {
+   "ref": "Isaiah 29:13–14",
+   "phrase": "The restoration of the gospel is “a marvellous work and a wonder.”",
+   "quoted": "a marvellous work and a wonder."
+  },
+  {
+   "ref": "Isaiah 53:3–5",
+   "phrase": "“Surely [Jesus Christ] hath borne our griefs, and carried our sorrows.”",
+   "quoted": "Surely [Jesus Christ] hath borne our griefs, and carried our sorrows."
+  },
+  {
+   "ref": "Isaiah 58:6–7",
+   "phrase": "The blessings of a proper fast",
+   "quoted": ""
+  },
+  {
+   "ref": "Isaiah 58:13–14",
+   "phrase": "“Turn away … from doing thy pleasure on my holy day; and call the sabbath a delight.”",
+   "quoted": "Turn away … from doing thy pleasure on my holy day; and call the sabbath a delight."
+  },
+  {
+   "ref": "Jeremiah 1:4–5",
+   "phrase": "“Before I formed thee in the belly … I ordained thee a prophet unto the nations.”",
+   "quoted": "Before I formed thee in the belly … I ordained thee a prophet unto the nations."
+  },
+  {
+   "ref": "Ezekiel 3:16–17",
+   "phrase": "The prophet is “a watchman unto the house of Israel.”",
+   "quoted": "a watchman unto the house of Israel."
+  },
+  {
+   "ref": "Ezekiel 37:15–17",
+   "phrase": "The Bible and the Book of Mormon “shall become one in thine hand.”",
+   "quoted": "shall become one in thine hand."
+  },
+  {
+   "ref": "Daniel 2:44–45",
+   "phrase": "God shall “set up a kingdom, which shall never be destroyed.”",
+   "quoted": "set up a kingdom, which shall never be destroyed."
+  },
+  {
+   "ref": "Amos 3:7",
+   "phrase": "“The Lord God … revealeth his secret unto his servants the prophets.”",
+   "quoted": "The Lord God … revealeth his secret unto his servants the prophets."
+  },
+  {
+   "ref": "Malachi 3:8–10",
+   "phrase": "The blessings of paying tithing",
+   "quoted": ""
+  },
+  {
+   "ref": "Malachi 4:5–6",
+   "phrase": "Elijah “shall turn … the heart of the children to their fathers.”",
+   "quoted": "shall turn … the heart of the children to their fathers."
+  }
  ]
 }
