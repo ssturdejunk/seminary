@@ -4,6 +4,7 @@
   python3 tools/content_sheet.py make  OUT.xlsx              # a blank content workbook (one tab per game)
   python3 tools/content_sheet.py topack IN.xlsx OUT.json      # turn a filled workbook into a pack
   python3 tools/content_sheet.py topack IN.xlsx OUT.json --verified-only
+  python3 tools/content_sheet.py rows PACK.json               # a pack as sheet rows (JSON per tab), to load into the sheet
 
 The workbook is meant to live in Google Sheets (upload the .xlsx; Drive converts it).
 To build a pack, download it as .xlsx (File > Download > Microsoft Excel) and run topack.
@@ -69,6 +70,10 @@ EXAMPLES = {
     "final": ["EXAMPLE: (a hard question)", "(right answer)", "(close wrong 1)", "(close wrong 2)", "(close wrong 3)", "", "", "", "", "No", ""],
 }
 STATUS = ["Idea", "Drafting", "In the sheet", "Dropped"]
+# Doctrinal Mastery passages: the game builds drills from these (see web/data/CONTENT-GUIDE.md).
+MASTERY = ("Doctrinal Mastery", [("Reference", 18, "e.g. Joshua 24:15"), ("Key phrase", 70, "As the manual gives it, with quotation marks around quoted words."),
+                                 ("Verified", 10, ""), ("Comments", 30, "")])
+KEYS = {"trivia": "questions", "tf": "statements", "order": "puzzles", "fib": "clues", "draw": "stories", "apply": "prompts", "final": "finals"}
 
 
 def make(out):
@@ -136,6 +141,17 @@ def make(out):
             dv = DataValidation(type="list", formula1='"True,False"', allow_blank=True); s.add_data_validation(dv); dv.add(f"{tcol}2:{tcol}{ROWS}")
         s.freeze_panes = "B2"; s.row_dimensions[1].height = 32
 
+    name, cols = MASTERY
+    ms = wb.create_sheet(name, 3)
+    for j, (h, w, tip) in enumerate(cols, 1):
+        c = ms.cell(row=1, column=j, value=h); c.font = HFONT; c.fill = HEAD
+        if tip: c.comment = Comment(tip, "Review Night")
+        ms.column_dimensions[c.column_letter].width = w
+    for r in range(2, ROWS + 1):
+        for j in range(1, len(cols) + 1):
+            c = ms.cell(row=r, column=j); c.number_format = "@"; c.alignment = WRAP; c.font = BODY
+    dv = DataValidation(type="list", formula1='"Yes,No"', allow_blank=True); ms.add_data_validation(dv); dv.add(f"C2:C{ROWS}")
+    ms.freeze_panes = "A2"
     pr = wb.create_sheet("Pronounce")
     for j, (h, w) in enumerate([("Word", 24), ("Say it as", 30)], 1):
         c = pr.cell(row=1, column=j, value=h); c.font = HFONT; c.fill = HEAD; pr.column_dimensions[chr(64 + j)].width = w
@@ -213,8 +229,29 @@ def topack(src, out, verified_only):
         base = tpl_rounds.get(typ, {})
         rnd = {k: base[k] for k in ("type", "title", "count", "intro", "rules") if k in base}
         rnd["type"] = typ
-        rnd[{"trivia": "questions", "tf": "statements", "order": "puzzles", "fib": "clues", "draw": "stories", "apply": "prompts", "final": "finals"}[typ]] = items
+        rnd[KEYS[typ]] = items
         pack["rounds"].append(rnd)
+    name, cols = MASTERY
+    if name in wb.sheetnames:
+        import re as _re
+        for rn, row in enumerate(wb[name].iter_rows(min_row=2, values_only=True), 2):
+            row = list(row) + [None] * 4
+            ref, ph = s(row[0]), s(row[1])
+            if not ref or ref.upper().startswith("EXAMPLE") or not ph: continue
+            if s(row[2]).lower() not in ("yes", "y", "true"):
+                unverified.append(f"{name} row {rn}: {ref}")
+                if verified_only: continue
+            pack.setdefault("mastery", []).append({"ref": ref, "phrase": ph, "quoted": " … ".join(_re.findall(r"“([^”]+)”", ph))})
+        counts[name] = len(pack.get("mastery", []))
+        if len(pack.get("mastery", [])) >= 4:  # rounds the drills can fill even with no rows of their own
+            have = {r["type"] for r in pack["rounds"]}
+            for typ in ("trivia", "order", "draw"):
+                if typ not in have:
+                    base = tpl_rounds.get(typ, {})
+                    rnd = {k: base[k] for k in ("type", "title", "count", "intro", "rules") if k in base}; rnd["type"] = typ; rnd[KEYS[typ]] = []
+                    pack["rounds"].append(rnd)
+            order = ["trivia", "tf", "order", "fib", "draw", "apply", "final"]
+            pack["rounds"].sort(key=lambda r: order.index(r["type"]))
     if "Pronounce" in wb.sheetnames:
         for row in wb["Pronounce"].iter_rows(min_row=2, values_only=True):
             if row and row[0] and not s(row[0]).upper().startswith("EXAMPLE") and len(row) > 1 and row[1]:
@@ -229,10 +266,51 @@ def topack(src, out, verified_only):
     return 0
 
 
+def rows(src):
+    """The pack as sheet rows, one JSON list per tab (header excluded), for loading into the sheet."""
+    d = json.load(open(src, encoding="utf-8"))
+    UNCHECKED = ("Moses", "Abraham", "Doctrine and Covenants", "D&C")  # quotes from these were not verified earlier
+    out = {}
+    def ver(*texts):
+        t = " ".join(x or "" for x in texts)
+        return "No" if any(b in t for b in UNCHECKED) else "Yes"
+    for r in d["rounds"]:
+        typ, items = r["type"], r.get(KEYS.get(r["type"], ""), []) or []
+        name = next((t[0] for t in TABS if t[1] == typ), None)
+        if not name: continue
+        rws = []
+        for x in items:
+            if typ in ("trivia", "final"):
+                ch = list(x["choices"]); right = ch.pop(x["answer"]); wrong = (ch + [""] * 5)[: (4 if typ == "trivia" else 5)]
+                rws.append([x["q"], right] + wrong + [x.get("note", ""), "", ver(x["q"], x.get("note")), "From the existing Old Testament pack"])
+            elif typ == "tf":
+                rws.append([x["s"], "True" if x["a"] else "False", x.get("note", ""), "", ver(x["s"], x.get("note")), "From the existing pack"])
+            elif typ == "order":
+                its = (x["items"] + [""] * 8)[:8]
+                rws.append([x["prompt"]] + its + [x.get("note", ""), "", ver(x["prompt"], x.get("note")), "From the existing pack"])
+            elif typ == "fib":
+                h = (x.get("house", []) + [""] * 3)[:3]
+                rws.append([x["prompt"], x["answer"], "; ".join(x.get("alt", []))] + h + [x.get("ref", ""), ver(x.get("ref")), "From the existing Old Testament pack"])
+            elif typ == "draw":
+                rws.append([x["story"], x.get("ref", ""), ver(x.get("ref")), "From the existing Old Testament pack"])
+            elif typ == "apply":
+                rws.append([x["prompt"], x.get("ref", ""), x.get("note", ""), ver(x.get("ref")), "From the existing pack"])
+        out[name] = rws
+    if d.get("mastery"):
+        out[MASTERY[0]] = [[m["ref"], m["phrase"], "Yes", "From the teacher's list (Gospel Library)"] for m in d["mastery"]]
+    # Keep text as text in Sheets: a leading apostrophe on anything that looks like a number or date.
+    import re as _re
+    for k in out:
+        out[k] = [["'" + v if isinstance(v, str) and _re.fullmatch(r"[\d.,/:\- ]+", v.strip() or "x") else v for v in row] for row in out[k]]
+    print(json.dumps(out, ensure_ascii=False))
+    return 0
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     m = sub.add_parser("make"); m.add_argument("out")
     t = sub.add_parser("topack"); t.add_argument("src"); t.add_argument("out"); t.add_argument("--verified-only", action="store_true")
+    rw = sub.add_parser("rows"); rw.add_argument("src")
     a = ap.parse_args()
-    sys.exit(make(a.out) if a.cmd == "make" else topack(a.src, a.out, a.verified_only))
+    sys.exit(make(a.out) if a.cmd == "make" else rows(a.src) if a.cmd == "rows" else topack(a.src, a.out, a.verified_only))
