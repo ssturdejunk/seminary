@@ -50,14 +50,26 @@
     return v.name.replace(/^(Microsoft|Google)\s+/i, "").replace(/\s*-\s*English.*$/i, "").replace(/\s*Online\s*\(Natural\)/i, " (natural)").trim() || v.name;
   }
 
+  // Words and abbreviations the speech engine tends to get wrong. A content file can add its own
+  // with a "pronounce" list, such as { "Zarahemla": "zah-rah-HEM-lah" }.
+  const DEFAULT_PRON = { "D&C": "Doctrine and Covenants", "LDS": "L D S", "BYU": "B Y U", "KJV": "K J V", "JST": "J S T" };
+  V.pron = {};
+  V.setPronunciations = (m) => { V.pron = m && typeof m === "object" ? m : {}; };
+  function applyPron(t) {
+    const map = Object.assign({}, DEFAULT_PRON, V.pron);
+    Object.keys(map).sort((a, b) => b.length - a.length).forEach((k) => {
+      const e = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      t = t.replace(new RegExp(/^\w/.test(k) && /\w$/.test(k) ? "\\b" + e + "\\b" : e, "gi"), map[k]);
+    });
+    return t;
+  }
+
   // Turn text into something a speech engine reads correctly.
   function speakable(t) {
-    return String(t || "")
+    return applyPron(String(t || ""))
       .replace(/_{2,}/g, " blank ")
       .replace(/(\d+):(\d+)\s*[–-]\s*(\d+)/g, "$1, verses $2 through $3")
       .replace(/(\d+):(\d+)/g, "$1, verse $2")
-      .replace(/\bBYU\b/g, "B Y U")
-      .replace(/\bLDS\b/g, "L D S")
       .replace(/[—–]/g, ", ")
       .replace(/[“”]/g, "")
       .replace(/\s+/g, " ")

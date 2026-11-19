@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0F2B3A">
-<title>Review Night</title>
+<title>Seminary Review Night</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lilita+One&display=swap" rel="stylesheet">
@@ -34,6 +34,14 @@
   .choices button.on { background: var(--saffron); color: var(--deep); }
   .choices button.on .k { color: var(--saffron); }
   .choices.locked button:not(.on) { opacity: 0.4; }
+  .choices.tf { grid-template-columns: 1fr 1fr; }
+  .choices.tf button { justify-content: center; font-family: var(--display); font-size: 1.5em; min-height: 3.2em; }
+  .olist { display: grid; gap: 0.5em; margin-bottom: 0.8em; }
+  .oitem { text-align: left; display: flex; gap: 0.7em; align-items: center; padding: 0.75em 1em; font-size: 1.02em; background: var(--tide); min-height: 3em; border-radius: 14px; }
+  .oitem .k { font-family: var(--display); background: var(--deep); color: var(--saffron); min-width: 1.8em; height: 1.8em; border-radius: 50%; display: grid; place-items: center; flex: none; }
+  .oitem.on { background: var(--saffron); color: var(--deep); }
+  .olist.locked .oitem { background: var(--tide); color: var(--paper); }
+  .rlist { color: var(--paper); margin: 0.4em 0 0; padding-left: 1.4em; }
   .stack { display: grid; gap: 0.7em; }
   .result { text-align: center; padding-top: 1.5em; }
   .result .gain { font-family: var(--display); font-size: 4em; color: var(--mint); line-height: 1; }
@@ -58,6 +66,7 @@
   .mod h3 { margin: 1.2em 0 0.5em; color: var(--saffron); font-size: 1.2em; }
   .mod .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em; }
   .mod .acts .primary { grid-column: 1 / -1; padding: 1em; font-size: 1.1em; }
+  textarea#wi { width: 100%; box-sizing: border-box; font: inherit; font-size: 1.05em; padding: 0.7em 0.8em; border-radius: 12px; border: 0; background: var(--paper); color: var(--deep); resize: vertical; }
   label.f { display: block; margin: 0.8em 0 0.3em; color: var(--mist); }
 </style>
 </head>

@@ -1,18 +1,24 @@
-# Review Night
+# Seminary Review Night
 
-A phone-based review game for seminary: Quick Quiz (trivia), Fake Out (write
-fake answers, find the real one), Sketch It (draw a story, guess the story),
-and a wagered final question. Students join on their phones with a room code.
+A phone-based review game for seminary. Pick tonight's rounds on the setup screen:
+Quick Quiz (trivia), True or False, Put It in Order, Fake Out (write fake answers,
+find the real one), Sketch It (draw a story, guess the story), and Apply It (write
+how a scripture helps in a real situation, then vote). An optional final wager
+follows the last round. Students join on their phones with a room code.
 
 ## Files
 
 - `host.html` / `host.js`: the board you project from your laptop
 - `play.html` / `play.js`: the page students open on their phones
+- `pack.js`: reads, checks, and combines content files
 - `audio.js`: music and sound effects, all generated in the browser (no audio files)
 - `voice.js`: reads questions aloud using the browser's built-in speech (no audio files)
-- `net.js`: the connection between them (Firebase, PeerJS, or local test mode)
-- `config.js`: settings (connection mode, phone address, clue file)
-- `data/review-night.json`: all clues, timers, and point values
+- `net.js`: the connection between the board and phones (Firebase, PeerJS, or local test mode)
+- `config.js`: settings (connection, which content files to load)
+- `data/old-testament.json`: the Old Testament content pack
+- `data/class-extras.local.json` (not in the repo): extras that belong to one class, such as teacher trivia. Load it on the setup screen.
+- `data/template.json`: a documented starting point for a new course
+- `data/CONTENT-GUIDE.md`: how to make content for a new course, with a prompt for Claude
 - `lib/`: Firebase JS SDK 12.19.0 (Apache 2.0), PeerJS 1.5.5 and qrcode-generator 2.0.4 (both MIT), copied in so the game doesn't depend on a CDN
 
 ## Put it on GitHub Pages
@@ -26,6 +32,8 @@ automatically that way, so use "Load a different clue file" on the setup screen,
 and set `playUrl` in `config.js` to the online address of `play.html`.
 
 ## Firebase setup (one time)
+
+The `config.js` in this package already contains the settings for the `cpseminaryss` project, so uploading the whole folder is safe. The steps below are only needed to set up a different Firebase project.
 
 Firebase relays messages between phones and the board, so the game works on
 cellular and any Wi-Fi. Firebase's screens may have changed since these steps were written.
@@ -80,19 +88,20 @@ Add `?net=local` to the board's address. The lobby QR code and link then point
 to `play.html?net=local&room=...`. Open that link in several tabs of the same
 browser; each tab acts as one phone.
 
-## Edit clues
+## Content (using this for a new course)
 
-Everything lives in `data/review-night.json`.
+The game itself is the same every year. The questions live in files in the `data` folder: one **pack** per course, and optional **extras** for things that belong to one class. See `data/CONTENT-GUIDE.md` for the full steps, the field reference, and a prompt you can give Claude to write a new pack.
 
-- **Banks:** each round holds a bank of questions and a `count`. At the start of a game the board draws `count` items from the bank, so every game is different. It prefers items this laptop has shown least, so back-to-back games share no questions until the bank runs out. Host tools has a Reset question history button
-- **Trivia:** `questions` is the bank, `count` is how many are asked. `answer` counts from 0, so 0 is the first choice. Choices are reshuffled every game. Add `"fixed": true` to a question to keep its choices in the order you wrote them
-- **Fake Out:** `clues` is the bank. Use `answer` for the real ending and `alt` for other wordings that also count, so students can't submit them as fakes. `house` fakes fill in when a set writes fewer than two. The first clue in each draw goes to the first set
-- **Sketch It:** `stories` is the bank. Stories drawn this game are all shown as guessing options, so keep `count` a bit above the number of sets (7 works for up to 20 students)
-- **Final:** `finals` is the bank, and one question is drawn. Five or six close choices make it harder
-- **Points:** `mult` on each round multiplies its points (Quick Quiz ×1, Fake Out ×2, Sketch It ×3). Base values are in `settings.points`
-- **Timers:** `settings.timers`, in seconds
-- **Rules page:** each round's `rules` list and `intro` appear on the page shown at the start of the game and between rounds. `welcome` is the line at the bottom. The points shown on that page come from `settings.points` and `mult`, so they stay correct when you change them
-- If you change `count` for a round, also update that round's `intro` text if it names a number
+Short version for a new course:
+1. Copy `data/template.json` and fill it in (or ask Claude, using the prompt in the guide).
+2. On the board's setup screen, use Load a content file to try it. The screen shows how many questions it found and warns about problems.
+3. To make it the default, upload it to the `data` folder and change `dataUrl` in `config.js` to its path. Or open the board with `host.html?data=data/your-file.json`.
+
+Other things that live in the content files:
+- **Banks:** each round holds a bank of items and a `count`. A game draws `count` items, preferring ones this laptop has shown least, so back-to-back games share no questions until a bank runs out. Host tools has Reset question history
+- **Points and timers:** `mult` on a round multiplies its points. Base values are in `settings.points`, and seconds in `settings.timers`
+- **Rules page:** each round's `rules` and `intro`, plus `welcome`, appear before every round
+- **Voice:** `pronounce` teaches the reader how to say names and terms, like `"Zarahemla": "zah-rah-HEM-lah"`
 
 ## Sound
 
@@ -119,7 +128,7 @@ The board reads questions aloud with the laptop's built-in voice.
 
 ## How rounds work
 
-- Sets of 3 or 4 are rebuilt at the start of Fake Out, Sketch It, and the final.
+- Sets of 3 or 4 are rebuilt at the start of Fake Out, Sketch It, Apply It, and the final wager.
 - Students who join during Quick Quiz play right away. Students who join later sit in
   the audience, earn points for correct answers, and become players at the next round
   with their points.

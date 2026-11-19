@@ -1,0 +1,250 @@
+{
+ "_help": [
+  "This file shows the format. Copy it, replace the examples with your own, and load it on the board's setup screen.",
+  "Include any of the round types: trivia, tf, order, fib, draw, apply. The host picks which ones to play, and in what order, on the setup screen.",
+  "Points multiply by the round's position in tonight's game (settings.multipliers, default 1, 2, 3; the last number repeats). A 'mult' on a round is ignored.",
+  "Choices: put the CORRECT answer first (answer: 0). The game shuffles the choices every time.",
+  "Every round's list is a bank. 'count' is how many are drawn each game. Add more than you need so games vary.",
+  "The final wager uses one more item from the last round. If the last round is Sketch It or Apply It, it uses the 'final' round's finals instead."
+ ],
+ "title": "Seminary Review Night",
+ "course": "Your course name",
+ "pronounce": {
+  "Zarahemla": "zah-rah-HEM-lah"
+ },
+ "welcome": [
+  "Join on your phone with the room code.",
+  "Answer on your phone, not out loud.",
+  "Points get bigger every round, and the finale lets you wager."
+ ],
+ "settings": {
+  "setSize": 4,
+  "nameMax": 16,
+  "answerMax": 60,
+  "timers": {
+   "trivia": 30,
+   "tf": 12,
+   "order": 45,
+   "fibWrite": 90,
+   "fibGuess": 40,
+   "drawDraw": 120,
+   "drawGuess": 40,
+   "applyWrite": 75,
+   "applyVote": 30,
+   "finalWager": 40,
+   "finalQuestion": 50
+  },
+  "points": {
+   "triviaCorrect": 100,
+   "triviaSpeedBonus": 50,
+   "tfCorrect": 50,
+   "tfSpeedBonus": 25,
+   "orderPerItem": 25,
+   "orderPerfect": 50,
+   "fibTruth": 100,
+   "fibFooled": 50,
+   "drawCorrect": 100,
+   "drawArtistMax": 100,
+   "drawFavorite": 50,
+   "applyVote": 50,
+   "applyWin": 100,
+   "finalMaxWagerFloor": 1000,
+   "finalAudienceCorrect": 100
+  },
+  "multipliers": [
+   1,
+   2,
+   3
+  ],
+  "finalWager": true,
+  "applyMax": 140
+ },
+ "rounds": [
+  {
+   "type": "trivia",
+   "title": "Quick Quiz",
+   "count": 10,
+   "intro": "Questions on what we've studied this year.",
+   "rules": [
+    "A question and choices appear on the screen. Pick one on your phone.",
+    "The clock starts after the question is read aloud.",
+    "A correct answer scores. A faster correct answer scores a little more."
+   ],
+   "_help": "questions: q is the question. choices: the correct answer FIRST. answer: 0. note: shown after the reveal.",
+   "questions": [
+    {
+     "q": "EXAMPLE: Which book comes first in the Bible?",
+     "choices": [
+      "Genesis",
+      "Exodus",
+      "Psalms",
+      "Matthew"
+     ],
+     "answer": 0,
+     "note": "Genesis."
+    },
+    {
+     "q": "EXAMPLE: Which scripture says “Trust in the Lord with all thine heart”?",
+     "choices": [
+      "Proverbs 3:5–6",
+      "Psalm 24:3–4",
+      "Isaiah 1:18",
+      "Joshua 24:15"
+     ],
+     "answer": 0,
+     "note": "Proverbs 3:5–6."
+    }
+   ]
+  },
+  {
+   "type": "tf",
+   "title": "True or False",
+   "count": 10,
+   "intro": "Fast true-or-false statements.",
+   "rules": [
+    "A statement appears on the screen. Tap True or False on your phone.",
+    "The clock is short, so trust your first instinct.",
+    "A correct answer scores. A faster correct answer scores a little more."
+   ],
+   "_help": "statements: s is the statement. a is true or false (no quotes). note: shown after the reveal. Keep a mix of true and false.",
+   "statements": [
+    {
+     "s": "EXAMPLE: Genesis is the first book of the Bible.",
+     "a": true,
+     "note": "Genesis comes first."
+    },
+    {
+     "s": "EXAMPLE: Malachi is the first book of the Old Testament.",
+     "a": false,
+     "note": "Malachi is the last book of the Old Testament."
+    }
+   ]
+  },
+  {
+   "type": "order",
+   "title": "Put It in Order",
+   "count": 5,
+   "intro": "Put events, verses, or steps in the right order.",
+   "rules": [
+    "Your phone shows a mixed-up list.",
+    "Tap the items in order, first to last, then lock in.",
+    "You score for every item in the right place, plus a bonus for a perfect order."
+   ],
+   "_help": "puzzles: prompt says what to order. items: 3 to 8 items in the CORRECT order (4 to 6 is best on a phone). The game mixes them up. note: shown after the reveal.",
+   "puzzles": [
+    {
+     "prompt": "EXAMPLE: Put these books in Bible order.",
+     "items": [
+      "Genesis",
+      "Exodus",
+      "Leviticus",
+      "Numbers",
+      "Deuteronomy"
+     ],
+     "note": "The five books of Moses."
+    }
+   ]
+  },
+  {
+   "type": "fib",
+   "title": "Fake Out",
+   "count": 8,
+   "intro": "Write a believable fake ending, then find the real one.",
+   "rules": [
+    "Your set of 3 or 4 gets one clue. Write a fake ending that sounds real.",
+    "Everyone else sees the real ending mixed in with the fakes and picks the one they trust.",
+    "Pick the real one and score. Fool a classmate with your fake and score every time."
+   ],
+   "_help": "clues: prompt ends mid-sentence with ____. answer: the real ending. alt: other wordings that count as the real answer (students can't submit them as fakes). ref: shown after the reveal. house: 2 or more fakes used when students write too few.",
+   "clues": [
+    {
+     "prompt": "“Trust in the Lord with all thine heart; and ____”",
+     "answer": "lean not unto thine own understanding",
+     "alt": [
+      "lean not to thine own understanding"
+     ],
+     "ref": "Proverbs 3:5",
+     "house": [
+      "call upon his name each morning",
+      "seek his counsel in all thy plans"
+     ]
+    },
+    {
+     "prompt": "“In all thy ways acknowledge him, and ____”",
+     "answer": "he shall direct thy paths",
+     "alt": [
+      "he will direct thy paths"
+     ],
+     "ref": "Proverbs 3:6",
+     "house": [
+      "he shall guide thee in peace",
+      "thou shalt find rest unto thy soul"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "draw",
+   "title": "Sketch It",
+   "count": 7,
+   "intro": "Draw a scripture story and guess your classmates' drawings.",
+   "rules": [
+    "Your set draws the same story on your phone. No words or letters.",
+    "Everyone else sees the drawings and guesses which story it is.",
+    "Guess right and score. Draw clearly, because you score when classmates guess your story. Pick a favorite drawing for a bonus."
+   ],
+   "_help": "stories: story is what to draw (it must be drawable). ref: shown after the reveal. Keep count a bit above the number of sets (7 works for up to 20 students). Needs at least 2.",
+   "stories": [
+    {
+     "story": "EXAMPLE: A family choosing to serve the Lord together",
+     "ref": "Joshua 24:15"
+    },
+    {
+     "story": "EXAMPLE: Two sticks becoming one in a hand",
+     "ref": "Ezekiel 37:15–17"
+    }
+   ]
+  },
+  {
+   "type": "apply",
+   "title": "Apply It",
+   "count": 6,
+   "intro": "Use a scripture to answer a real-life situation.",
+   "rules": [
+    "Your set of 3 or 4 gets the same situation and scripture.",
+    "Each of you writes how the scripture helps, in a sentence or two.",
+    "Everyone else votes for the answer they like best. You score for every vote, and the top answer gets a bonus."
+   ],
+   "_help": "prompts: prompt is a real-life situation. ref is the scripture students apply. note (optional) is shown after the votes. Keep count a bit above the number of sets.",
+   "prompts": [
+    {
+     "prompt": "EXAMPLE: A friend is anxious about a big decision and doesn't know what to do.",
+     "ref": "Proverbs 3:5–6"
+    },
+    {
+     "prompt": "EXAMPLE: Your family is choosing what to do on Sunday.",
+     "ref": "Joshua 24:15"
+    }
+   ]
+  },
+  {
+   "type": "final",
+   "title": "The Final Question",
+   "_help": "Not a round people pick. If the last round is Sketch It or Apply It, the final wager draws one of these. Use 4 to 6 close choices, correct answer first, answer: 0.",
+   "finals": [
+    {
+     "q": "EXAMPLE: “…and call the sabbath a delight, the holy of the Lord, ____.”",
+     "choices": [
+      "honourable",
+      "blessed",
+      "righteous",
+      "glorious",
+      "peaceful"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:13."
+    }
+   ]
+  }
+ ]
+}

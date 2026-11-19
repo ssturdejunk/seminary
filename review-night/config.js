@@ -7,7 +7,7 @@ window.RN_CONFIG = {
   // Any page can override this with ?net=local or ?net=peer in its address.
   net: "firebase",
 
-  // Paste the settings from your Firebase project here (see README).
+  // Settings for the cpseminaryss Firebase project (already filled in).
   firebase: {
     apiKey: "AIzaSyAh4GLNVZ-5n5B7fIYNxCVG6H5H5RElvME",
     authDomain: "cpseminaryss.firebaseapp.com",
@@ -16,12 +16,19 @@ window.RN_CONFIG = {
     appId: "1:191817141776:web:129028f95f48f1b9830495"
   },
 
+
   // Address of play.html as phones should open it. Leave empty to use the
   // folder the board was opened from (right for GitHub Pages).
   playUrl: "",
 
-  // Clue file the board loads at startup. You can also pick a file on the setup screen.
+  // The content pack the board loads at startup (one file per course). To use a different
+  // course, upload its file to the data folder and change this line, or open the board with
+  // ?data=data/your-file.json. You can also load a file on the setup screen.
   dataUrl: "data/old-testament.json",
+
+  // Optional extras added to the pack, for things that belong to one class or teacher (teacher
+  // trivia, for example). Leave it empty ("") for none. Open the board with ?extras=none to skip it once.
+  extrasUrl: "",
 
   // Options passed to PeerJS in "peer" mode. Empty uses the free public PeerJS server.
   peerOptions: {}
