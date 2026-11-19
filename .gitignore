@@ -1,0 +1,5 @@
+dist/
+__pycache__/
+node_modules/
+*.local.json
+class-extras.local.json

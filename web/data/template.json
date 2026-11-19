@@ -1,0 +1,171 @@
+{
+ "_help": [
+  "This file shows the format. Copy it, replace the examples with your own, and load it on the board's setup screen.",
+  "Choices: put the CORRECT answer first (answer: 0). The game shuffles the choices every time.",
+  "Every round's list is a bank. 'count' is how many are drawn each game. Add more than you need so games vary.",
+  "Rounds can be in any order. Keep one of each type: trivia, fib, draw, final. 'mult' multiplies that round's points."
+ ],
+ "title": "Seminary Review Night",
+ "course": "Your course name",
+ "pronounce": {
+  "Zarahemla": "zah-rah-HEM-lah"
+ },
+ "welcome": [
+  "Join on your phone with the room code.",
+  "Answer on your phone, not out loud.",
+  "Points get bigger every round, and the finale lets you wager."
+ ],
+ "settings": {
+  "setSize": 4,
+  "nameMax": 16,
+  "answerMax": 60,
+  "timers": {
+   "trivia": 30,
+   "fibWrite": 90,
+   "fibGuess": 40,
+   "drawDraw": 120,
+   "drawGuess": 40,
+   "finalWager": 40,
+   "finalQuestion": 50
+  },
+  "points": {
+   "triviaCorrect": 100,
+   "triviaSpeedBonus": 50,
+   "fibTruth": 100,
+   "fibFooled": 50,
+   "drawCorrect": 100,
+   "drawArtistMax": 100,
+   "drawFavorite": 50,
+   "finalMaxWagerFloor": 1000,
+   "finalAudienceCorrect": 100
+  }
+ },
+ "rounds": [
+  {
+   "type": "trivia",
+   "title": "Quick Quiz",
+   "mult": 1,
+   "count": 10,
+   "intro": "Questions on what we've studied this year.",
+   "rules": [
+    "A question and choices appear on the screen. Pick one on your phone.",
+    "The clock starts after the question is read aloud.",
+    "A correct answer scores. A faster correct answer scores a little more."
+   ],
+   "_help": "questions: q is the question. choices: the correct answer FIRST. answer: 0. note: shown after the reveal.",
+   "questions": [
+    {
+     "q": "EXAMPLE: Which book comes first in the Bible?",
+     "choices": [
+      "Genesis",
+      "Exodus",
+      "Psalms",
+      "Matthew"
+     ],
+     "answer": 0,
+     "note": "Genesis."
+    },
+    {
+     "q": "EXAMPLE: Which scripture says “Trust in the Lord with all thine heart”?",
+     "choices": [
+      "Proverbs 3:5–6",
+      "Psalm 24:3–4",
+      "Isaiah 1:18",
+      "Joshua 24:15"
+     ],
+     "answer": 0,
+     "note": "Proverbs 3:5–6."
+    }
+   ]
+  },
+  {
+   "type": "fib",
+   "title": "Fake Out",
+   "mult": 2,
+   "count": 8,
+   "intro": "Write a believable fake ending, then find the real one.",
+   "rules": [
+    "Your set of 3 or 4 gets one clue. Write a fake ending that sounds real.",
+    "Everyone else sees the real ending mixed in with the fakes and picks the one they trust.",
+    "Pick the real one and score. Fool a classmate with your fake and score every time."
+   ],
+   "_help": "clues: prompt ends mid-sentence with ____. answer: the real ending. alt: other wordings that count as the real answer (students can't submit them as fakes). ref: shown after the reveal. house: 2 or more fakes used when students write too few.",
+   "clues": [
+    {
+     "prompt": "“Trust in the Lord with all thine heart; and ____”",
+     "answer": "lean not unto thine own understanding",
+     "alt": [
+      "lean not to thine own understanding"
+     ],
+     "ref": "Proverbs 3:5",
+     "house": [
+      "call upon his name each morning",
+      "seek his counsel in all thy plans"
+     ]
+    },
+    {
+     "prompt": "“In all thy ways acknowledge him, and ____”",
+     "answer": "he shall direct thy paths",
+     "alt": [
+      "he will direct thy paths"
+     ],
+     "ref": "Proverbs 3:6",
+     "house": [
+      "he shall guide thee in peace",
+      "thou shalt find rest unto thy soul"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "draw",
+   "title": "Sketch It",
+   "mult": 3,
+   "count": 7,
+   "intro": "Draw a scripture story and guess your classmates' drawings.",
+   "rules": [
+    "Your set draws the same story on your phone. No words or letters.",
+    "Everyone else sees the drawings and guesses which story it is.",
+    "Guess right and score. Draw clearly, because you score when classmates guess your story. Pick a favorite drawing for a bonus."
+   ],
+   "_help": "stories: story is what to draw (it must be drawable). ref: shown after the reveal. Keep count a bit above the number of sets (7 works for up to 20 students). Needs at least 2.",
+   "stories": [
+    {
+     "story": "EXAMPLE: A family choosing to serve the Lord together",
+     "ref": "Joshua 24:15"
+    },
+    {
+     "story": "EXAMPLE: Two sticks becoming one in a hand",
+     "ref": "Ezekiel 37:15–17"
+    }
+   ]
+  },
+  {
+   "type": "final",
+   "title": "The Final Question",
+   "mult": 1,
+   "count": 1,
+   "intro": "One hard question. Everything is on the line.",
+   "rules": [
+    "Wager first, anywhere from nothing up to your whole score.",
+    "The choices are close, so read carefully.",
+    "Right: you win your wager. Wrong: you lose it. Audience members who answer correctly score too."
+   ],
+   "_help": "finals: one is drawn each game. Use 5 or 6 close choices, correct answer first, answer: 0.",
+   "finals": [
+    {
+     "q": "EXAMPLE: “…and call the sabbath a delight, the holy of the Lord, ____.”",
+     "choices": [
+      "honourable",
+      "blessed",
+      "righteous",
+      "glorious",
+      "peaceful"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:13."
+    }
+   ]
+  }
+ ]
+}
