@@ -38,6 +38,27 @@ with sync_playwright() as p:
     host.wait_for_function("document.body.innerText.includes('Tester')", timeout=10000)
     check(True, "phone joined and appears on the board")
     check(not errs, "no uncaught page errors" + (": " + "; ".join(errs[:3]) if errs else ""))
+    # Real pack, several game builds: no round may show a later Fake Out ending or the wager answer
+    # for the same passage, and generated Doctrinal Mastery drills stay at most half of a round.
+    GIVE = """() => { const S = RN_HOST.state(), RE = /(?:[1-3] )?[A-Z][a-z]+(?: [A-Z][a-z]+)? \\d+:\\d+/g;
+      const flat = (t) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+      const refs = (it) => { const r = it.choices && typeof it.answer === 'number' ? it.choices[it.answer] : it.answer;
+        return [...new Set(([it.ref, it.note, it.s, r, it.story, it.prompt, it.q].filter((x) => typeof x === 'string').join(' ').match(RE) || []).map((x) => x.toLowerCase()))]; };
+      const vis = (it) => flat([it.q, it.s, it.prompt, it.story, it.note, typeof it.answer === 'string' ? it.answer : ''].concat(it.choices || [], it.items || []).join(' '));
+      const items = S.rounds.map((r) => r.questions || r.puzzles || r.clues || r.stories || r.prompts || []);
+      const bad = [];
+      S.rounds.forEach((r, fp) => { if (r.type !== 'fib') return; r.clues.forEach((cl) => { const a = flat(cl.answer), rf = refs(cl);
+        items.slice(0, fp).forEach((l) => l.forEach((it) => { if (refs(it).some((f) => rf.includes(f)) && vis(it).includes(a)) bad.push('Fake Out: ' + cl.answer); })); }); });
+      const w = S.wagerQ; if (w) { const a = flat(w.choices ? w.choices[w.answer] : (w.items || []).join(' ')), rf = refs(w);
+        items.forEach((l) => l.forEach((it) => { if (a.length >= 3 && refs(it).some((f) => rf.includes(f)) && vis(it).includes(a)) bad.push('wager: ' + a); })); }
+      const heavy = S.rounds.filter((r) => { const l = r.questions || []; return l.length && l.some((x) => !x.dm) && l.filter((x) => x.dm).length > Math.ceil(l.length / 2); }).map((r) => r.type);
+      return { bad, heavy }; }"""
+    probs = []
+    for _ in range(4):
+        g = ctx.new_page(); g.goto(BASE + "/host.html?net=local&extras=none"); g.wait_for_selector("#cNext")
+        g.click("#cNext"); g.wait_for_timeout(150); g.click("#cNext"); g.wait_for_function("RN_HOST.state().phase === 'intro'", timeout=5000)
+        r = g.evaluate(GIVE); probs += r["bad"] + ["too many drills in " + t for t in r["heavy"]]; g.close()
+    check(not probs, "4 game builds from the real pack: no give-aways, drills at most half of Quick Quiz" + (": " + "; ".join(probs[:3]) if probs else ""))
     # offline edition: build it, load it from disk, make sure it starts with no errors
     import subprocess, tempfile
     out = os.path.join(tempfile.mkdtemp(), "offline.html")

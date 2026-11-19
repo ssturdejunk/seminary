@@ -27,8 +27,8 @@
     if (!Array.isArray(item.choices) || item.choices.length < 2) throw new Error(where + " needs a list of at least 2 choices.");
     if (typeof item.answer !== "number" || !item.choices[item.answer]) throw new Error(where + " has an answer number that doesn't match a choice. Answers count from 0, so 0 is the first choice.");
   }
-  function checkItems(type, items, label) {
-    if (!Array.isArray(items) || !items.length) throw new Error(label + " is empty.");
+  function checkItems(type, items, label, mayBeEmpty) {
+    if (!Array.isArray(items) || (!items.length && !mayBeEmpty)) throw new Error(label + " is empty.");
     items.forEach((it, j) => {
       const where = label + ", item " + (j + 1);
       if (type === "trivia") { if (!it.q) throw new Error(where + " needs a q (the question)."); checkChoices(it, where + " (" + snip(it.q) + ")"); }
@@ -52,17 +52,23 @@
     if (d.extras === true) throw new Error("this is an extras file, not a full pack.");
     if (!Array.isArray(d.rounds) || !d.rounds.length) throw new Error("it has no rounds.");
     d.settings = d.settings || {};
+    // A Quick Quiz, Put It in Order or Sketch It bank may be empty when Doctrinal Mastery fills it.
+    const hasMastery = Array.isArray(d.mastery) && d.mastery.length >= 4;
     d.rounds.forEach((r, i) => {
       const n = "Round " + (i + 1) + (r.title ? " (" + r.title + ")" : "");
       if (!KEYS[r.type]) throw new Error(n + " has an unknown type: " + snip(r.type) + ". Use " + Object.keys(KEYS).join(", ") + ".");
       if (r.type === "final") {
         if (r.finals) checkItems("final", r.finals, n + " finals");
         else { if (!r.q) throw new Error(n + " needs finals (a list of questions) or a q."); checkChoices(r, n); }
-      } else checkItems(r.type, r[KEYS[r.type]], n + " " + KEYS[r.type]);
-      if (r.type === "draw" && r.stories.length < 2) throw new Error(n + " needs at least 2 stories.");
+      } else checkItems(r.type, r[KEYS[r.type]], n + " " + KEYS[r.type], hasMastery && ["trivia", "order", "draw"].includes(r.type));
+      if (r.type === "draw" && r.stories.length < 2 && !hasMastery) throw new Error(n + " needs at least 2 stories.");
       if (r.count != null && !(r.count >= 1)) throw new Error(n + " has a bad count.");
     });
     if (!d.rounds.some((r) => P.PLAYABLE.includes(r.type))) throw new Error("it has no playable rounds (" + P.PLAYABLE.join(", ") + ").");
+    if (d.mastery != null) {
+      if (!Array.isArray(d.mastery)) throw new Error("mastery must be a list of { ref, phrase }.");
+      d.mastery.forEach((m, i) => { if (!m || !m.ref || !m.phrase) throw new Error("Doctrinal Mastery item " + (i + 1) + " needs a ref and a phrase."); });
+    }
   };
   P.isExtras = (d) => !!(d && typeof d === "object" && d.extras === true);
   P.validateExtras = function (x) {
@@ -93,6 +99,95 @@
         d._added += add.length;
       });
     });
+    P.expandMastery(d);
+    return d;
+  };
+
+  // ---------- Doctrinal Mastery drills ----------
+  // A pack may list its Doctrinal Mastery passages as "mastery": [{ ref, phrase, quoted }], where
+  // quoted is only the text inside quotation marks. These are turned into extra items for rounds the
+  // pack already has (from the manual's memorization ideas):
+  //   Quick Quiz: First Letters (pick the reference) and Fill in the Blank (pick the missing words)
+  //   Put It in Order: Unscramble (phrase in chunks) and Matching (phrases in the order of 4 references)
+  //   Sketch It: draw the key phrase, the class guesses it
+  // Word drills use quoted text only. Generation is deterministic, so the same item keeps the same
+  // text from game to game. settings.mastery can switch parts off: { quiz, order, draw: false }.
+  const DM_STOP = new Set("a an the of and to in on unto for his her my thy thine thee your you is are was be as at by with that this it or they shall will he she we i them him who which not no so but if then hath doth ye".split(" "));
+  const dmWords = (s) => String(s).replace(/…/g, " … ").replace(/—/g, "— ").split(/\s+/).filter(Boolean);
+  const dmJoin = (ws) => ws.join(" ").replace(/— /g, "—").replace(/ … /g, " … ");
+  const bare = (w) => w.replace(/[^A-Za-z']/g, "");
+  function hash(s) { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function others(list, i, n, key) { // n entries other than i, chosen by a stable hash
+    const out = [], seen = new Set([key(list[i])]);
+    for (let k = 1; out.length < n && k < list.length * 3; k++) {
+      const c = list[(i + 1 + (hash(key(list[i]) + k) % (list.length - 1))) % list.length];
+      if (!seen.has(key(c))) { seen.add(key(c)); out.push(c); }
+    }
+    return out;
+  }
+  function contentWords(text) {
+    // w keeps a capital only for a proper noun (capitalized after the first word); o is the word as written.
+    return dmWords(text).map((w, i) => ({ o: bare(w), w: i > 0 && /^[A-Z]/.test(bare(w)) ? bare(w) : bare(w).toLowerCase(), i }))
+      .filter((x) => x.w.length >= 3 && !DM_STOP.has(x.w.toLowerCase()));
+  }
+  P.expandMastery = function (d) {
+    const M = (d.mastery || []).filter((m) => m && m.ref && (m.quoted || m.phrase));
+    d._mastery = { quiz: 0, order: 0, draw: 0 };
+    if (M.length < 4) return d;
+    const opt = (d.settings && d.settings.mastery) || {};
+    const round = (type) => d.rounds.find((r) => r.type === type);
+    const Q = M.filter((m) => m.quoted && dmWords(m.quoted).length >= 4);
+    const tag = (it, m, kind) => Object.assign(it, { ref: m.ref, dm: kind });
+
+    const quiz = round("trivia");
+    if (quiz && opt.quiz !== false) {
+      const add = [];
+      Q.forEach((m, i) => {
+        const refs = [m.ref].concat(others(Q, i, 3, (x) => x.ref).map((x) => x.ref));
+        const words = dmWords(m.quoted);
+        // First Letters: every word's first letter; the harder one hides every other letter.
+        const fl = words.map((w) => (w === "…" ? "…" : (bare(w)[0] || "") + (/[,.;:?!]$/.test(w) ? w.slice(-1) : ""))).join(" ");
+        const fl2 = fl.split(" ").map((x, k) => (x === "…" || k % 2 === 0 ? x : "_")).join(" ");
+        add.push(tag({ q: "First letters: “" + fl + "” Which passage is it?", choices: refs, answer: 0, note: m.ref + ": " + m.phrase }, m, "first-letters"));
+        add.push(tag({ q: "Harder first letters: “" + fl2 + "” Which passage is it?", choices: refs, answer: 0, note: m.ref + ": " + m.phrase }, m, "first-letters"));
+        // Fill in the Blank: the longest content word, then the two longest.
+        const cw = contentWords(m.quoted).sort((a, b) => b.w.length - a.w.length || a.i - b.i);
+        if (cw.length >= 2) {
+          const pool = others(Q, i, 6, (x) => x.ref).map((x) => contentWords(x.quoted).sort((a, b) => b.w.length - a.w.length)).filter((x) => x.length >= 2);
+          const one = cw[0], blank1 = dmJoin(words.map((w, k) => (k === one.i ? w.replace(one.o, "____") : w)));
+          const d1 = [...new Set(pool.map((x) => x[0].w))].filter((w) => w.toLowerCase() !== one.w.toLowerCase()).slice(0, 3);
+          if (d1.length === 3) add.push(tag({ q: m.ref + ": “" + blank1 + "” Which word is missing?", choices: [one.w].concat(d1), answer: 0, note: m.ref + ": “" + m.quoted + "”" }, m, "fill-blank"));
+          const two = cw.slice(0, 2).sort((a, b) => a.i - b.i), set2 = new Set(two.map((x) => x.i));
+          const blank2 = dmJoin(words.map((w, k) => (set2.has(k) ? w.replace(bare(w), "____") : w)));
+          const pair = (xs) => xs.slice(0, 2).sort((a, b) => a.i - b.i).map((x) => x.w).join(" … ");
+          const right2 = pair(two), d2 = [...new Set(pool.map(pair))].filter((x) => x !== right2).slice(0, 3);
+          if (d2.length === 3) add.push(tag({ q: "“" + blank2 + "” Which words are missing?", choices: [right2].concat(d2), answer: 0, note: m.ref + ": “" + m.quoted + "”" }, m, "fill-blank"));
+        }
+      });
+      quiz.questions = quiz.questions.concat(add); d._mastery.quiz = add.length;
+    }
+
+    const ord = round("order");
+    if (ord && opt.order !== false) {
+      const add = [];
+      Q.forEach((m) => { // Unscramble: 3 to 6 chunks of words
+        const w = dmWords(m.quoted).filter((x) => x !== "…"), k = Math.max(3, Math.min(6, Math.round(w.length / 3)));
+        const chunks = Array.from({ length: k }, (_, j) => dmJoin(w.slice(Math.round(j * w.length / k), Math.round((j + 1) * w.length / k)))).filter(Boolean);
+        if (chunks.length >= 3 && new Set(chunks.map((c) => c.toLowerCase())).size === chunks.length)
+          add.push(tag({ prompt: "Unscramble " + m.ref + ".", items: chunks, note: "“" + m.quoted + "”" }, m, "unscramble"));
+      });
+      for (let i = 0; i + 4 <= M.length; i += 4) { // Matching: phrases in the order of 4 references
+        const g = M.slice(i, i + 4), short = (m) => { const t = m.quoted || m.phrase; return t.length > 70 ? t.slice(0, 67).replace(/\s+\S*$/, "") + "…" : t; };
+        add.push(Object.assign({ prompt: "Match the key phrases to " + g.map((m, k) => (k + 1) + ") " + m.ref).join("  ") + ".", items: g.map(short), note: g.map((m) => m.ref).join(", "), dm: "matching" }));
+      }
+      ord.puzzles = ord.puzzles.concat(add); d._mastery.order = add.length;
+    }
+
+    const dr = round("draw");
+    if (dr && opt.draw !== false) {
+      const add = M.map((m) => tag({ story: m.ref + ": " + (m.quoted || m.phrase), ref: m.ref }, m, "picture"));
+      dr.stories = dr.stories.concat(add); d._mastery.draw = add.length;
+    }
     return d;
   };
 
@@ -126,6 +221,8 @@
       }
     });
     if (!d.rounds.some((r) => P.PLAYABLE.includes(r.type))) warnings.push("The pack has no playable rounds.");
+    const g = d._mastery;
+    if (g && g.quiz + g.order + g.draw) lines.push("Doctrinal Mastery drills mixed in: " + [g.quiz && g.quiz + " quiz", g.order && g.order + " order", g.draw && g.draw + " drawing"].filter(Boolean).join(", "));
     return { lines, warnings };
   };
 

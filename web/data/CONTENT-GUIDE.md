@@ -37,6 +37,22 @@ The offline version (`review-night-offline.html`) has a copy of the content buil
 
 A pack can include any of these. The host picks which rounds to play tonight, and in what order, on the setup screen. Include a round only when it has enough items.
 
+## Doctrinal Mastery drills
+
+Add your course's Doctrinal Mastery passages once, and the game mixes memorization drills into the rounds you already have:
+
+```json
+"mastery": [ { "ref": "Joshua 24:15", "phrase": "“Choose you this day whom ye will serve.”", "quoted": "Choose you this day whom ye will serve." } ]
+```
+
+- `phrase` is the key phrase as the manual gives it; `quoted` is only the words inside quotation marks (leave it empty for a summary such as "The Ten Commandments").
+- Quick Quiz gets **First Letters** (pick the passage from the first letter of each word; a harder version hides every other letter) and **Fill in the Blank** (one missing word, then two).
+- Put It in Order gets **Unscramble** (the phrase in chunks) and **Matching** (put four phrases in the order of four references).
+- Sketch It gets **Related Pictures** (draw a key phrase; the class guesses it).
+- Drills use only quoted words, except Matching and Pictures, which also use summaries. At most half of a round's items are drills (`settings.mastery.share`, default 0.5). Turn parts off with `settings.mastery: { "quiz": false, "order": false, "draw": false }`.
+- A Quick Quiz, Put It in Order or Sketch It round may have an empty list when the drills fill it.
+- The board never shows a later Fake Out ending or the wager answer earlier in the same game.
+
 ## Choosing rounds and the final wager
 
 - On the setup screen, **Rounds tonight** lists every round in the pack. Tick the ones to play and use the arrows to order them. The choice is remembered in that browser for that pack.

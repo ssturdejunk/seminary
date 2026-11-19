@@ -61,10 +61,42 @@
   try { seen = JSON.parse(localStorage.getItem(SEEN_KEY) || "{}") || {}; } catch (e) { seen = {}; }
   const saveSeen = () => { try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (e) {} };
   const markSeen = (id) => { seen[id] = (seen[id] || 0) + 1; saveSeen(); };
-  function pick(pool, n, idOf) {
-    const rows = pool.map((it) => ({ it, c: seen[idOf(it)] || 0, r: Math.random() }));
+  // Scripture references an item is about (its ref, note, statement, and correct answer), as
+  // "book chapter:verse", so one game doesn't use the same passage in two places.
+  const REF_RE = /(?:[1-3] )?[A-Z][a-z]+(?: [A-Z][a-z]+)? \d+:\d+/g;
+  function refsOf(it) {
+    const right = it.choices && typeof it.answer === "number" ? it.choices[it.answer] : it.answer;
+    const txt = [it.ref, it.note, it.s, right, it.story, it.prompt, it.q].filter((x) => typeof x === "string").join(" ");
+    return [...new Set((txt.match(REF_RE) || []).map((x) => x.toLowerCase()))];
+  }
+  // Everything an item can show on a screen, flattened for "does it contain this answer?" checks.
+  const flat = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const visible = (it) => flat([it.q, it.s, it.prompt, it.story, it.note, typeof it.answer === "string" ? it.answer : ""].concat(it.choices || [], it.items || []).join(" "));
+  // Least-seen items first. With a game context `g`: skip items that would give away a later answer
+  // (g.conflict), avoid two items on the same passage in one round, and keep generated Doctrinal
+  // Mastery drills to settings.mastery.share (default half) of a round when the bank has enough
+  // other items. Falls back step by step when the bank is small.
+  function pick(pool, n, idOf, g) {
+    const rows = pool.map((it) => ({ it, c: seen[idOf(it)] || 0, r: Math.random(), refs: g ? refsOf(it) : [] }));
     rows.sort((a, b) => a.c - b.c || a.r - b.r);
-    return shuffle(rows.slice(0, Math.min(n, rows.length)).map((x) => x.it));
+    n = Math.min(n, rows.length);
+    if (!g) return shuffle(rows.slice(0, n).map((x) => x.it));
+    const share = ((set().mastery || {}).share != null ? (set().mastery || {}).share : 0.5);
+    const plain = rows.filter((x) => !x.it.dm).length, dmCap = Math.max(Math.ceil(n * share), n - plain);
+    const out = [], mine = new Set();
+    let dm = 0;
+    for (const strict of [3, 2, 1, 0]) {
+      for (const x of rows) {
+        if (out.length >= n) break;
+        if (out.includes(x)) continue;
+        if (strict >= 1 && g.conflict(x.it, x.refs)) continue;
+        if (strict >= 2 && x.it.dm && dm >= dmCap) continue;
+        if (strict >= 3 && x.refs.some((f) => mine.has(f))) continue;
+        out.push(x); if (x.it.dm) dm++;
+        x.refs.forEach((f) => mine.add(f));
+      }
+    }
+    return shuffle(out.map((x) => x.it));
   }
   function reshuffle(q) {
     if (q.fixed) return q;
@@ -122,7 +154,23 @@
   function buildDeck() {
     const plan = getPlan();
     if (plan.vote && plan.order.length >= 2) plan.order = votedOrder(plan);
-    const deck = plan.order.map((ri, pos) => {
+    // No give-aways: the last round (it supplies the wager question) and Fake Out (its endings) pick
+    // first and register their answers as guards. A round played earlier than a guard then skips any
+    // item about the same passage whose text shows that answer.
+    const guards = [];
+    let curPos = 0;
+    const g = { conflict: (it, refs) => guards.some((x) => x.pos > curPos && x.refs.some((f) => refs.includes(f)) && x.ans.length >= 3 && visible(it).includes(x.ans)) };
+    const guard = (pos, it, ans) => { const a = flat(ans); if (a) guards.push({ pos, refs: refsOf(it), ans: a }); };
+    function rank(pos) { const t = D.rounds[plan.order[pos]].type; return pos === plan.order.length - 1 ? 0 : t === "fib" ? 1 : 2; }
+    const deck = [];
+    plan.order.map((ri, pos) => pos).sort((a, b) => rank(a) - rank(b)).forEach((pos) => {
+      curPos = pos;
+      const c = deck[pos] = buildRound(plan.order[pos], pos);
+      if (c.type === "fib") c.clues.forEach((x) => guard(pos, x, x.answer));
+      const w = c._wager;
+      if (w) guard(Infinity, w, w.choices ? w.choices[w.answer] : w.items ? w.items.join(" ") : w.answer || "");
+    });
+    function buildRound(ri, pos) {
       const r = D.rounds[ri], def = RN_PACK.DEFAULTS[r.type] || {};
       const c = JSON.parse(JSON.stringify(r));
       c.title = roundTitle(r); c.intro = r.intro != null ? r.intro : def.intro || ""; c.rules = r.rules || def.rules || [];
@@ -131,14 +179,14 @@
       const extra = plan.wager && pos === plan.order.length - 1 ? 1 : 0;
       const n = (len) => Math.min((r.count || DEFAULT_COUNT[r.type] || len) + extra, len);
       const take = (list) => { if (extra && list.length >= 2) c._wager = list.pop(); return list; };
-      if (r.type === "trivia") c.questions = take(pick(r.questions, n(r.questions.length), (q) => q.q).map(reshuffle));
-      else if (r.type === "tf") c.questions = take(pick(r.statements, n(r.statements.length), (x) => x.s).map(tfQuestion));
-      else if (r.type === "order") c.puzzles = take(pick(r.puzzles, n(r.puzzles.length), (x) => x.prompt).map(orderPuzzle));
-      else if (r.type === "fib") c.clues = take(pick(r.clues, n(r.clues.length), (x) => x.prompt));
-      else if (r.type === "draw") c.stories = pick(r.stories, Math.min(r.count || DEFAULT_COUNT.draw, r.stories.length), (x) => x.story);
-      else if (r.type === "apply") c.prompts = pick(r.prompts, Math.min(r.count || DEFAULT_COUNT.apply, r.prompts.length), (x) => x.prompt);
+      if (r.type === "trivia") c.questions = take(pick(r.questions, n(r.questions.length), (q) => q.q, g).map(reshuffle));
+      else if (r.type === "tf") c.questions = take(pick(r.statements, n(r.statements.length), (x) => x.s, g).map(tfQuestion));
+      else if (r.type === "order") c.puzzles = take(pick(r.puzzles, n(r.puzzles.length), (x) => x.prompt, g).map(orderPuzzle));
+      else if (r.type === "fib") c.clues = take(pick(r.clues, n(r.clues.length), (x) => x.prompt, g));
+      else if (r.type === "draw") c.stories = pick(r.stories, Math.min(r.count || DEFAULT_COUNT.draw, r.stories.length), (x) => x.story, g);
+      else if (r.type === "apply") c.prompts = pick(r.prompts, Math.min(r.count || DEFAULT_COUNT.apply, r.prompts.length), (x) => x.prompt, g);
       return c;
-    });
+    }
     const last = deck[deck.length - 1];
     S.wagerQ = plan.wager && last ? wagerFrom(last, deck) : null;
     deck.forEach((c) => delete c._wager);
@@ -159,7 +207,10 @@
     const used = new Set();
     deck.forEach((x) => (x.questions || []).forEach((q) => used.add(q.q)));
     const fin = D.rounds.find((r) => r.type === "final");
-    if (fin) { const f = reshuffle(pick(fin.finals || [fin], 1, (x) => x.q)[0]); return { kind: "choice", src: fin.title || "Final question", q: f.q, choices: f.choices, answer: f.answer, note: f.note || "" }; }
+    // Skip a backup question whose answer tonight's rounds already showed for the same passage.
+    const shown = deck.flatMap((x) => x.questions || x.clues || x.puzzles || x.stories || x.prompts || []);
+    const fresh = (q) => { const a = flat(q.choices[q.answer]), rf = refsOf(q); return !shown.some((it) => refsOf(it).some((f) => rf.includes(f)) && a.length >= 3 && visible(it).includes(a)); };
+    if (fin) { const all = fin.finals || [fin], ok = all.filter(fresh); const f = reshuffle(pick(ok.length ? ok : all, 1, (x) => x.q)[0]); return { kind: "choice", src: fin.title || "Final question", q: f.q, choices: f.choices, answer: f.answer, note: f.note || "" }; }
     for (const r of D.rounds) {
       if (r.type === "trivia") { const q = r.questions.filter((x) => !used.has(x.q)); if (q.length) return Object.assign({ kind: "choice", src: roundTitle(r) }, reshuffle(pick(q, 1, (x) => x.q)[0])); }
       if (r.type === "tf") { const q = r.statements.filter((x) => !used.has(x.s)); if (q.length) return Object.assign({ kind: "choice", src: roundTitle(r) }, tfQuestion(pick(q, 1, (x) => x.s)[0])); }
@@ -253,7 +304,10 @@
     }
     return "";
   }
-  function askText(q) { return q.tf ? "True or false. " + q.q : q.q + " " + choiceLine(q.choices); }
+  function askText(q) {
+    if (q.dm === "first-letters") return "First letters. Which passage is it? " + choiceLine(q.choices);
+    return q.tf ? "True or false. " + q.q : q.q + " " + choiceLine(q.choices);
+  }
   function answerText(q) { return q.tf ? "That's " + q.choices[q.answer].toLowerCase() + "." : "The answer is " + letter(q.answer) + ", " + q.choices[q.answer] + "."; }
   function releaseHold() {
     if (!S.hold) return;

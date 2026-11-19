@@ -18,5 +18,9 @@ for (const f of fs.readdirSync(dir).filter((n) => n.endsWith(".json"))) {
     else { P.validate(d); if (!base) base = d; console.log("pack   ", f, "ok"); }
   } catch (e) { fails++; console.error("FAIL   ", f, "-", e.message); }
 }
-if (base) { const m = P.merge(base, extras); console.log("merged:", JSON.stringify(P.summary(m))); }
+if (base) {
+  const m = P.merge(base, extras);
+  try { P.validate(m); } catch (e) { fails++; console.error("FAIL    merged pack (with Doctrinal Mastery drills) -", e.message); }
+  console.log("merged:", JSON.stringify(P.summary(m)));
+}
 process.exit(fails ? 1 : 0);

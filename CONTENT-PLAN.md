@@ -19,7 +19,7 @@ Working notes so a new session can pick up the content work.
   Deck 172 contains the teacher's personal lists (names, goals): never use those slides.
   Other lessons 161–186: ask the teacher for titles or decks.
 
-## Proposed: Doctrinal Mastery drill games (awaiting the teacher's OK)
+## Doctrinal Mastery drills (approved, built: melded into existing games)
 Generated from the `mastery` list, no per-game content needed. From the manual's memorization ideas:
 - Unscramble: the quoted phrase in 4–6 word chunks; tap in order (Put It in Order engine).
 - First Letters: first letter of each word; pick the reference (Quick Quiz engine). Fewer letters later.
@@ -43,7 +43,7 @@ Quick Quiz has 65 questions: 22 "Which scripture says …" (quote to reference),
 3. Sketch It stories that repeat a quiz phrase (scarlet/snow, image of God, two sticks, windows of heaven,
    Elijah in Kirtland, Martin Harris): fine for review, not a giveaway.
 
-Proposed fixes (awaiting the teacher's OK):
+Fixes (approved and done, Nov 2026): the 22 quote-to-reference and 16 fill-in-the-blank questions (and the similar Abraham 3 question) were removed from Quick Quiz, since the drills now cover them; a Put It in Order round was added (filled by drills); the give-away guard is in buildDeck. Original proposals:
 - Once the Doctrinal Mastery games exist, move the 22 quote-to-reference and 16 fill-in-the-blank questions out of
   Quick Quiz (the new games cover them), keeping Quick Quiz for scenarios, meaning, history and lessons.
 - Remove the in-round repeats in item 1.
