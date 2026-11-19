@@ -77,12 +77,12 @@
   const planKey = () => [D.title, D.course || "", D.rounds.map((r) => r.type + ":" + (r.title || "")).join(",")].join("|");
   const playableIdx = () => D.rounds.map((r, i) => i).filter((i) => RN_PACK.PLAYABLE.includes(D.rounds[i].type));
   function getPlan() {
-    const all = playableIdx(), def = { order: all, wager: set().finalWager !== false };
+    const all = playableIdx(), def = { order: all, wager: set().finalWager !== false, vote: set().vote !== false };
     let saved = null;
     try { saved = (JSON.parse(localStorage.getItem(PLAN_KEY) || "{}") || {})[planKey()]; } catch (e) {}
     if (!saved || !Array.isArray(saved.order)) return def;
     const order = saved.order.filter((i, k, a) => all.includes(i) && a.indexOf(i) === k);
-    return { order: order.length ? order : all, wager: saved.wager !== false };
+    return { order: order.length ? order : all, wager: saved.wager !== false, vote: saved.vote == null ? def.vote : saved.vote !== false };
   }
   function savePlan(plan) {
     try { const all = JSON.parse(localStorage.getItem(PLAN_KEY) || "{}") || {}; all[planKey()] = plan; localStorage.setItem(PLAN_KEY, JSON.stringify(all)); } catch (e) {}
@@ -96,8 +96,32 @@
     while (shown.every((v, i) => v === i) && tries++ < 10) shown = shuffle(ids);
     return Object.assign({}, x, { shown });
   }
+  // ---------- students vote on the games ----------
+  // The host's ticked rounds are the ballot. Each student picks up to settings.votePicks (3).
+  // At the start, the top settings.maxRounds (5) are played, least popular first, favorite last.
+  // Games nobody picked are left out. With no votes at all, the host's order is used.
+  const votePicks = () => set().votePicks || 3;
+  const votingOn = () => { if (!D || !S || !S.code) return false; const p = getPlan(); return p.vote && p.order.length >= 2; };
+  function voteTally() {
+    const menu = getPlan().order, n = {};
+    menu.forEach((i) => (n[i] = 0));
+    for (const pid in S.votes || {}) {
+      if (!S.players[pid] || S.removed[pid]) continue;
+      S.votes[pid].forEach((i) => { if (i in n) n[i]++; });
+    }
+    return menu.map((i) => ({ i, n: n[i] }));
+  }
+  function votedOrder(plan) {
+    const t = voteTally();
+    if (!t.some((x) => x.n > 0)) return plan.order;
+    const ranked = shuffle(t.filter((x) => x.n > 0)).sort((a, b) => b.n - a.n).slice(0, set().maxRounds || 5);
+    S.voteResult = ranked.map((x) => ({ title: roundTitle(D.rounds[x.i]), n: x.n }));
+    return ranked.reverse().map((x) => x.i);
+  }
+  const GAME_BLURB = { trivia: "Multiple-choice questions", tf: "Fast true or false", order: "Put things in the right order", fib: "Write fakes, find the real answer", draw: "Draw it, guess it", apply: "Apply a scripture, vote on answers" };
   function buildDeck() {
     const plan = getPlan();
+    if (plan.vote && plan.order.length >= 2) plan.order = votedOrder(plan);
     const deck = plan.order.map((ri, pos) => {
       const r = D.rounds[ri], def = RN_PACK.DEFAULTS[r.type] || {};
       const c = JSON.parse(JSON.stringify(r));
@@ -295,7 +319,7 @@
       phase: "setup", key: 0, r: -1, i: 0,
       players: {}, order: [], removed: {},
       sets: [], subs: {}, ans: {}, opts: [], res: null, wagers: {}, drawings: [], storyOrder: [],
-      deadline: 0, total: 0, hold: false, rounds: null, wagerQ: null, wagerDone: false, created: Date.now()
+      deadline: 0, total: 0, hold: false, rounds: null, wagerQ: null, wagerDone: false, votes: {}, voteResult: null, created: Date.now()
     };
   }
   function save() {
@@ -665,6 +689,13 @@
       const img = String(m.v || "");
       if (!img.startsWith("data:image/") || img.length > 400000) return sendView(p.pid, "That drawing didn't come through. Try sending it again.");
       S.subs[p.pid] = { img, set: p.set, hidden: false };
+    } else if (ph === "lobby" && m.t === "vote") {
+      if (!votingOn()) return sendView(p.pid);
+      const menu = getPlan().order, v = Array.isArray(m.v) ? m.v.map(Number) : [];
+      if (v.length > votePicks() || new Set(v).size !== v.length || !v.every((i) => menu.includes(i))) return sendView(p.pid);
+      S.votes = S.votes || {}; S.votes[p.pid] = v;
+      update(false); sendView(p.pid);
+      return;
     } else if (ph === "xw" && m.t === "wager") {
       if (p.role !== "player") return;
       const w = Math.floor(Number(m.v));
@@ -695,7 +726,11 @@
     const audSub = p.role === "audience" ? "You're in the audience until the next round starts. You can still earn points by answering." : "";
     if (S.hold && HOLD_PHASES.includes(ph) && !((ph === "fg" || ph === "ag") && inCurrentSet(pid))) return wait("Listen to the question.", "Answers open as soon as it has been read.");
     switch (ph) {
-      case "setup": case "lobby": return wait("You're in.", "Watch the screen. The game starts soon.");
+      case "lobby": if (votingOn()) {
+        const opts = getPlan().order.map((i) => ({ i, title: roundTitle(D.rounds[i]), blurb: GAME_BLURB[D.rounds[i].type] || "" }));
+        return Object.assign(base, { v: "vote", options: opts, picked: (S.votes || {})[pid] || [], max: votePicks(), cap: set().maxRounds || 5 });
+      } // falls through
+      case "setup": return wait("You're in.", "Watch the screen. The game starts soon.");
       case "intro": return wait(r.title, ((r.mult || 1) > 1 ? "Points are ×" + r.mult + " this round. " : "") + (r.intro || ""));
       case "scores": return wait(rankLine(pid), "Next round coming up.");
       case "end": return Object.assign(base, { v: "end", msg: rankLine(pid, true) });
@@ -892,11 +927,11 @@
     if (ph === "setup") h = setupHTML();
     else if (ph === "lobby") {
       const ps = people();
-      h = `<div class="lobby"><div class="qrbig rise">${qr(playUrl(), 8)}</div><div class="rise">
+      h = `<div class="lobby ${votingOn() ? "voting" : ""}"><div class="qrbig rise">${qr(playUrl(), 8)}</div><div class="rise">
         <div class="muted">Scan or go to</div><div style="font-size:1.4em;font-weight:700">${esc(shortUrl())}</div>
         <div class="muted" style="margin-top:.6em">Room code</div><div class="code">${S.code}</div>
         <div class="chips">${ps.map((p) => `<span class="chip ${p.pid === S.lastJoin ? "fresh-chip" : ""}" style="background:${p.color}">${esc(p.name)}</span>`).join("")}</div>
-        <div class="count">${ps.length} joined</div></div></div>`;
+        <div class="count">${ps.length} joined</div>${votingOn() ? voteBoardHTML() : ""}</div></div>`;
     } else if (ph === "intro") {
       const m = r.mult || 1;
       const chips = S.rounds.map((x, i) => `<span class="rchip ${i === S.r ? "on" : i < S.r ? "done" : ""}" title="${esc(x.title)}">${i + 1}</span>`).join("") + (S.wagerQ ? `<span class="rchip" title="Final wager">W</span>` : "");
@@ -908,7 +943,7 @@
           <div class="card rise"><h3>How it works</h3><ol>${(r.rules || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ol></div>
           <div class="card rise"><h3>Points${m > 1 ? ` (×${m} this round)` : ""}</h3><ul>${roundPoints(r).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
         </div>
-        <div class="intro-foot rise muted">${(D.welcome || []).map(esc).join(" · ")}</div></div>`;
+        <div class="intro-foot rise muted">${S.r === 0 && S.voteResult ? "You voted. Tonight, favorite last: " + S.voteResult.slice().reverse().map((x) => esc(x.title) + " (" + x.n + ")").join(", ") : (D.welcome || []).map(esc).join(" · ")}</div></div>`;
     } else if (ph === "oq" || ph === "or" || ((ph === "xq" || ph === "xr") && S.wagerQ.kind === "order")) {
       const z = ph[0] === "o" ? r.puzzles[S.i] : S.wagerQ, rev = ph.endsWith("r");
       const counts = rev ? (ph === "or" ? S.res.posRight : S.res.counts) : [];
@@ -973,6 +1008,12 @@
     bindSetup();
     tick(true);
   }
+  function voteBoardHTML() {
+    const t = voteTally(), voters = Object.keys(S.votes || {}).filter((pid) => S.players[pid] && !S.removed[pid] && S.votes[pid].length).length;
+    const top = Math.max(1, ...t.map((x) => x.n));
+    return `<div class="tally"><div class="muted">Vote on your phone: pick up to ${votePicks()} games. The top ${set().maxRounds || 5} are played, the favorite last. ${voters} voted.</div>
+      ${t.slice().sort((a, b) => b.n - a.n).map((x) => `<div class="trow"><span class="tname">${esc(roundTitle(D.rounds[x.i]))}</span><span class="tbar"><i style="width:${100 * x.n / top}%"></i></span><span class="tn">${x.n}</span></div>`).join("")}</div>`;
+  }
   function renderJoin() {
     const jb = $("#joinbox");
     if (S.phase === "lobby" || S.phase === "end") { jb.innerHTML = ""; return; }
@@ -1034,6 +1075,7 @@
     };
     return `<div class="card rise"><b>Rounds tonight</b> <span class="muted">(points multiply by position)</span>
       <div class="rlist">${on.map((i, pos) => row(i, pos)).join("")}${off.map((i) => row(i, -1)).join("")}</div>
+      <label class="chk" style="display:block;margin-top:.6em"><input type="checkbox" id="planVote" ${plan.vote ? "checked" : ""}> <b>Let students vote</b> <span class="muted">In the lobby, students pick up to ${votePicks()} of the ticked games. The top ${set().maxRounds || 5} are played, least popular first and the favorite last. With no votes, your order is used.</span></label>
       <label class="chk" style="display:block;margin-top:.6em"><input type="checkbox" id="planWager" ${plan.wager ? "checked" : ""}> <b>End with a final wager</b> <span class="muted">After the last round's standings, everyone bets on one more question from that round.</span></label></div>`;
   }
   function bindRounds() {
@@ -1048,6 +1090,7 @@
     document.querySelectorAll(".rrow [data-up]").forEach((b) => b.onclick = () => move(Number(b.dataset.up), -1));
     document.querySelectorAll(".rrow [data-down]").forEach((b) => b.onclick = () => move(Number(b.dataset.down), 1));
     const w = $("#planWager"); if (w) w.onchange = () => { plan.wager = w.checked; redo(); };
+    const v = $("#planVote"); if (v) v.onchange = () => { plan.vote = v.checked; redo(); };
   }
   function setupHTML() {
     const saved = savedGame();

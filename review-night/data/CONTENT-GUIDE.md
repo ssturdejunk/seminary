@@ -7,6 +7,10 @@ The game is the same every year. Only the content files change.
 - **Pack:** everything for one course. Loading a pack replaces the content. `old-testament.json` is a pack.
 - **Extras:** extra questions, clues, or stories that get added to the pack. Use extras for things that belong to one class or teacher, such as teacher trivia. `class-extras.local.json` (kept on your computer, never committed) is an extras file. An extras file has `"extras": true` at the top.
 
+## Writing content in a spreadsheet
+
+The easiest way to write a pack is the **Review Night Content** Google Sheet: one tab per game, one row per item, with a Verified column for checking scripture text in Gospel Library and an Ideas tab for brainstorming. To make a fresh copy, run `python3 tools/content_sheet.py make content.xlsx` and upload it to Google Drive. To turn a filled sheet into a pack, download it as .xlsx and run `python3 tools/content_sheet.py topack content.xlsx web/data/your-course.json` (add `--verified-only` to leave out unchecked rows). Then follow the steps below from step 3.
+
 ## Steps for a new course
 
 1. Copy `template.json` and rename it, for example `new-testament-2027.json`.
@@ -36,6 +40,7 @@ A pack can include any of these. The host picks which rounds to play tonight, an
 ## Choosing rounds and the final wager
 
 - On the setup screen, **Rounds tonight** lists every round in the pack. Tick the ones to play and use the arrows to order them. The choice is remembered in that browser for that pack.
+- **Let students vote** (on by default; `settings.vote: false` turns the default off): in the lobby, students pick up to `settings.votePicks` (3) of the ticked games on their phones and the board shows a live tally. At the start, the top `settings.maxRounds` (5) are played, least popular first and the favorite last. Games nobody picked are left out. If nobody votes, your ticked order is used.
 - Points multiply by position: first round ×1, second ×2, third and later ×3. Change this with `settings.multipliers`, for example `[1, 1, 2, 2, 3]` (the last number repeats).
 - **End with a final wager** (on by default; `settings.finalWager: false` turns the default off): after the last round's standings, everyone bets up to their score, or up to `finalMaxWagerFloor` if they're lower, on one more question. A right answer wins the bet, a wrong answer loses it. Late joiners answer for a flat `finalAudienceCorrect` bonus.
 - The wager question is one more item from the last round: a Quick Quiz question, a True or False statement, a Put It in Order puzzle (only a perfect order wins), or a Fake Out clue (real ending among the house fakes). If the last round is Sketch It or Apply It, it uses the `finals` bank, then any unused Quick Quiz or True or False item.
