@@ -114,6 +114,14 @@
   .drawing .star { position: absolute; top: 0.4em; right: 0.5em; font-size: 1.4em; }
   .storylist { display: grid; grid-template-columns: 1fr 1fr; gap: 0.15em 1.2em; margin-top: 0.6em; font-size: 0.9em; line-height: 1.25; }
   .storylist div.right { color: var(--mint); font-weight: 700; }
+  .tiles.order { grid-template-columns: 1fr; max-width: 40em; gap: 0.45em; }
+  .tiles.order .tile { min-height: 2em; padding: 0.5em 0.9em; }
+  .tiles.answers { grid-template-columns: 1fr; max-width: 46em; }
+  .rlist { margin-top: 0.5em; display: grid; gap: 0.35em; }
+  .rrow { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; background: var(--deep); border-radius: 12px; padding: 0.35em 0.7em; }
+  .rrow.off { opacity: 0.6; }
+  .rrow .rmult { margin-left: auto; font-family: var(--display); color: var(--saffron); min-width: 2em; text-align: right; }
+  .rrow button.mini { padding: 0.15em 0.6em; font-size: 0.9em; }
 
   .leader { max-width: 34em; }
   .leader .row { font-size: 1.5em; padding: 0.35em 0.6em; border-radius: 14px; }

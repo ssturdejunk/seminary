@@ -47,7 +47,15 @@
   if (!BASE) { BASE = JSON.parse($("#clues").textContent); validate(BASE); }
   try { const x = JSON.parse($("#extras").textContent || "null"); if (x) { RN_PACK.validateExtras(x); siteExtras = [{ name: x.name || "Extras", data: x }]; } } catch (e) { siteExtras = []; }
   try { userExtras = JSON.parse(store.get(EXTRAS_KEY) || "[]") || []; } catch (e) { userExtras = []; }
-  function rebuildD() { D = RN_PACK.merge(BASE, siteExtras.concat(userExtras).map((x) => x.data)); VO.setPronunciations(D.pronounce); }
+  // The offline edition plays Quick Quiz, Fake Out, Sketch It and the final question. Newer round
+  // types (True or False, Put It in Order, Apply It) are skipped here until it supports them.
+  const OFFLINE_TYPES = ["trivia", "fib", "draw", "final"];
+  function rebuildD() {
+    D = RN_PACK.merge(BASE, siteExtras.concat(userExtras).map((x) => x.data));
+    D.rounds = D.rounds.filter((r) => OFFLINE_TYPES.includes(r.type));
+    D.rounds.forEach((r) => { if (!r.title) r.title = (RN_PACK.DEFAULTS[r.type] || {}).title || r.type; });
+    VO.setPronunciations(D.pronounce);
+  }
   rebuildD();
   const pts = () => D.settings.points || {};
   const timerSecs = (name) => (name === "fibWrite" ? FIB_WRITE_SECS : (D.settings.timers || {})[name] || 30);

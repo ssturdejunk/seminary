@@ -1,8 +1,10 @@
 # Seminary Review Night
 
-A phone-based review game for seminary: Quick Quiz (trivia), Fake Out (write
-fake answers, find the real one), Sketch It (draw a story, guess the story),
-and a wagered final question. Students join on their phones with a room code.
+A phone-based review game for seminary. Pick tonight's rounds on the setup screen:
+Quick Quiz (trivia), True or False, Put It in Order, Fake Out (write fake answers,
+find the real one), Sketch It (draw a story, guess the story), and Apply It (write
+how a scripture helps in a real situation, then vote). An optional final wager
+follows the last round. Students join on their phones with a room code.
 
 ## Files
 
@@ -126,7 +128,7 @@ The board reads questions aloud with the laptop's built-in voice.
 
 ## How rounds work
 
-- Sets of 3 or 4 are rebuilt at the start of Fake Out, Sketch It, and the final.
+- Sets of 3 or 4 are rebuilt at the start of Fake Out, Sketch It, Apply It, and the final wager.
 - Students who join during Quick Quiz play right away. Students who join later sit in
   the audience, earn points for correct answers, and become players at the next round
   with their points.

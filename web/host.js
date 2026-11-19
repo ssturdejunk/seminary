@@ -7,8 +7,12 @@
   const SAVE_KEY = "rn-host-state-v1";
   const DATA_KEY = "rn-host-data-v1";
   const COLORS = ["#F4B942", "#63D2A6", "#FF7A66", "#7FB2FF", "#C79BFF", "#FF9BD2", "#9BE15D", "#4FD1D9", "#FFB27A", "#B8C4FF"];
-  const SET_PHASES = ["fw", "fready", "fg", "fr", "dw", "dready", "dg", "dr", "xw", "xq", "xr", "end"];
-  const TIMED = { tq: "trivia", fw: "fibWrite", fg: "fibGuess", dw: "drawDraw", dg: "drawGuess", xw: "finalWager", xq: "finalQuestion" };
+  const SET_PHASES = ["fw", "fready", "fg", "fr", "dw", "dready", "dg", "dr", "aw", "aready", "ag", "ar", "xw", "xq", "xr", "end"];
+  // Timer name per phase. True or False uses "tf" in the tq phase (see timerFor).
+  const TIMED = { tq: "trivia", oq: "order", fw: "fibWrite", fg: "fibGuess", dw: "drawDraw", dg: "drawGuess", aw: "applyWrite", ag: "applyVote", xw: "finalWager", xq: "finalQuestion" };
+  const DEFAULT_TIMERS = { trivia: 30, tf: 12, order: 45, fibWrite: 90, fibGuess: 40, drawDraw: 120, drawGuess: 40, applyWrite: 75, applyVote: 30, finalWager: 40, finalQuestion: 50 };
+  const DEFAULT_COUNT = { trivia: 10, tf: 10, order: 5, fib: 8, draw: 7, apply: 6 };
+  const PLAN_KEY = "rn-plan-v1";
 
   const EXTRAS_KEY = "rn-host-extras-v1";
   let D = null;            // the content the game uses: BASE plus any extras
@@ -67,31 +71,97 @@
     const idx = shuffle(q.choices.map((_, i) => i));
     return Object.assign({}, q, { choices: idx.map((i) => q.choices[i]), answer: idx.indexOf(q.answer) });
   }
+  // ---------- tonight's rounds: which rounds, in what order, and the final wager ----------
+  // The host picks rounds on the setup screen. Multipliers follow the position (settings.multipliers,
+  // default 1, 2, 3; the last value repeats). The final wager comes after the last round's standings.
+  const planKey = () => [D.title, D.course || "", D.rounds.map((r) => r.type + ":" + (r.title || "")).join(",")].join("|");
+  const playableIdx = () => D.rounds.map((r, i) => i).filter((i) => RN_PACK.PLAYABLE.includes(D.rounds[i].type));
+  function getPlan() {
+    const all = playableIdx(), def = { order: all, wager: set().finalWager !== false };
+    let saved = null;
+    try { saved = (JSON.parse(localStorage.getItem(PLAN_KEY) || "{}") || {})[planKey()]; } catch (e) {}
+    if (!saved || !Array.isArray(saved.order)) return def;
+    const order = saved.order.filter((i, k, a) => all.includes(i) && a.indexOf(i) === k);
+    return { order: order.length ? order : all, wager: saved.wager !== false };
+  }
+  function savePlan(plan) {
+    try { const all = JSON.parse(localStorage.getItem(PLAN_KEY) || "{}") || {}; all[planKey()] = plan; localStorage.setItem(PLAN_KEY, JSON.stringify(all)); } catch (e) {}
+  }
+  function multFor(pos) { const m = set().multipliers || [1, 2, 3]; return Number(m[Math.min(pos, m.length - 1)]) || 1; }
+  const roundTitle = (r) => r.title || (RN_PACK.DEFAULTS[r.type] || {}).title || r.type;
+  const tfQuestion = (x) => ({ q: x.s, choices: ["True", "False"], answer: x.a ? 0 : 1, note: x.note || "", fixed: true, tf: true });
+  function orderPuzzle(x) {
+    const ids = x.items.map((_, i) => i);
+    let shown = shuffle(ids), tries = 0;
+    while (shown.every((v, i) => v === i) && tries++ < 10) shown = shuffle(ids);
+    return Object.assign({}, x, { shown });
+  }
   function buildDeck() {
-    return D.rounds.map((r) => {
-      const c = JSON.parse(JSON.stringify(r)), n = (len, def) => Math.min(r.count || def || len, len);
-      if (r.type === "trivia") c.questions = pick(r.questions, n(r.questions.length), (q) => q.q).map(reshuffle);
-      else if (r.type === "fib") c.clues = pick(r.clues, n(r.clues.length, 8), (x) => x.prompt);
-      else if (r.type === "draw") c.stories = pick(r.stories, n(r.stories.length, 7), (x) => x.story);
-      else if (r.type === "final") {
-        const f = reshuffle(pick(r.finals || [r], 1, (x) => x.q)[0]);
-        c.q = f.q; c.choices = f.choices; c.answer = f.answer; c.note = f.note;
-      }
+    const plan = getPlan();
+    const deck = plan.order.map((ri, pos) => {
+      const r = D.rounds[ri], def = RN_PACK.DEFAULTS[r.type] || {};
+      const c = JSON.parse(JSON.stringify(r));
+      c.title = roundTitle(r); c.intro = r.intro != null ? r.intro : def.intro || ""; c.rules = r.rules || def.rules || [];
+      c.mult = multFor(pos);
+      // The last round draws one extra item to use as the final wager question.
+      const extra = plan.wager && pos === plan.order.length - 1 ? 1 : 0;
+      const n = (len) => Math.min((r.count || DEFAULT_COUNT[r.type] || len) + extra, len);
+      const take = (list) => { if (extra && list.length >= 2) c._wager = list.pop(); return list; };
+      if (r.type === "trivia") c.questions = take(pick(r.questions, n(r.questions.length), (q) => q.q).map(reshuffle));
+      else if (r.type === "tf") c.questions = take(pick(r.statements, n(r.statements.length), (x) => x.s).map(tfQuestion));
+      else if (r.type === "order") c.puzzles = take(pick(r.puzzles, n(r.puzzles.length), (x) => x.prompt).map(orderPuzzle));
+      else if (r.type === "fib") c.clues = take(pick(r.clues, n(r.clues.length), (x) => x.prompt));
+      else if (r.type === "draw") c.stories = pick(r.stories, Math.min(r.count || DEFAULT_COUNT.draw, r.stories.length), (x) => x.story);
+      else if (r.type === "apply") c.prompts = pick(r.prompts, Math.min(r.count || DEFAULT_COUNT.apply, r.prompts.length), (x) => x.prompt);
       return c;
     });
+    const last = deck[deck.length - 1];
+    S.wagerQ = plan.wager && last ? wagerFrom(last, deck) : null;
+    deck.forEach((c) => delete c._wager);
+    S.wagerDone = false;
+    return deck;
+  }
+  // The final wager question: one more item from the last round when that round has right answers,
+  // otherwise a question from the pack's finals bank, then a Quick Quiz or True or False item.
+  function wagerFrom(c, deck) {
+    const w = c._wager, src = c.title;
+    if (w && c.type === "trivia") return Object.assign({ kind: "choice", src }, w);
+    if (w && c.type === "tf") return Object.assign({ kind: "choice", src }, w);
+    if (w && c.type === "order") return Object.assign({ kind: "order", src }, w);
+    if (w && c.type === "fib" && (w.house || []).length) {
+      const ch = shuffle([w.answer].concat(shuffle(w.house).slice(0, 4)));
+      return { kind: "choice", src, q: w.prompt, choices: ch, answer: ch.indexOf(w.answer), note: w.ref || "" };
+    }
+    const used = new Set();
+    deck.forEach((x) => (x.questions || []).forEach((q) => used.add(q.q)));
+    const fin = D.rounds.find((r) => r.type === "final");
+    if (fin) { const f = reshuffle(pick(fin.finals || [fin], 1, (x) => x.q)[0]); return { kind: "choice", src: fin.title || "Final question", q: f.q, choices: f.choices, answer: f.answer, note: f.note || "" }; }
+    for (const r of D.rounds) {
+      if (r.type === "trivia") { const q = r.questions.filter((x) => !used.has(x.q)); if (q.length) return Object.assign({ kind: "choice", src: roundTitle(r) }, reshuffle(pick(q, 1, (x) => x.q)[0])); }
+      if (r.type === "tf") { const q = r.statements.filter((x) => !used.has(x.s)); if (q.length) return Object.assign({ kind: "choice", src: roundTitle(r) }, tfQuestion(pick(q, 1, (x) => x.s)[0])); }
+    }
+    return null;
   }
   const ensureDeck = () => { if (!S.rounds) S.rounds = buildDeck(); };
+  const isLast = (r) => !!(S && S.rounds && S.rounds[S.rounds.length - 1] === r);
   function roundPoints(r) {
     const P = pts(), m = r.mult || 1;
-    if (r.type === "trivia") return ["Correct answer: " + (P.triviaCorrect || 100) * m, "Speed bonus: up to " + (P.triviaSpeedBonus || 0) * m + " more"];
-    if (r.type === "fib") return ["Pick the real ending: " + (P.fibTruth || 100) * m, "Each classmate your fake fools: " + (P.fibFooled || 50) * m];
-    if (r.type === "draw") return ["Guess the right story: " + (P.drawCorrect || 100) * m, "Your drawing: up to " + (P.drawArtistMax || 100) * m + ", based on how many guess it", "Class favorite drawing: " + (P.drawFavorite || 50) * m + " bonus"];
-    return ["Wager up to your score (up to " + (P.finalMaxWagerFloor || 500) + " if you're lower)", "Right: win your wager. Wrong: lose it", "Audience: " + (P.finalAudienceCorrect || 100) + " for a right answer"];
+    let out;
+    if (r.type === "trivia") out = ["Correct answer: " + (P.triviaCorrect || 100) * m, "Speed bonus: up to " + (P.triviaSpeedBonus || 0) * m + " more"];
+    else if (r.type === "tf") out = ["Correct answer: " + (P.tfCorrect || 50) * m, "Speed bonus: up to " + (P.tfSpeedBonus || 0) * m + " more"];
+    else if (r.type === "order") out = ["Each item in the right place: " + (P.orderPerItem || 25) * m, "Perfect order bonus: " + (P.orderPerfect || 50) * m];
+    else if (r.type === "fib") out = ["Pick the real ending: " + (P.fibTruth || 100) * m, "Each classmate your fake fools: " + (P.fibFooled || 50) * m];
+    else if (r.type === "draw") out = ["Guess the right story: " + (P.drawCorrect || 100) * m, "Your drawing: up to " + (P.drawArtistMax || 100) * m + ", based on how many guess it", "Class favorite drawing: " + (P.drawFavorite || 50) * m + " bonus"];
+    else if (r.type === "apply") out = ["Each vote for your answer: " + (P.applyVote || 50) * m, "Top answer in your set: " + (P.applyWin || 100) * m + " bonus"];
+    else out = [];
+    if (isLast(r) && S.wagerQ) out.push("Then the final wager: bet up to your score (or " + (P.finalMaxWagerFloor || 500) + " if you're lower) on one last question");
+    return out;
   }
   const multWords = (m) => (m === 2 ? "Double points." : m === 3 ? "Triple points." : m > 1 ? "Points times " + m + "." : "");
   const set = () => D.settings || {};
   const pts = () => (set().points || {});
-  const timerSecs = (name) => ((set().timers || {})[name] || 30);
+  const timerSecs = (name) => ((set().timers || {})[name] || DEFAULT_TIMERS[name] || 30);
+  const timerFor = (phase) => (phase === "tq" && round() && round().type === "tf" ? "tf" : TIMED[phase]);
 
   function makeCode() {
     const L = "BCDFGHJKMNPQRSTVWXZ";
@@ -127,23 +197,28 @@
   const VO = window.RN_VOICE;
   VO.onDuck = (on) => AU.duck(on);
   VO.onVoices = () => { if (S && S.phase === "setup") render(); }; // the voice list can arrive after the page loads
-  const HOLD_PHASES = ["tq", "fg", "xq"]; // timer waits until the question has been read
+  const HOLD_PHASES = ["tq", "oq", "fg", "ag", "xq"]; // timer waits until the question has been read
   const choiceLine = (cs) => cs.map((c, i) => letter(i) + ", " + c + ".").join(" ");
   function spokenText() {
     const r = round(), ph = S.phase;
     switch (ph) {
-      case "intro": return (S.r === 0 ? "Welcome to " + D.title + ". " : "") + "Round " + (S.r + 1) + ". " + r.title + ". " + multWords(r.mult || 1) + " " + (r.intro || "") + " " + (r.rules || []).join(" ");
-      case "tq": { const q = r.questions[S.i]; return q.q + " " + choiceLine(q.choices); }
-      case "tr": { const q = r.questions[S.i]; return "The answer is " + letter(q.answer) + ", " + q.choices[q.answer] + "."; }
+      case "intro": return (S.r === 0 ? "Welcome to " + D.title + ". " : "") + "Round " + (S.r + 1) + ". " + r.title + ". " + multWords(r.mult || 1) + " " + (r.intro || "") + " " + (r.rules || []).join(" ") + (isLast(r) && S.wagerQ ? " After this round comes the final wager." : "");
+      case "tq": return askText(r.questions[S.i]);
+      case "tr": return answerText(r.questions[S.i]);
+      case "oq": { const z = r.puzzles[S.i]; return z.prompt + " " + z.shown.map((i) => z.items[i]).join(". ") + "."; }
+      case "or": return "The right order: " + r.puzzles[S.i].items.join(", ") + ".";
+      case "aw": return "Read your situation on your phone and write how the scripture helps.";
+      case "ag": { const z = r.prompts[S.sets[S.i].item]; return z.prompt + " " + choiceLine(S.opts.map((o) => o.text)); }
+      case "ar": { const w = S.res.win.map((i) => S.opts[i].text); return w.length ? "The class favorite: " + w.join(". And ") + "." : "No votes this time."; }
       case "fw": return "Write a convincing fake. Your clue is on your phone.";
       case "fg": return r.clues[S.sets[S.i].item].prompt + " " + choiceLine(S.opts.map((o) => o.text));
       case "fr": { const c = r.clues[S.sets[S.i].item]; return "The real answer: " + c.answer + ". " + (c.ref || ""); }
       case "dw": return "Draw your story. Everyone in your set draws the same one.";
       case "dg": return "Which story is this?";
       case "dr": return "It was: " + r.stories[S.sets[S.i].item].story + ".";
-      case "xw": return "Final question: " + r.title + ". Place your wager.";
-      case "xq": return r.q + " " + choiceLine(r.choices);
-      case "xr": return "The answer is " + letter(r.answer) + ", " + r.choices[r.answer] + ".";
+      case "xw": return "Final wager. One more question from " + S.wagerQ.src + ". Place your wager.";
+      case "xq": { const w = S.wagerQ; return w.kind === "order" ? w.prompt + " " + w.shown.map((i) => w.items[i]).join(". ") + "." : askText(w); }
+      case "xr": { const w = S.wagerQ; return w.kind === "order" ? "The right order: " + w.items.join(", ") + "." : answerText(w); }
       case "scores": {
         const t = ranked().slice(0, 3); if (!t.length) return "";
         let x = "In first place, " + t[0].name + ", with " + t[0].score + " points.";
@@ -154,6 +229,8 @@
     }
     return "";
   }
+  function askText(q) { return q.tf ? "True or false. " + q.q : q.q + " " + choiceLine(q.choices); }
+  function answerText(q) { return q.tf ? "That's " + q.choices[q.answer].toLowerCase() + "." : "The answer is " + letter(q.answer) + ", " + q.choices[q.answer] + "."; }
   function releaseHold() {
     if (!S.hold) return;
     S.hold = false;
@@ -218,18 +295,20 @@
       phase: "setup", key: 0, r: -1, i: 0,
       players: {}, order: [], removed: {},
       sets: [], subs: {}, ans: {}, opts: [], res: null, wagers: {}, drawings: [], storyOrder: [],
-      deadline: 0, total: 0, hold: false, rounds: null, created: Date.now()
+      deadline: 0, total: 0, hold: false, rounds: null, wagerQ: null, wagerDone: false, created: Date.now()
     };
   }
   function save() {
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {}
   }
   function go(phase) {
-    const reveal = ["tr", "fr", "dr", "xr"].includes(phase);
+    const reveal = ["tr", "or", "fr", "dr", "ar", "xr"].includes(phase);
     S.phase = phase; S.key++;
     if (!reveal) { S.ans = {}; S.res = null; }
     if (phase === "tq") markSeen(round().questions[S.i].q);
-    const t = TIMED[phase];
+    if (phase === "oq") markSeen(round().puzzles[S.i].prompt);
+    if (phase === "xq") markSeen(S.wagerQ.q || S.wagerQ.prompt);
+    const t = timerFor(phase);
     S.hold = false;
     if (t) { S.total = timerSecs(t) * 1000; S.deadline = Date.now() + S.total; } else { S.deadline = 0; S.total = 0; }
     VO.cancel();
@@ -255,6 +334,12 @@
       case "intro": beginRound(); break;
       case "tq": revealTrivia(); break;
       case "tr": if (++S.i < r.questions.length) go("tq"); else go("scores"); break;
+      case "oq": revealOrder(); break;
+      case "or": if (++S.i < r.puzzles.length) go("oq"); else go("scores"); break;
+      case "aw": go("aready"); break;
+      case "aready": S.i = 0; startApplyVote(); break;
+      case "ag": revealApply(); break;
+      case "ar": S.i++; startApplyVote(); break;
       case "fw": go("fready"); break;
       case "fready": S.i = 0; startFibGuess(); break;
       case "fg": revealFib(); break;
@@ -268,28 +353,34 @@
       case "xr": go("end"); break;
     }
   }
+  const wagerPending = () => !!(S.wagerQ && !S.wagerDone);
   function nextRound() {
     ensureDeck();
+    if (S.r + 1 >= S.rounds.length) { if (wagerPending()) return startWager(); return go("end"); }
     S.r++; S.i = 0;
-    if (S.r >= D.rounds.length) go("end"); else go("intro");
+    go("intro");
+  }
+  function startWager() {
+    promoteAudience(); S.wagers = {}; S.wagerDone = true;
+    go("xw");
   }
   function beginRound() {
     const r = round();
     S.i = 0;
-    if (r.type === "trivia") return go("tq");
-    if (r.type === "final") { promoteAudience(); S.wagers = {}; markSeen(r.q); return go("xw"); }
     promoteAudience();
-    const items = r.type === "fib" ? r.clues : r.stories;
+    if (r.type === "trivia" || r.type === "tf") return go("tq");
+    if (r.type === "order") return go("oq");
+    const items = r.type === "fib" ? r.clues : r.type === "apply" ? r.prompts : r.stories;
+    const idOf = (it) => it.prompt || it.story;
     buildSets(items.length);
-    S.sets.forEach((s) => markSeen(r.type === "fib" ? r.clues[s.item].prompt : r.stories[s.item].story));
+    S.sets.forEach((s) => markSeen(idOf(items[s.item])));
     if (r.type === "draw") S.storyOrder = shuffle(r.stories.map((_, i) => i));
     if (!S.sets.length) return go("scores");
-    go(r.type === "fib" ? "fw" : "dw");
+    go(r.type === "fib" ? "fw" : r.type === "apply" ? "aw" : "dw");
   }
   function skipRound() {
-    if (["intro", "tq", "tr", "fw", "fready", "fg", "fr", "dw", "dready", "dg", "dr", "xw", "xq"].includes(S.phase)) {
-      if (round() && round().type === "final") go("end"); else go("scores");
-    }
+    if (S.phase === "xw" || S.phase === "xq") return go("end");
+    if (["intro", "tq", "tr", "oq", "or", "fw", "fready", "fg", "fr", "dw", "dready", "dg", "dr", "aw", "aready", "ag", "ar"].includes(S.phase)) go("scores");
   }
   function addTime() {
     if (S.deadline) { S.deadline += 15000; S.total += 15000; update(true); }
@@ -299,15 +390,15 @@
   function expected() {
     const on = online();
     switch (S.phase) {
-      case "tq": case "xq": return on;
+      case "tq": case "oq": case "xq": return on;
       case "xw": return on.filter((p) => p.role === "player");
-      case "fw": case "dw": return on.filter((p) => p.role === "player" && p.set >= 0);
-      case "fg": case "dg": return on.filter((p) => !inCurrentSet(p.pid));
+      case "fw": case "dw": case "aw": return on.filter((p) => p.role === "player" && p.set >= 0);
+      case "fg": case "dg": case "ag": return on.filter((p) => !inCurrentSet(p.pid));
     }
     return [];
   }
   function answered(p) {
-    if (S.phase === "fw" || S.phase === "dw") return !!S.subs[p.pid];
+    if (S.phase === "fw" || S.phase === "dw" || S.phase === "aw") return !!S.subs[p.pid];
     if (S.phase === "xw") return S.wagers[p.pid] != null;
     const a = S.ans[p.pid];
     if (!a) return false;
@@ -323,7 +414,7 @@
     }
   }
   const inCurrentSet = (pid) => {
-    const s = S.sets[S.i]; return !!(s && s.members.includes(pid) && (S.phase[0] === "f" || S.phase[0] === "d"));
+    const s = S.sets[S.i]; return !!(s && s.members.includes(pid) && "fda".includes(S.phase[0]));
   };
 
   // ---------- trivia ----------
@@ -332,11 +423,57 @@
     for (const pid in S.ans) {
       const a = S.ans[pid]; if (!S.players[pid] || S.removed[pid]) continue;
       counts[a.v] = (counts[a.v] || 0) + 1;
-      if (a.v === q.answer) addScore(pid, mult() * ((P.triviaCorrect || 100) + Math.round((P.triviaSpeedBonus || 0) * Math.max(0, a.left) / S.total)), gains);
+      const base = q.tf ? (P.tfCorrect || 50) : (P.triviaCorrect || 100), bonus = q.tf ? (P.tfSpeedBonus || 0) : (P.triviaSpeedBonus || 0);
+      if (a.v === q.answer) addScore(pid, mult() * (base + (S.total ? Math.round(bonus * Math.max(0, a.left) / S.total) : 0)), gains);
     }
     S.res = { counts, gains, right: Object.keys(S.ans).filter((pid) => S.ans[pid].v === q.answer) , picks: S.ans };
     sfx.reveal();
     go("tr");
+  }
+
+  // ---------- put it in order ----------
+  // An answer is the list of item numbers in the order the player chose; item k belongs in place k.
+  const rightCount = (order) => order.filter((it, pos) => it === pos).length;
+  function revealOrder() {
+    const z = round().puzzles[S.i], P = pts(), gains = {}, n = z.items.length, posRight = z.items.map(() => 0);
+    let perfect = 0, answered = 0;
+    for (const pid in S.ans) {
+      if (!S.players[pid] || S.removed[pid]) continue;
+      const o = S.ans[pid].order, k = rightCount(o);
+      answered++; o.forEach((it, pos) => { if (it === pos) posRight[pos]++; });
+      if (k === n) perfect++;
+      addScore(pid, mult() * ((P.orderPerItem || 25) * k + (k === n ? (P.orderPerfect || 50) : 0)), gains);
+    }
+    S.res = { gains, posRight, perfect, answered };
+    sfx.reveal();
+    go("or");
+  }
+
+  // ---------- apply it ----------
+  function startApplyVote() {
+    while (S.i < S.sets.length) {
+      const s = S.sets[S.i];
+      const opts = s.members.filter((pid) => S.subs[pid] && S.subs[pid].text && !S.subs[pid].hidden && !S.removed[pid])
+        .map((pid) => ({ text: S.subs[pid].text, authors: [pid] }));
+      if (opts.length >= 2) { S.opts = shuffle(opts); return go("ag"); }
+      S.i++; // a set needs at least two answers to vote on
+    }
+    go("scores");
+  }
+  function revealApply() {
+    const P = pts(), gains = {}, votes = S.opts.map(() => []);
+    for (const pid in S.ans) {
+      if (!S.players[pid] || S.removed[pid] || inCurrentSet(pid)) continue;
+      const v = S.ans[pid].v; if (!S.opts[v]) continue;
+      votes[v].push(pid);
+      S.opts[v].authors.forEach((a) => addScore(a, (P.applyVote || 50) * mult(), gains));
+    }
+    const top = Math.max(0, ...votes.map((x) => x.length));
+    const win = top > 0 ? votes.map((x, i) => (x.length === top ? i : -1)).filter((i) => i >= 0) : [];
+    win.forEach((i) => S.opts[i].authors.forEach((a) => addScore(a, (P.applyWin || 100) * mult(), gains)));
+    S.res = { gains, votes: votes.map((x) => x.length), win };
+    sfx.reveal();
+    go("ar");
   }
 
   // ---------- fake out (fib) ----------
@@ -412,18 +549,20 @@
 
   // ---------- final ----------
   const maxWager = (p) => Math.max(p.score, pts().finalMaxWagerFloor || 500);
+  const wagerRight = (a) => !!a && (S.wagerQ.kind === "order" ? rightCount(a.order) === S.wagerQ.items.length : a.v === S.wagerQ.answer);
   function revealFinal() {
-    const r = round(), P = pts(), gains = {}, counts = r.choices.map(() => 0);
+    const w = S.wagerQ, P = pts(), gains = {}, counts = (w.choices || w.items).map(() => 0);
     people().forEach((p) => {
       const a = S.ans[p.pid];
-      if (a) counts[a.v]++;
-      const ok = a && a.v === r.answer;
+      if (a && w.kind === "order") a.order.forEach((it, pos) => { if (it === pos) counts[pos]++; });
+      else if (a) counts[a.v]++;
+      const ok = wagerRight(a);
       if (p.role === "player") {
         const w = S.wagers[p.pid] || 0;
         if (w) { p.score += ok ? w : -w; gains[p.pid] = ok ? w : -w; }
       } else if (ok) addScore(p.pid, P.finalAudienceCorrect || 100, gains);
     });
-    S.res = { counts, gains };
+    S.res = { counts, gains, right: people().filter((p) => wagerRight(S.ans[p.pid])).length };
     sfx.reveal();
     go("xr");
   }
@@ -492,11 +631,18 @@
     const ph = S.phase, now = Date.now();
     const left = S.deadline ? S.deadline - now : 0;
     if (S.deadline && left < -1500) return;
-    if (ph === "tq" || ph === "xq" || ph === "fg" || ph === "dg") {
+    const ordering = ph === "oq" || (ph === "xq" && S.wagerQ.kind === "order");
+    if (ordering) {
+      if (m.t !== "order" || S.ans[p.pid]) return sendView(p.pid);
+      const sh = ph === "oq" ? round().puzzles[S.i].shown : S.wagerQ.shown;
+      const v = Array.isArray(m.v) ? m.v.map(Number) : [];
+      if (v.length !== sh.length || new Set(v).size !== v.length || !v.every((i) => Number.isInteger(i) && i >= 0 && i < sh.length)) return sendView(p.pid);
+      S.ans[p.pid] = { order: v.map((i) => sh[i]), left };
+    } else if (ph === "tq" || ph === "xq" || ph === "fg" || ph === "dg" || ph === "ag") {
       if (m.t === "ans") {
         if (S.ans[p.pid]) return sendView(p.pid);
-        if ((ph === "fg" || ph === "dg") && inCurrentSet(p.pid)) return;
-        const n = ph === "tq" ? round().questions[S.i].choices.length : ph === "xq" ? round().choices.length : ph === "fg" ? S.opts.length : round().stories.length;
+        if ((ph === "fg" || ph === "dg" || ph === "ag") && inCurrentSet(p.pid)) return;
+        const n = ph === "tq" ? round().questions[S.i].choices.length : ph === "xq" ? S.wagerQ.choices.length : ph === "fg" || ph === "ag" ? S.opts.length : round().stories.length;
         const v = Number(m.v); if (!(v >= 0 && v < n)) return;
         S.ans[p.pid] = { v: ph === "dg" ? S.storyOrder[v] : v, left };
         if (ph === "dg" && S.drawings.length <= 1) S.ans[p.pid].fav = -1;
@@ -504,13 +650,15 @@
         const f = Number(m.v);
         S.ans[p.pid].fav = f >= 0 && f < S.drawings.length ? f : -1;
       } else return;
-    } else if (ph === "fw" && m.t === "text") {
+    } else if ((ph === "fw" || ph === "aw") && m.t === "text") {
       if (p.set < 0) return;
-      const text = String(m.v || "").replace(/\s+/g, " ").trim().slice(0, set().answerMax || 40);
-      const c = round().clues[S.sets[p.set].item];
-      const truth = [c.answer].concat(c.alt || []);
-      if (!norm(text)) return sendView(p.pid, "Type a fake answer first.");
-      if (truth.some((t) => similar(text, t))) return sendView(p.pid, "That's the real answer, or too close to it. Write something that sounds right but isn't.");
+      const text = String(m.v || "").replace(/\s+/g, " ").trim().slice(0, ph === "aw" ? set().applyMax || 140 : set().answerMax || 40);
+      if (!norm(text)) return sendView(p.pid, ph === "aw" ? "Write an answer first." : "Type a fake answer first.");
+      if (ph === "fw") {
+        const c = round().clues[S.sets[p.set].item];
+        const truth = [c.answer].concat(c.alt || []);
+        if (truth.some((t) => similar(text, t))) return sendView(p.pid, "That's the real answer, or too close to it. Write something that sounds right but isn't.");
+      }
       S.subs[p.pid] = { text, set: p.set, hidden: false };
     } else if (ph === "dw" && m.t === "img") {
       if (p.set < 0) return;
@@ -545,13 +693,36 @@
     const base = { key: S.key, me: me(pid), title: D ? D.title : "" };
     const wait = (msg, sub) => Object.assign(base, { v: "wait", msg, sub: sub || "" }, timing());
     const audSub = p.role === "audience" ? "You're in the audience until the next round starts. You can still earn points by answering." : "";
-    if (S.hold && HOLD_PHASES.includes(ph) && !(ph === "fg" && inCurrentSet(pid))) return wait("Listen to the question.", "Answers open as soon as it has been read.");
+    if (S.hold && HOLD_PHASES.includes(ph) && !((ph === "fg" || ph === "ag") && inCurrentSet(pid))) return wait("Listen to the question.", "Answers open as soon as it has been read.");
     switch (ph) {
       case "setup": case "lobby": return wait("You're in.", "Watch the screen. The game starts soon.");
       case "intro": return wait(r.title, ((r.mult || 1) > 1 ? "Points are ×" + r.mult + " this round. " : "") + (r.intro || ""));
       case "scores": return wait(rankLine(pid), "Next round coming up.");
       case "end": return Object.assign(base, { v: "end", msg: rankLine(pid, true) });
-      case "tq": { const q = r.questions[S.i]; return Object.assign(base, { v: "choose", prompt: q.q, choices: q.choices, picked: a ? a.v : null }, timing()); }
+      case "tq": { const q = r.questions[S.i]; return Object.assign(base, { v: "choose", prompt: q.q, choices: q.choices, picked: a ? a.v : null, tf: !!q.tf }, timing()); }
+      case "oq": { const z = r.puzzles[S.i]; return Object.assign(base, { v: "order", prompt: z.prompt, items: z.shown.map((i) => z.items[i]), locked: !!a }, timing()); }
+      case "or": {
+        const z = r.puzzles[S.i], n = z.items.length, k = a ? rightCount(a.order) : null;
+        return resultFor(pid, Object.assign(base, { ok: !a ? null : k === n ? true : k === 0 ? false : null, msg: a ? (k === n ? "Perfect order." : k + " of " + n + " in the right place.") : "", list: z.items, note: z.note || "" }));
+      }
+      case "aw": {
+        if (p.set < 0) return wait("Sets are writing answers.", audSub || "Get ready to vote.");
+        const z = r.prompts[S.sets[p.set].item], sub = S.subs[pid];
+        return Object.assign(base, { v: "write", prompt: z.prompt + (z.ref ? " (" + z.ref + ")" : ""), lead: "How does this scripture help? Write a sentence or two.", button: "Send answer", placeholder: "Your answer", sent: sub ? sub.text : "", error: error || "", max: set().applyMax || 140 }, timing());
+      }
+      case "aready": return wait("Answers are in.", "Look at the screen.");
+      case "ag": {
+        if (inCurrentSet(pid)) return wait("Your set wrote these.", "Sit tight and see how the class votes.");
+        const z = r.prompts[S.sets[S.i].item];
+        return Object.assign(base, { v: "choose", prompt: z.prompt, choices: S.opts.map((o) => o.text), picked: a ? a.v : null, sub: audSub || "Vote for the answer you like best." }, timing());
+      }
+      case "ar": {
+        if (inCurrentSet(pid)) {
+          const i = S.opts.findIndex((o) => o.authors.includes(pid)), n = i >= 0 ? S.res.votes[i] : 0;
+          return resultFor(pid, Object.assign(base, { ok: null, msg: n + (n === 1 ? " vote" : " votes") + " for your answer." + (S.res.win.includes(i) ? " Top answer!" : "") }));
+        }
+        return resultFor(pid, Object.assign(base, { ok: null, msg: "Thanks for voting." }));
+      }
       case "tr": { const q = r.questions[S.i]; const ok = a ? a.v === q.answer : null; return resultFor(pid, Object.assign(base, { ok, answer: q.choices[q.answer], note: q.note || "" })); }
       case "fw": {
         if (p.set < 0) return wait("Sets are writing fake answers.", audSub || "Get ready to spot the real ones.");
@@ -589,10 +760,19 @@
       }
       case "xw": {
         if (p.role !== "player") return wait("Players are placing wagers.", "You can answer the final question for points.");
-        return Object.assign(base, { v: "wager", max: maxWager(p), wager: S.wagers[pid], category: r.title }, timing());
+        if (!S.wagerQ) return wait("Watch the screen.");
+        return Object.assign(base, { v: "wager", max: maxWager(p), wager: S.wagers[pid], category: S.wagerQ.src }, timing());
       }
-      case "xq": return Object.assign(base, { v: "choose", prompt: r.q, choices: r.choices, picked: a ? a.v : null }, timing());
-      case "xr": return resultFor(pid, Object.assign(base, { ok: a ? a.v === r.answer : false, answer: r.choices[r.answer], note: r.note || "" }));
+      case "xq": {
+        const w = S.wagerQ;
+        if (w.kind === "order") return Object.assign(base, { v: "order", prompt: w.prompt, items: w.shown.map((i) => w.items[i]), locked: !!a }, timing());
+        return Object.assign(base, { v: "choose", prompt: w.q, choices: w.choices, picked: a ? a.v : null, tf: !!w.tf }, timing());
+      }
+      case "xr": {
+        const w = S.wagerQ;
+        if (w.kind === "order") return resultFor(pid, Object.assign(base, { ok: wagerRight(a), list: w.items, note: w.note || "" }));
+        return resultFor(pid, Object.assign(base, { ok: wagerRight(a), answer: w.choices[w.answer], note: w.note || "" }));
+      }
     }
     return wait("Watch the screen.");
   }
@@ -616,7 +796,7 @@
   // ---------- moderator (teacher's phone) ----------
   function modView() {
     const subs = [];
-    if (["fw", "fready", "fg", "dw", "dready", "dg"].includes(S.phase)) {
+    if (["fw", "fready", "fg", "dw", "dready", "dg", "aw", "aready", "ag"].includes(S.phase)) {
       for (const pid in S.subs) {
         const s = S.subs[pid], p = S.players[pid]; if (!p || S.removed[pid]) continue;
         subs.push({ pid, name: p.name, set: s.set + 1, text: s.text || "", img: s.img || "", hidden: !!s.hidden });
@@ -649,10 +829,12 @@
     if (S.phase === "setup") return "Setup" + (D && D.course ? " · " + D.course : "");
     if (S.phase === "lobby") return "Lobby";
     if (S.phase === "end") return "Final scores";
+    if (["xw", "xq", "xr"].includes(S.phase)) return "Final wager" + (S.wagerQ ? " · " + S.wagerQ.src : "");
     if (!r) return "";
     let t = r.title + ((r.mult || 1) > 1 ? " · ×" + r.mult + " points" : "");
     if (S.phase === "tq" || S.phase === "tr") t += ", question " + (S.i + 1) + " of " + r.questions.length;
-    if (["fg", "fr", "dg", "dr"].includes(S.phase)) t += ", set " + (S.i + 1) + " of " + S.sets.length;
+    if (S.phase === "oq" || S.phase === "or") t += ", puzzle " + (S.i + 1) + " of " + r.puzzles.length;
+    if (["fg", "fr", "dg", "dr", "ag", "ar"].includes(S.phase)) t += ", set " + (S.i + 1) + " of " + S.sets.length;
     return t;
   }
   function nextLabel() {
@@ -663,6 +845,12 @@
       case "intro": return "Begin round";
       case "tq": return "Reveal answer";
       case "tr": return more(r.questions.length) ? "Next question" : "Show scores";
+      case "oq": return "Reveal order";
+      case "or": return more(r.puzzles.length) ? "Next puzzle" : "Show scores";
+      case "aw": return "Close writing";
+      case "aready": return "Start voting";
+      case "ag": return "Reveal votes";
+      case "ar": return more(S.sets.length) ? "Next set" : "Show scores";
       case "fw": return "Close writing";
       case "fready": case "dready": return "Start guessing";
       case "fg": case "dg": return "Reveal";
@@ -672,7 +860,7 @@
       case "xw": return "Show the question";
       case "xq": return "Reveal answer";
       case "xr": return "Final standings";
-      case "scores": return S.r + 1 < D.rounds.length ? "Next round" : "Finish";
+      case "scores": return S.r + 1 < S.rounds.length ? "Next round" : wagerPending() ? "Final wager" : "Finish";
     }
     return "";
   }
@@ -711,9 +899,9 @@
         <div class="count">${ps.length} joined</div></div></div>`;
     } else if (ph === "intro") {
       const m = r.mult || 1;
-      const chips = D.rounds.map((x, i) => `<span class="rchip ${i === S.r ? "on" : i < S.r ? "done" : ""}" title="${esc(x.title)}">${i + 1}</span>`).join("");
+      const chips = S.rounds.map((x, i) => `<span class="rchip ${i === S.r ? "on" : i < S.r ? "done" : ""}" title="${esc(x.title)}">${i + 1}</span>`).join("") + (S.wagerQ ? `<span class="rchip" title="Final wager">W</span>` : "");
       h = `<div class="intro">
-        <div class="intro-top rise"><span class="muted">${S.r === 0 ? "Welcome to " + esc(D.title) + ". " : ""}Round ${S.r + 1} of ${D.rounds.length}</span><span class="rchips">${chips}</span></div>
+        <div class="intro-top rise"><span class="muted">${S.r === 0 ? "Welcome to " + esc(D.title) + ". " : ""}Round ${S.r + 1} of ${S.rounds.length}</span><span class="rchips">${chips}</span></div>
         <div class="intro-title rise"><span class="big">${esc(r.title)}</span>${m > 1 ? `<span class="mult">×${m} points</span>` : ""}</div>
         <p class="lead rise">${esc(r.intro || "")}</p>
         <div class="intro-cols">
@@ -721,12 +909,33 @@
           <div class="card rise"><h3>Points${m > 1 ? ` (×${m} this round)` : ""}</h3><ul>${roundPoints(r).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
         </div>
         <div class="intro-foot rise muted">${(D.welcome || []).map(esc).join(" · ")}</div></div>`;
+    } else if (ph === "oq" || ph === "or" || ((ph === "xq" || ph === "xr") && S.wagerQ.kind === "order")) {
+      const z = ph[0] === "o" ? r.puzzles[S.i] : S.wagerQ, rev = ph.endsWith("r");
+      const counts = rev ? (ph === "or" ? S.res.posRight : S.res.counts) : [];
+      const list = rev ? z.items.map((t, i) => `<div class="tile rise right"><span class="k">${i + 1}</span><span class="txt">${esc(t)}</span><span class="n" title="Players with this in place">${counts[i] || 0}</span></div>`).join("")
+        : z.shown.map((i, k) => `<div class="tile rise"><span class="k">${letter(k)}</span><span class="txt">${esc(z.items[i])}</span></div>`).join("");
+      const sum = rev ? (ph === "or" ? `${S.res.perfect} of ${S.res.answered} got it perfect.` : `${S.res.right} got it perfect.`) : "";
+      const main = `<div class="prompt rise">${esc(z.prompt)}</div><div class="tiles order ${rev ? "rev" : ""}">${list}</div>${rev ? `<div class="note rise">${esc(sum)}${z.note ? " " + esc(z.note) : ""}</div>` : `<div class="count">Put these in order on your phone.</div>${answeredLine()}`}`;
+      h = rev ? `<div class="split"><div>${main}</div><div class="board-list rise"><h3>${ph === "xr" ? "Standings" : "Top 5"}</h3>${leaderHTML(ph === "xr" ? 8 : 5, S.res.gains)}</div></div>` : main;
     } else if (ph === "tq" || ph === "tr" || ph === "xq" || ph === "xr") {
-      const q = ph[0] === "t" ? r.questions[S.i] : { q: r.q, choices: r.choices, answer: r.answer, note: r.note };
+      const q = ph[0] === "t" ? r.questions[S.i] : S.wagerQ;
       const rev = ph.endsWith("r");
       const tiles = q.choices.map((c, i) => `<div class="tile rise ${rev ? (i === q.answer ? "right" : "dim") : ""}"><span class="k">${letter(i)}</span><span class="txt">${esc(c)}</span>${rev ? `<span class="n">${S.res.counts[i] || 0}</span>` : ""}</div>`).join("");
       const main = `<div class="prompt rise">${esc(q.q)}</div><div class="tiles ${q.choices.length > 4 ? "many" : ""}">${tiles}</div>${rev && q.note ? `<div class="note rise">${esc(q.note)}</div>` : answeredLine()}`;
       h = rev ? `<div class="split"><div>${main}</div><div class="board-list rise"><h3>${ph === "xr" ? "Standings" : "Top 5"}</h3>${leaderHTML(ph === "xr" ? 8 : 5, S.res.gains)}</div></div>` : main;
+    } else if (ph === "aw") {
+      h = `<div class="big rise">Apply it</div><p class="rise muted" style="font-size:1.2em">Check your phone for your set's situation and scripture. Write how the scripture helps.</p>${setsHTML()}`;
+    } else if (ph === "aready") {
+      const n = Object.keys(S.subs).length, hid = Object.values(S.subs).filter((s) => s.hidden).length;
+      h = `<div class="big rise">The answers are in</div><p class="rise" style="font-size:1.3em">${n} received${hid ? `, ${hid} hidden by the host` : ""}. Voting starts when the host is ready.</p>`;
+    } else if (ph === "ag" || ph === "ar") {
+      const z = r.prompts[S.sets[S.i].item], rev = ph === "ar";
+      const tiles = S.opts.map((o, i) => {
+        const win = rev && S.res.win.includes(i), n = rev ? S.res.votes[i] : 0;
+        return `<div class="tile rise ${win ? "right" : ""}"><span class="k">${letter(i)}</span><span class="txt">${esc(o.text)}${rev ? `<span class="by">${o.authors.map((a) => esc(pname(a))).join(", ")}${win ? ", top answer" : ""}</span>` : ""}</span>${rev ? `<span class="n">${n}</span>` : ""}</div>`;
+      }).join("");
+      const main = `<div class="prompt rise">${esc(z.prompt)}${z.ref ? ` <span class="muted" style="font-weight:400">${esc(z.ref)}</span>` : ""}</div><div class="tiles answers">${tiles}</div>${rev ? (z.note ? `<div class="note rise">${esc(z.note)}</div>` : "") : `<div class="count">Set ${S.i + 1} wrote these. Everyone else, vote on your phone.</div>${answeredLine()}`}`;
+      h = rev ? `<div class="split"><div>${main}</div><div class="board-list rise"><h3>Top 5</h3>${leaderHTML(5, S.res.gains)}</div></div>` : main;
     } else if (ph === "fw" || ph === "dw") {
       h = `<div class="big rise">${ph === "fw" ? "Write a convincing fake" : "Draw your story"}</div><p class="rise muted" style="font-size:1.2em">${ph === "fw" ? "Check your phone for your set's clue." : "Check your phone for your set's story. Everyone in a set draws the same one."}</p>${setsHTML()}`;
     } else if (ph === "fready" || ph === "dready") {
@@ -750,7 +959,8 @@
         <div class="drawings" style="grid-template-columns:repeat(${Math.max(S.drawings.length, 3)},1fr)">${draws}</div>
         ${rev ? `<div class="count">${S.res.correct} of ${S.res.guessers} guessed right${S.res.favIdx.length ? ". The star marks the class favorite." : "."}</div>` : `<div class="storylist">${list}</div>${answeredLine()}`}`;
     } else if (ph === "xw") {
-      h = `<div class="rise muted" style="font-size:1.2em">Final question</div><div class="big rise" style="color:var(--saffron);font-size:5em">${esc(r.title)}</div><p class="rise" style="font-size:1.3em">Place your wager on your phone. You can bet up to your score, or up to ${pts().finalMaxWagerFloor || 500} if your score is lower.</p>${answeredLine()}`;
+      const w = S.wagerQ, kind = w.kind === "order" ? "Put it in order" : w.tf ? "True or false" : "Multiple choice";
+      h = `<div class="rise muted" style="font-size:1.2em">Final wager</div><div class="big rise" style="color:var(--saffron);font-size:4.4em">${esc(w.src)}</div><p class="rise muted" style="font-size:1.15em">One last question: ${kind}${w.kind === "order" ? ", and only a perfect order wins" : ""}.</p><p class="rise" style="font-size:1.3em">Place your wager on your phone. You can bet up to your score, or up to ${pts().finalMaxWagerFloor || 500} if your score is lower. Right: win it. Wrong: lose it.</p>${answeredLine()}`;
     } else if (ph === "scores") {
       h = `<div class="big rise" style="margin-bottom:.4em">Standings</div><div class="leader rise">${ranked().slice(0, 5).map((p, i) => `<div class="row"><span class="rank">${i + 1}</span>${dot(p.pid)}<span class="nm">${esc(p.name)}</span><span class="pts">${p.score}</span></div>`).join("")}</div><div class="count">Everyone else can see their rank on their phone.</div>`;
     } else if (ph === "end") {
@@ -809,6 +1019,36 @@
       <label class="muted" style="display:block;margin-top:.6em">Load a content file <input type="file" id="fileIn" accept=".json,application/json"></label>
       <div class="muted" style="font-size:.85em">A full pack replaces the content. An extras file adds to it.${usingLoaded || userExtras.length ? ` <button class="ghost" id="resetContent" style="padding:.15em .7em;font-size:.9em">Back to the site's content</button>` : ""}</div><div id="fileErr" class="warn"></div></div>`;
   }
+  const TYPE_NAMES = { trivia: "multiple choice", tf: "true or false", order: "put in order", fib: "write fakes", draw: "drawing", apply: "write and vote" };
+  function roundsCardHTML() {
+    if (!D) return "";
+    const plan = getPlan(), on = plan.order, off = playableIdx().filter((i) => !on.includes(i));
+    const keyOf = { trivia: "questions", tf: "statements", order: "puzzles", fib: "clues", draw: "stories", apply: "prompts" };
+    const row = (i, pos) => {
+      const r = D.rounds[i], n = (r[keyOf[r.type]] || []).length, chosen = pos >= 0;
+      const lastOn = chosen && on.length === 1;
+      return `<div class="rrow ${chosen ? "" : "off"}"><label class="chk"><input type="checkbox" data-r="${i}" ${chosen ? "checked" : ""} ${lastOn ? "disabled" : ""}> <b>${esc(roundTitle(r))}</b></label>
+        <span class="muted">${TYPE_NAMES[r.type]} · ${n} in bank</span>
+        <span class="rmult">${chosen ? "×" + multFor(pos) : ""}</span>
+        ${chosen ? `<button class="ghost mini" data-up="${i}" ${pos === 0 ? "disabled" : ""} aria-label="Move up">↑</button><button class="ghost mini" data-down="${i}" ${pos === on.length - 1 ? "disabled" : ""} aria-label="Move down">↓</button>` : ""}</div>`;
+    };
+    return `<div class="card rise"><b>Rounds tonight</b> <span class="muted">(points multiply by position)</span>
+      <div class="rlist">${on.map((i, pos) => row(i, pos)).join("")}${off.map((i) => row(i, -1)).join("")}</div>
+      <label class="chk" style="display:block;margin-top:.6em"><input type="checkbox" id="planWager" ${plan.wager ? "checked" : ""}> <b>End with a final wager</b> <span class="muted">After the last round's standings, everyone bets on one more question from that round.</span></label></div>`;
+  }
+  function bindRounds() {
+    const plan = getPlan(), redo = () => { savePlan(plan); render(); };
+    document.querySelectorAll(".rrow input[data-r]").forEach((el) => el.onchange = () => {
+      const i = Number(el.dataset.r);
+      if (el.checked) { if (!plan.order.includes(i)) plan.order.push(i); }
+      else if (plan.order.length > 1) plan.order = plan.order.filter((x) => x !== i);
+      redo();
+    });
+    const move = (i, d) => { const k = plan.order.indexOf(i), j = k + d; if (k < 0 || j < 0 || j >= plan.order.length) return; [plan.order[k], plan.order[j]] = [plan.order[j], plan.order[k]]; redo(); };
+    document.querySelectorAll(".rrow [data-up]").forEach((b) => b.onclick = () => move(Number(b.dataset.up), -1));
+    document.querySelectorAll(".rrow [data-down]").forEach((b) => b.onclick = () => move(Number(b.dataset.down), 1));
+    const w = $("#planWager"); if (w) w.onchange = () => { plan.wager = w.checked; redo(); };
+  }
   function setupHTML() {
     const saved = savedGame();
     const fileWarn = location.protocol === "file:" && !cfg.playUrl && RN_NET.mode() !== "local";
@@ -821,6 +1061,7 @@
       </div>
       <div class="card rise"><b>Read questions aloud</b>${voiceSettingsHTML("vs")}</div>
       ${contentCardHTML()}
+      ${roundsCardHTML()}
       ${fileWarn ? `<div class="card rise warn">This board is running from a file, so phones need the online address. Set playUrl in config.js.</div>` : ""}
       ${saved ? `<div class="rise" style="margin-top:.8em"><button class="ghost" id="resume">Resume the game in room ${esc(saved.code)}</button></div>` : ""}
       </div>`;
@@ -840,6 +1081,7 @@
     const rx = $("#removeExtras"); if (rx) rx.onclick = () => { userExtras = []; saveExtras(); rebuildD(); render(); };
     const rs0 = $("#resetContent"); if (rs0) rs0.onclick = () => { try { localStorage.removeItem(DATA_KEY); localStorage.removeItem(EXTRAS_KEY); } catch (e) {} location.reload(); };
     bindVoiceSettings("vs");
+    bindRounds();
     const rs = $("#resume"); if (rs) rs.onclick = resume;
   }
   function savedGame() {
@@ -879,7 +1121,7 @@
   }
   function openTools() { fillTools(); $("#tools").showModal(); }
   function fillTools() {
-    const stats = D ? D.rounds.map((r) => r.title + ": " + (r.questions || r.clues || r.stories || r.finals || [1]).length).join(", ") : "";
+    const stats = D ? RN_PACK.summary(D).lines.join(", ") : "";
     $("#toolsBody").innerHTML = voiceSettingsHTML("vt") + `<div class="voiceset"><div class="muted">Question banks: ${esc(stats)}</div><div><button id="resetSeen" class="ghost">Reset question history</button> <span id="resetMsg" class="muted"></span></div></div>` + `<div class="setup"><div class="modqr" style="display:flex;gap:1em;align-items:center"><div>${qr(modUrl(), 4)}</div><div>Moderator code <b>${S.pin}</b><br><span class="muted">Room ${S.code}</span></div></div></div>`;
     bindVoiceSettings("vt");
     $("#resetSeen").onclick = () => { seen = {}; try { localStorage.removeItem(SEEN_KEY); } catch (e) {} $("#resetMsg").textContent = "Cleared. The next game can draw any question."; };

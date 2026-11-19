@@ -1,20 +1,22 @@
 # Seminary Review Night
 
 Jackbox-style review game for a seminary class (about 20 students on phones, board on a projector).
-Rounds: Quick Quiz (trivia), Fake Out (Fibbage-style), Sketch It (Drawful-style), The Final Question (wager).
+Round types: Quick Quiz (`trivia`), True or False (`tf`), Put It in Order (`order`), Fake Out (`fib`, Fibbage-style), Sketch It (`draw`, Drawful-style), Apply It (`apply`, write and vote). The host picks and orders tonight's rounds on the setup screen; an optional final wager follows the last round. `final` is only the wager's fallback question bank.
 Live site: https://ssturdejunk.github.io/seminary/review-night/host.html
 
 ## Layout
 - `review-night/` What GitHub Pages serves today (the live site). Do not edit it directly; when a `web/` change is approved, copy `web/` over it.
 - `web/`      The source of the site. Copy its contents to `review-night/` to deploy. No build step, vanilla JS, no framework.
 - `offline/`  Backup edition for when internet fails (students use dry-erase boards, host taps who was right). `python3 offline/build.py` writes one self-contained file to `dist/review-night-offline.html`. Only `app.js`, `style.css`, `template.html` are offline-specific; it inlines `web/pack.js`, `web/audio.js`, `web/voice.js` and the pack/extras named in `web/config.js`.
-- `tests/`    `node tests/validate_content.js` (content rules) and `python3 tests/smoke.py` (Playwright: board + phone in local mode, plus offline build loads). Run both before every commit.
+- `tests/`    `node tests/validate_content.js` (content rules), `python3 tests/smoke.py` (Playwright: board + phone in local mode, plus offline build loads) and `python3 tests/full_game.py` (four scripted games with 6s timers and exact score checks, using generated content). Run all three before every commit.
 
 ## Architecture (web/)
 - `host.js` is the board and owns ALL game state and scoring. `play.js` is a thin phone client that renders whatever `view` message the host sends (`viewFor(pid)` in host.js). Moderator phone uses `modView/modCmd`.
-- Phases: setup, lobby, intro, tq/tr (trivia), fw/fready/fg/fr (Fake Out), dw/dready/dg/dr (Sketch It), xw/xq/xr (final), scores, end. Timed phases read `settings.timers`. A `hold` flag pauses the timer while the voice reads.
-- Sets of 3 or 4 students are rebuilt at the start of Fake Out, Sketch It and the final. Late joiners are audience, earn points, and are promoted next round keeping their points.
-- Scoring: base points times round `mult` (x1, x2, x3). Trivia has a speed bonus. Final wager is capped at max(score, finalMaxWagerFloor).
+- Phases: setup, lobby, intro, tq/tr (trivia and tf), oq/or (order), fw/fready/fg/fr (Fake Out), dw/dready/dg/dr (Sketch It), aw/aready/ag/ar (Apply It), xw/xq/xr (final wager), scores, end. Timed phases read `settings.timers` (defaults in `DEFAULT_TIMERS`). A `hold` flag pauses the timer while the voice reads (`HOLD_PHASES`). New reveal phases must be listed in `go()`'s `reveal` array or their answers are wiped.
+- Round plan: `getPlan()` (localStorage `rn-plan-v1`, keyed per pack) holds the chosen round indexes and the wager flag. `buildDeck()` builds `S.rounds` in that order, sets each round's `mult` from `settings.multipliers` by position, and `wagerFrom()` sets `S.wagerQ` (kind `choice` or `order`) from one extra item of the last round, else the `finals` bank, else an unused trivia/tf item.
+- Sets of 3 or 4 students are rebuilt at the start of Fake Out, Sketch It, Apply It and the wager. Late joiners are audience, earn points, and are promoted next round keeping their points.
+- Scoring: base points times the round's position multiplier. Trivia and tf have speed bonuses. Order: per item in place plus a perfect bonus. Apply It: per vote plus a bonus for each set's top answer (ties share it). Final wager is capped at max(score, finalMaxWagerFloor); an order wager needs a perfect order.
+- The offline edition supports trivia, fib, draw and final only; it drops other round types when loading a pack.
 - `net.js` transports: `firebase` (default; Realtime Database relay, works on cellular), `peer` (PeerJS, fails on many cellular networks), `local` (BroadcastChannel, one browser, used by tests). Chosen by `config.js` `net` or `?net=`. Firebase layout: `rooms/<CODE>/{host, clients/<id>, up, down/<id>}`, messages are JSON strings. Rules open only `rooms/$room`.
 - `pack.js` defines content: a PACK (full course) or EXTRAS (`"extras": true`, adds items). `validate`, `validateExtras`, `merge`, `summary`. Questions are drawn per game by `buildDeck`, preferring least-seen items (localStorage `rn-seen-v1`). In files the correct answer is first with `answer: 0`; the board reshuffles.
 - Fake answers too similar to the real one are rejected (60% word overlap after dropping stop words).
@@ -33,12 +35,13 @@ Live site: https://ssturdejunk.github.io/seminary/review-night/host.html
 ## Commands
 - `node tests/validate_content.js`
 - `python3 tests/smoke.py` (pip install playwright; playwright install chromium)
+- `python3 tests/full_game.py` (about 50 seconds)
 - `python3 offline/build.py`
 - Local run: `cd web && python3 -m http.server 8000`, open `http://localhost:8000/host.html?net=local`
 
 ## Good next steps
 1. Add a Seminary-wide pack for the next course (use `web/data/CONTENT-GUIDE.md`), keep `old-testament.json` as an example.
 2. Check the unverified quotes in the Old Testament pack.
-3. Add a trivia-elimination variant (Trivia Murder Party style) as an optional setting, off by default.
-4. Expand tests: a scripted full game with short timers, scoring checks, late joiner carryover.
+3. Add a trivia-elimination variant (Trivia Murder Party style) as an optional setting, off by default (proposal agreed in chat, not built).
+4. Teach the offline edition the new round types (tf, order, apply).
 5. Firebase: add a cleanup for old `rooms/*` and tighten rules if possible.

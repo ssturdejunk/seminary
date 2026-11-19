@@ -1,9 +1,11 @@
 {
  "_help": [
   "This file shows the format. Copy it, replace the examples with your own, and load it on the board's setup screen.",
+  "Include any of the round types: trivia, tf, order, fib, draw, apply. The host picks which ones to play, and in what order, on the setup screen.",
+  "Points multiply by the round's position in tonight's game (settings.multipliers, default 1, 2, 3; the last number repeats). A 'mult' on a round is ignored.",
   "Choices: put the CORRECT answer first (answer: 0). The game shuffles the choices every time.",
   "Every round's list is a bank. 'count' is how many are drawn each game. Add more than you need so games vary.",
-  "Rounds can be in any order. Keep one of each type: trivia, fib, draw, final. 'mult' multiplies that round's points."
+  "The final wager uses one more item from the last round. If the last round is Sketch It or Apply It, it uses the 'final' round's finals instead."
  ],
  "title": "Seminary Review Night",
  "course": "Your course name",
@@ -21,30 +23,46 @@
   "answerMax": 60,
   "timers": {
    "trivia": 30,
+   "tf": 12,
+   "order": 45,
    "fibWrite": 90,
    "fibGuess": 40,
    "drawDraw": 120,
    "drawGuess": 40,
+   "applyWrite": 75,
+   "applyVote": 30,
    "finalWager": 40,
    "finalQuestion": 50
   },
   "points": {
    "triviaCorrect": 100,
    "triviaSpeedBonus": 50,
+   "tfCorrect": 50,
+   "tfSpeedBonus": 25,
+   "orderPerItem": 25,
+   "orderPerfect": 50,
    "fibTruth": 100,
    "fibFooled": 50,
    "drawCorrect": 100,
    "drawArtistMax": 100,
    "drawFavorite": 50,
+   "applyVote": 50,
+   "applyWin": 100,
    "finalMaxWagerFloor": 1000,
    "finalAudienceCorrect": 100
-  }
+  },
+  "multipliers": [
+   1,
+   2,
+   3
+  ],
+  "finalWager": true,
+  "applyMax": 140
  },
  "rounds": [
   {
    "type": "trivia",
    "title": "Quick Quiz",
-   "mult": 1,
    "count": 10,
    "intro": "Questions on what we've studied this year.",
    "rules": [
@@ -79,9 +97,57 @@
    ]
   },
   {
+   "type": "tf",
+   "title": "True or False",
+   "count": 10,
+   "intro": "Fast true-or-false statements.",
+   "rules": [
+    "A statement appears on the screen. Tap True or False on your phone.",
+    "The clock is short, so trust your first instinct.",
+    "A correct answer scores. A faster correct answer scores a little more."
+   ],
+   "_help": "statements: s is the statement. a is true or false (no quotes). note: shown after the reveal. Keep a mix of true and false.",
+   "statements": [
+    {
+     "s": "EXAMPLE: Genesis is the first book of the Bible.",
+     "a": true,
+     "note": "Genesis comes first."
+    },
+    {
+     "s": "EXAMPLE: Malachi is the first book of the Old Testament.",
+     "a": false,
+     "note": "Malachi is the last book of the Old Testament."
+    }
+   ]
+  },
+  {
+   "type": "order",
+   "title": "Put It in Order",
+   "count": 5,
+   "intro": "Put events, verses, or steps in the right order.",
+   "rules": [
+    "Your phone shows a mixed-up list.",
+    "Tap the items in order, first to last, then lock in.",
+    "You score for every item in the right place, plus a bonus for a perfect order."
+   ],
+   "_help": "puzzles: prompt says what to order. items: 3 to 8 items in the CORRECT order (4 to 6 is best on a phone). The game mixes them up. note: shown after the reveal.",
+   "puzzles": [
+    {
+     "prompt": "EXAMPLE: Put these books in Bible order.",
+     "items": [
+      "Genesis",
+      "Exodus",
+      "Leviticus",
+      "Numbers",
+      "Deuteronomy"
+     ],
+     "note": "The five books of Moses."
+    }
+   ]
+  },
+  {
    "type": "fib",
    "title": "Fake Out",
-   "mult": 2,
    "count": 8,
    "intro": "Write a believable fake ending, then find the real one.",
    "rules": [
@@ -120,7 +186,6 @@
   {
    "type": "draw",
    "title": "Sketch It",
-   "mult": 3,
    "count": 7,
    "intro": "Draw a scripture story and guess your classmates' drawings.",
    "rules": [
@@ -141,17 +206,31 @@
    ]
   },
   {
+   "type": "apply",
+   "title": "Apply It",
+   "count": 6,
+   "intro": "Use a scripture to answer a real-life situation.",
+   "rules": [
+    "Your set of 3 or 4 gets the same situation and scripture.",
+    "Each of you writes how the scripture helps, in a sentence or two.",
+    "Everyone else votes for the answer they like best. You score for every vote, and the top answer gets a bonus."
+   ],
+   "_help": "prompts: prompt is a real-life situation. ref is the scripture students apply. note (optional) is shown after the votes. Keep count a bit above the number of sets.",
+   "prompts": [
+    {
+     "prompt": "EXAMPLE: A friend is anxious about a big decision and doesn't know what to do.",
+     "ref": "Proverbs 3:5–6"
+    },
+    {
+     "prompt": "EXAMPLE: Your family is choosing what to do on Sunday.",
+     "ref": "Joshua 24:15"
+    }
+   ]
+  },
+  {
    "type": "final",
    "title": "The Final Question",
-   "mult": 1,
-   "count": 1,
-   "intro": "One hard question. Everything is on the line.",
-   "rules": [
-    "Wager first, anywhere from nothing up to your whole score.",
-    "The choices are close, so read carefully.",
-    "Right: you win your wager. Wrong: you lose it. Audience members who answer correctly score too."
-   ],
-   "_help": "finals: one is drawn each game. Use 5 or 6 close choices, correct answer first, answer: 0.",
+   "_help": "Not a round people pick. If the last round is Sketch It or Apply It, the final wager draws one of these. Use 4 to 6 close choices, correct answer first, answer: 0.",
    "finals": [
     {
      "q": "EXAMPLE: “…and call the sabbath a delight, the holy of the Lord, ____.”",

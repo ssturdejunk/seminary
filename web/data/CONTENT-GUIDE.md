@@ -23,14 +23,26 @@ The offline version (`review-night-offline.html`) has a copy of the content buil
 
 | Round type | List name | Each item |
 |---|---|---|
-| `trivia` | `questions` | `q` (question), `choices` (correct answer first), `answer` (0), `note` (shown after the reveal) |
+| `trivia` (Quick Quiz) | `questions` | `q` (question), `choices` (correct answer first), `answer` (0), `note` (shown after the reveal) |
+| `tf` (True or False) | `statements` | `s` (the statement), `a` (`true` or `false`, no quotes), `note`. Keep a mix of true and false. |
+| `order` (Put It in Order) | `puzzles` | `prompt` (what to order), `items` (3 to 8 in the **correct** order; 4 to 6 is best on a phone), `note` |
 | `fib` (Fake Out) | `clues` | `prompt` (ends mid-sentence with `____`), `answer`, `alt` (other wordings that count as the real answer), `ref`, `house` (2 or more fake endings used when students write too few) |
 | `draw` (Sketch It) | `stories` | `story` (something drawable), `ref` |
-| `final` | `finals` | `q`, `choices` (5 or 6 close ones, correct first), `answer` (0), `note` |
+| `apply` (Apply It) | `prompts` | `prompt` (a real-life situation), `ref` (the scripture to apply), `note` (optional, shown after the votes) |
+| `final` (wager bank) | `finals` | `q`, `choices` (4 to 6 close ones, correct first), `answer` (0), `note`. Not a round people pick; see the final wager below. |
+
+A pack can include any of these. The host picks which rounds to play tonight, and in what order, on the setup screen. Include a round only when it has enough items.
+
+## Choosing rounds and the final wager
+
+- On the setup screen, **Rounds tonight** lists every round in the pack. Tick the ones to play and use the arrows to order them. The choice is remembered in that browser for that pack.
+- Points multiply by position: first round ×1, second ×2, third and later ×3. Change this with `settings.multipliers`, for example `[1, 1, 2, 2, 3]` (the last number repeats).
+- **End with a final wager** (on by default; `settings.finalWager: false` turns the default off): after the last round's standings, everyone bets up to their score, or up to `finalMaxWagerFloor` if they're lower, on one more question. A right answer wins the bet, a wrong answer loses it. Late joiners answer for a flat `finalAudienceCorrect` bonus.
+- The wager question is one more item from the last round: a Quick Quiz question, a True or False statement, a Put It in Order puzzle (only a perfect order wins), or a Fake Out clue (real ending among the house fakes). If the last round is Sketch It or Apply It, it uses the `finals` bank, then any unused Quick Quiz or True or False item.
 
 Other fields:
-- `count`: how many items a game draws from the bank. Keep banks larger than `count` so games vary.
-- `mult`: multiplies that round's points (1, 2, 3 works well).
+- `count`: how many items a game draws from the bank. Keep banks larger than `count` so games vary. The last round draws one extra item for the wager.
+- `mult` on a round is no longer used; see multipliers above.
 - `title`, `intro`, `rules`: shown on the rules page before the round.
 - `welcome`: the line at the bottom of every rules page.
 - `pronounce`: how the voice should say things, for example `"Zarahemla": "zah-rah-HEM-lah"`.
@@ -73,6 +85,9 @@ Attach `template.json` and paste something like this, filling in the brackets:
 > - Quick Quiz: about 60 questions. Mix quote-to-reference, real-life scenarios, fill-in-the-word, "what does this passage teach", and history from the lessons. Put the correct answer first and set `answer` to 0. Every wrong choice must be plausible but clearly wrong, and no scenario may have two defensible answers among its choices.
 > - Fake Out: about 25 clues. Quote **[translation]** exactly, stopping mid-sentence at a word like "and", "for", or "thine", with `____` for the rest. Include `answer`, `alt`, `ref`, and two `house` fakes that are not real scripture.
 > - Sketch It: about 15 stories that can be drawn, each with a `ref`.
-> - Final: about 12 hard questions with 5 or 6 close choices.
+> - True or False: about 40 statements, roughly half true. A false statement changes one clear detail (who, where, which book), never a trick of wording.
+> - Put It in Order: about 15 puzzles of 4 to 6 items each (events in a story, steps in a teaching, books, or verses in a passage), listed in the correct order.
+> - Apply It: about 15 real-life situations a teenager might face, each paired with one Doctrinal Mastery passage in `ref` that clearly applies.
+> - Final: about 12 hard questions with 5 or 6 close choices (used for the wager when the last round is Sketch It or Apply It).
 > - Add a `pronounce` entry for any name the voice might mispronounce.
 > - Check every quote against the scriptures and list anything you couldn't verify.

@@ -22,6 +22,7 @@
   let client = null, view = null, sig = "", gotView = false;
   let tEnd = 0, tTotal = 0, helloTimer = null;
   let picked = null; // optimistic lock for the current key
+  let seq = [], seqKey = null; // put-it-in-order: indexes tapped so far, and the screen they belong to
 
   // ---------- connection ----------
   function connect(code) {
@@ -99,7 +100,7 @@
     if (m.total) { tEnd = Date.now() + m.left; tTotal = m.total; $("#tbar").classList.remove("hidden"); }
     else { tEnd = 0; $("#tbar").classList.add("hidden"); }
 
-    const sticky = ["write", "draw", "wager"].includes(m.v);
+    const sticky = ["write", "draw", "wager"].includes(m.v) || (m.v === "order" && !m.locked);
     const s = sticky ? m.key + ":" + m.v : JSON.stringify(Object.assign({}, m, { me: 0, left: 0, total: 0 }));
     if (s === sig) { if (sticky) patch(m); return; }
     sig = s;
@@ -117,7 +118,7 @@
     choose(m) {
       const lock = m.picked != null ? m.picked : picked;
       app.innerHTML = `<div class="p">${esc(m.prompt)}</div>${m.sub ? `<div class="sub">${esc(m.sub)}</div>` : ""}
-        <div class="choices ${lock != null ? "locked" : ""}">${m.choices.map((c, i) => `<button data-i="${i}" class="${lock === i ? "on" : ""}"><span class="k">${letter(i)}</span><span>${esc(c)}</span></button>`).join("")}</div>
+        <div class="choices ${lock != null ? "locked" : ""} ${m.tf ? "tf" : ""}">${m.choices.map((c, i) => `<button data-i="${i}" class="${lock === i ? "on" : ""}">${m.tf ? "" : `<span class="k">${letter(i)}</span>`}<span>${esc(c)}</span></button>`).join("")}</div>
         ${lock != null ? `<div class="sent">Locked in.</div>` : ""}`;
       app.querySelectorAll(".choices button").forEach((b) => b.onclick = () => {
         if ((m.picked != null) || picked != null) return;
@@ -135,14 +136,34 @@
         app.innerHTML = `<div class="h">Thanks.</div><div class="sub">Watch the screen.</div>`;
       });
     },
+    order(m) {
+      if (seqKey !== m.key) { seq = []; seqKey = m.key; }
+      if (m.locked) {
+        app.innerHTML = `<div class="p">${esc(m.prompt)}</div><div class="olist locked">${(seq.length === m.items.length ? seq : m.items.map((_, i) => i)).map((i, k) => `<div class="oitem on"><span class="k">${k + 1}</span><span>${esc(m.items[i])}</span></div>`).join("")}</div><div class="sent">Locked in.</div>`;
+        return;
+      }
+      const draw = () => {
+        app.innerHTML = `<div class="p">${esc(m.prompt)}</div><div class="sub">Tap the items in order, first to last. Tap a numbered item to take it back.</div>
+          <div class="olist">${m.items.map((t, i) => { const k = seq.indexOf(i); return `<button class="oitem ${k >= 0 ? "on" : ""}" data-i="${i}"><span class="k">${k >= 0 ? k + 1 : ""}</span><span>${esc(t)}</span></button>`; }).join("")}</div>
+          <div class="quick" style="grid-template-columns:1fr 2fr"><button id="oc" class="ghost">Clear</button><button id="ol" class="primary" ${seq.length === m.items.length ? "" : "disabled"}>Lock in order</button></div>`;
+        app.querySelectorAll(".oitem").forEach((b) => b.onclick = () => {
+          const i = Number(b.dataset.i), k = seq.indexOf(i);
+          if (k >= 0) seq.splice(k); else seq.push(i);
+          draw();
+        });
+        $("#oc").onclick = () => { seq = []; draw(); };
+        $("#ol").onclick = () => { if (seq.length !== m.items.length) return; client.send({ t: "order", key: m.key, v: seq.slice() }); $("#ol").disabled = true; $("#ol").textContent = "Sending…"; };
+      };
+      draw();
+    },
     write(m) {
-      app.innerHTML = `<div class="sub">Write a fake answer that sounds real.</div><div class="p">${esc(m.prompt)}</div>
-        <input id="wi" type="text" maxlength="${m.max}" autocomplete="off" placeholder="Your fake answer">
-        <button id="wb" class="primary" style="width:100%;margin-top:.8em;padding:.9em">Send fake answer</button>
+      app.innerHTML = `<div class="sub">${esc(m.lead || "Write a fake answer that sounds real.")}</div><div class="p">${esc(m.prompt)}</div>
+        ${m.max > 60 ? `<textarea id="wi" rows="3" maxlength="${m.max}" placeholder="${esc(m.placeholder || "Your answer")}"></textarea>` : `<input id="wi" type="text" maxlength="${m.max}" autocomplete="off" placeholder="${esc(m.placeholder || "Your fake answer")}">`}
+        <button id="wb" class="primary" style="width:100%;margin-top:.8em;padding:.9em">${esc(m.button || "Send fake answer")}</button>
         <div id="wst"></div>`;
       const send = () => { const v = $("#wi").value.trim(); if (!v) return; client.send({ t: "text", key: m.key, v }); $("#wst").innerHTML = `<div class="muted">Sending…</div>`; };
       $("#wb").onclick = send;
-      $("#wi").onkeydown = (e) => { if (e.key === "Enter") send(); };
+      $("#wi").onkeydown = (e) => { if (e.key === "Enter" && $("#wi").tagName === "INPUT") send(); };
       if (m.sent) $("#wi").value = m.sent;
       patch(m);
     },
@@ -163,23 +184,28 @@
     },
     wager(m) {
       const start = m.wager != null ? m.wager : 0;
-      app.innerHTML = `<div class="sub">Final question</div><div class="h">${esc(m.category)}</div>
+      app.innerHTML = `<div class="sub">Final wager</div><div class="h">${esc(m.category)}</div>
         <div class="sub">Wager up to ${m.max}. A right answer adds it, a wrong answer subtracts it.</div>
         <div class="wager" id="wv">${start}</div>
         <input id="wr" type="range" min="0" max="${m.max}" step="10" value="${start}" aria-label="Wager amount">
         <div class="quick"><button data-f="0">Nothing</button><button data-f="0.5">Half</button><button data-f="1">All of it</button></div>
         <button id="wl" class="primary" style="width:100%;padding:.9em">Lock in wager</button><div id="wst"></div>`;
-      const r = $("#wr"), show = () => ($("#wv").textContent = r.value);
-      r.oninput = show;
-      app.querySelectorAll(".quick button").forEach((b) => b.onclick = () => { r.value = Math.round(m.max * Number(b.dataset.f) / 10) * 10; if (b.dataset.f === "1") r.value = m.max; show(); });
-      $("#wl").onclick = () => { client.send({ t: "wager", key: m.key, v: Number(r.value) }); $("#wst").innerHTML = `<div class="muted">Sending…</div>`; };
+      // The slider moves in steps of 10, so it can't land on a max like 1098. Keep the amount
+      // separately so "All of it" wagers the exact max.
+      let val = start;
+      const r = $("#wr"), show = () => ($("#wv").textContent = val);
+      r.oninput = () => { val = Number(r.value); show(); };
+      app.querySelectorAll(".quick button").forEach((b) => b.onclick = () => { const f = Number(b.dataset.f); val = f === 1 ? m.max : Math.round(m.max * f / 10) * 10; r.value = val; show(); });
+      $("#wl").onclick = () => { client.send({ t: "wager", key: m.key, v: val }); $("#wst").innerHTML = `<div class="muted">Sending…</div>`; };
       patch(m);
     },
     result(m) {
       const g = m.gain || 0;
       const ok = m.ok === true ? `<div class="ok y">Correct</div>` : m.ok === false ? `<div class="ok n">Not this time</div>` : `<div class="ok">${esc(m.msg || "")}</div>`;
       app.innerHTML = `<div class="result">${ok}<div class="gain ${g < 0 ? "neg" : ""}" style="margin-top:.3em">${g > 0 ? "+" : ""}${g}</div>
+        ${m.msg && m.ok != null ? `<div class="sub" style="margin-top:.6em">${esc(m.msg)}</div>` : ""}
         ${m.answer && m.ok !== true ? `<div class="sub" style="margin-top:1em">Answer: <b style="color:var(--paper)">${esc(m.answer)}</b></div>` : ""}
+        ${m.list ? `<div class="sub" style="margin-top:1em;text-align:left">Right order:<ol class="rlist">${m.list.map((t) => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
         ${m.note ? `<div class="sub">${esc(m.note)}</div>` : ""}</div>`;
     },
     mod(m) {

@@ -9,7 +9,10 @@ const dir = path.join(root, "data");
 let fails = 0, base = null; const extras = [];
 for (const f of fs.readdirSync(dir).filter((n) => n.endsWith(".json"))) {
   const d = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
-  if (f === "template.json") { console.log("skip   ", f, "(template with example items)"); continue; }
+  if (f === "template.json") {
+    try { P.validate(d); console.log("format ", f, "ok (examples, not merged)"); } catch (e) { fails++; console.error("FAIL   ", f, "-", e.message); }
+    continue;
+  }
   try {
     if (P.isExtras(d)) { P.validateExtras(d); extras.push(d); console.log("extras ", f, "ok"); }
     else { P.validate(d); if (!base) base = d; console.log("pack   ", f, "ok"); }
