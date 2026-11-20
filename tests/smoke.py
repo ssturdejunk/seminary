@@ -58,6 +58,11 @@ with sync_playwright() as p:
         g = ctx.new_page(); g.goto(BASE + "/host.html?net=local&extras=none"); g.wait_for_selector("#cNext")
         g.click("#cNext"); g.wait_for_timeout(150); g.click("#cNext"); g.wait_for_function("RN_HOST.state().phase === 'intro'", timeout=5000)
         r = g.evaluate(GIVE); probs += r["bad"] + ["too many drills in " + t for t in r["heavy"]]; g.close()
+    g = ctx.new_page(); g.goto(BASE + "/host.html?net=local&extras=none"); g.wait_for_selector("#cNext")
+    g.click("#cNext"); g.wait_for_timeout(150); g.click("#cNext"); g.wait_for_function("RN_HOST.state().phase === 'intro'", timeout=5000)
+    w = g.evaluate("() => { const w = RN_HOST.state().wagerQ; return w && { src: w.src, kind: w.kind, n: (w.choices || w.items || []).length }; }"); g.close()
+    check(bool(w) and w["src"] == "Final Challenge" and ((w["kind"] == "choice" and w["n"] == 6) or (w["kind"] == "order" and w["n"] >= 5)),
+          f"real pack: the wager is a Final Challenge with 6 close choices or a word-by-word order ({w})")
     check(not probs, "4 game builds from the real pack: no give-aways, drills at most half of Quick Quiz" + (": " + "; ".join(probs[:3]) if probs else ""))
     # offline edition: build it, load it from disk, make sure it starts with no errors
     import subprocess, tempfile

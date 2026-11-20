@@ -142,7 +142,8 @@
   }
   function contentWords(text) {
     // w keeps a capital only for a proper noun (capitalized after the first word); o is the word as written.
-    return dmWords(text).map((w, i) => ({ o: bare(w), w: i > 0 && /^[A-Z]/.test(bare(w)) ? bare(w) : bare(w).toLowerCase(), i }))
+    const PROPER = /^(God|Lord|Jesus|Christ|Zion|Israel|Elijah|Abraham|Moses)$/;
+    return dmWords(text).map((w, i) => ({ o: bare(w), w: (i > 0 && /^[A-Z]/.test(bare(w))) || PROPER.test(bare(w)) ? bare(w) : bare(w).toLowerCase(), i }))
       .filter((x) => x.w.length >= 3 && !DM_STOP.has(x.w.toLowerCase()));
   }
   P.expandMastery = function (d) {
@@ -203,6 +204,33 @@
       const add = M.map((m) => tag({ story: m.ref + ": " + (m.quoted || m.phrase), ref: m.ref }, m, "picture"));
       dr.stories = dr.stories.concat(add); d._mastery.draw = add.length;
     }
+
+    // Final Challenge: hard wager questions (not part of any round). Each is about one passage:
+    //   letters: every other first letter hidden; pick from 6 neighboring passages
+    //   blanks:  three key words missing; pick from 6 close combinations
+    //   words:   every word of the phrase (up to 8) to put in exact order
+    const near = (i, n) => { // n other quoted passages closest in list order (often the same book)
+      const out = []; for (let k = 1; out.length < n && k < Q.length; k++) { [i - k, i + k].forEach((j) => { if (j >= 0 && j < Q.length && out.length < n) out.push(Q[j]); }); }
+      return out;
+    };
+    d._challenges = [];
+    Q.forEach((m, i) => {
+      const words = dmWords(m.quoted), plain = words.filter((w) => w !== "…");
+      const fl = words.map((w) => (w === "…" ? "…" : (bare(w)[0] || "") + (/[,.;:?!]$/.test(w) ? w.slice(-1) : ""))).join(" ");
+      const hard = fl.split(" ").map((x, k) => (x === "…" || k % 2 === 0 ? x : "_")).join(" ");
+      const refs = [m.ref].concat(near(i, 5).map((x) => x.ref));
+      if (refs.length === 6 && plain.length >= 7) d._challenges.push({ kind: "choice", challenge: "letters", ref: m.ref, q: "Final challenge: which passage has these first letters? “" + hard + "”", choices: refs, answer: 0, note: m.ref + ": “" + m.quoted + "”" });
+      const cw = contentWords(m.quoted).sort((a, b) => b.w.length - a.w.length || a.i - b.i).slice(0, 3);
+      if (cw.length === 3) {
+        const set3 = new Set(cw.map((x) => x.i)), pick = (xs) => xs.slice().sort((a, b) => a.i - b.i).map((x) => x.w).join(" … ");
+        const blank = dmJoin(words.map((w, k) => (set3.has(k) ? w.replace(bare(w), "____") : w)));
+        const right = pick(cw), wrong = [...new Set(near(i, 8).map((x) => contentWords(x.quoted).sort((a, b) => b.w.length - a.w.length || a.i - b.i).slice(0, 3)).filter((x) => x.length === 3).map(pick))].filter((x) => x !== right).slice(0, 5);
+        if (wrong.length === 5) d._challenges.push({ kind: "choice", challenge: "blanks", ref: m.ref, q: "Final challenge: “" + blank + "” Which words are missing, in order?", choices: [right].concat(wrong), answer: 0, note: m.ref + ": “" + m.quoted + "”" });
+      }
+      const ws = plain.map((w) => w.replace(/^[“"(]+|[”")]+$/g, ""));
+      if (ws.length >= 5 && ws.length <= 8 && new Set(ws.map((w) => bare(w).toLowerCase())).size === ws.length)
+        d._challenges.push({ kind: "order", challenge: "words", ref: m.ref, prompt: "Final challenge: put every word of " + m.ref + " in order.", items: ws, note: "“" + m.quoted + "”" });
+    });
     return d;
   };
 
