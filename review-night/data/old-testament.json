@@ -450,6 +450,72 @@
      ],
      "answer": 0,
      "note": "Jeremiah 16:16. Jeremiah 16:14–16"
+    },
+    {
+     "q": "In Isaiah 49:16, the Lord says He has graven us upon:",
+     "choices": [
+      "The palms of His hands",
+      "Tablets of stone",
+      "The walls of the temple",
+      "The gates of Zion"
+     ],
+     "answer": 0,
+     "note": "Isaiah 49:16. Isaiah 49:16"
+    },
+    {
+     "q": "In Isaiah 54:2, Isaiah compares latter-day Zion to a tent held up by:",
+     "choices": [
+      "Stakes",
+      "Pillars",
+      "Ropes of gold",
+      "Watchtowers"
+     ],
+     "answer": 0,
+     "note": "Isaiah 54:2. Today the Church is organized into stakes. Isaiah 54:2"
+    },
+    {
+     "q": "Which title of Jesus Christ is found in Isaiah 9:6?",
+     "choices": [
+      "Prince of Peace",
+      "Good Shepherd",
+      "Lamb of God",
+      "Bread of Life"
+     ],
+     "answer": 0,
+     "note": "Isaiah 9:6. Isaiah 9:6"
+    },
+    {
+     "q": "Isaiah 60–66 helps us look forward to:",
+     "choices": [
+      "The Second Coming and the Millennium",
+      "The Babylonian captivity",
+      "The building of Solomon's temple",
+      "The flood"
+     ],
+     "answer": 0,
+     "note": "Isaiah 60–66. Isaiah 60"
+    },
+    {
+     "q": "In Ezekiel 47, water flowing from the temple brings:",
+     "choices": [
+      "Life and healing",
+      "A flood of judgment",
+      "Gold and riches",
+      "A wall of protection"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 47. Ezekiel 47"
+    },
+    {
+     "q": "What did Daniel keep doing even though the king's law forbade it?",
+     "choices": [
+      "Praying to God",
+      "Eating the king's food",
+      "Teaching in the temple",
+      "Writing scripture"
+     ],
+     "answer": 0,
+     "note": "Daniel 6. Daniel 6"
     }
    ]
   },
@@ -618,6 +684,51 @@
      "s": "Jeremiah prophesied the gathering of Israel in the latter days.",
      "a": true,
      "note": "Jeremiah 16. Jeremiah 16"
+    },
+    {
+     "s": "Beginning in Isaiah 40, Isaiah wrote to comfort Jews who would later be captive in Babylon.",
+     "a": true,
+     "note": "Isaiah 40–43. Isaiah 40"
+    },
+    {
+     "s": "Isaiah 54 teaches that the Lord's anger with Israel would last forever.",
+     "a": false,
+     "note": "Isaiah 54:9 compares it to the flood: it ended, and the Lord's anger would not be forever. Isaiah 54:9"
+    },
+    {
+     "s": "In Isaiah 54:10, the Lord says His kindness will last longer than the mountains and hills.",
+     "a": true,
+     "note": "Isaiah 54:10. Isaiah 54:10"
+    },
+    {
+     "s": "In Jeremiah 18, once the clay is marred, the potter throws it away.",
+     "a": false,
+     "note": "The potter reworks the clay into a new vessel: the Lord patiently helps us change (Jeremiah 18:1–6). Jeremiah 18:1–6"
+    },
+    {
+     "s": "Isaiah 9:2 describes Jesus Christ as a great light for people who walk in darkness.",
+     "a": true,
+     "note": "Isaiah 9:2. Isaiah 9:2"
+    },
+    {
+     "s": "Job's story teaches the hope that comes through the Resurrection.",
+     "a": true,
+     "note": "Job 14; 19. Job 19"
+    },
+    {
+     "s": "Isaiah 44–47 teaches us to put Heavenly Father and Jesus Christ before anyone or anything else.",
+     "a": true,
+     "note": "Isaiah 44–47. Isaiah 44"
+    },
+    {
+     "s": "Isaiah 61 teaches that the Savior can only heal physical sickness.",
+     "a": false,
+     "note": "Isaiah 61 teaches that the Savior can heal, free, and comfort us in every way. Isaiah 61"
+    },
+    {
+     "s": "Jeremiah 36 shows how the scriptures can turn us to Jesus Christ for forgiveness.",
+     "a": true,
+     "note": "Jeremiah 36. Jeremiah 36"
     }
    ]
   },
@@ -760,6 +871,28 @@
       "Naaman is healed of leprosy"
      ],
      "note": "1 Kings 6; 1 Kings 18; 2 Kings 2; 2 Kings 5. 1 Kings 18"
+    },
+    {
+     "prompt": "Put the first five of the Ten Commandments in order.",
+     "items": [
+      "No other gods before me",
+      "No graven images",
+      "Do not take the Lord's name in vain",
+      "Remember the Sabbath day",
+      "Honor your father and mother"
+     ],
+     "note": "Exodus 20:3–12. Exodus 20:3–12"
+    },
+    {
+     "prompt": "Put the last five of the Ten Commandments in order.",
+     "items": [
+      "Do not kill",
+      "Do not commit adultery",
+      "Do not steal",
+      "Do not bear false witness",
+      "Do not covet"
+     ],
+     "note": "Exodus 20:13–17. Exodus 20:13–17"
     }
    ]
   },
@@ -1120,6 +1253,19 @@
       "asked the king for help",
       "wrote a letter to Jeremiah"
      ]
+    },
+    {
+     "prompt": "Through Isaiah, God comforted His covenant people: “Fear thou not; for ____”",
+     "answer": "I am with thee",
+     "alt": [
+      "I am with you"
+     ],
+     "ref": "Isaiah 41:10",
+     "house": [
+      "thy trials shall soon pass",
+      "I will fight thy battles",
+      "thou art my chosen one"
+     ]
     }
    ]
   },
@@ -1253,6 +1399,18 @@
     {
      "story": "Solomon's temple being built",
      "ref": "1 Kings 6"
+    },
+    {
+     "story": "A potter reshaping clay on a wheel",
+     "ref": "Jeremiah 18"
+    },
+    {
+     "story": "A tent with its cords lengthened and stakes strengthened",
+     "ref": "Isaiah 54"
+    },
+    {
+     "story": "Daniel in the lions' den",
+     "ref": "Daniel 6"
     }
    ]
   },
@@ -1401,6 +1559,56 @@
      "prompt": "You feel prompted to share the gospel but aren't sure whom to invite or how.",
      "ref": "Jeremiah 16:14–16",
      "note": "Assess Your Learning 9: participating in the gathering of Israel."
+    },
+    {
+     "prompt": "A friend is scared about starting at a new school.",
+     "ref": "Isaiah 41:10",
+     "note": "Lesson 119: God comforts His covenant people."
+    },
+    {
+     "prompt": "A friend's grandparent just died, and your friend wonders whether they'll see them again.",
+     "ref": "Job 19",
+     "note": "Lesson 98: the hope that comes through the Resurrection."
+    },
+    {
+     "prompt": "Your prayers feel repetitive, like you're saying the same words every night.",
+     "ref": "Psalm 61",
+     "note": "Lesson 105: communicating more meaningfully with Heavenly Father."
+    },
+    {
+     "prompt": "You want a plan to study the scriptures, but you never stick with it.",
+     "ref": "Psalm 119",
+     "note": "Lesson 107: making a plan to study the word of God."
+    },
+    {
+     "prompt": "You've been waiting a long time for a blessing you've prayed for.",
+     "ref": "Isaiah 25",
+     "note": "Lesson 117: waiting on the Lord."
+    },
+    {
+     "prompt": "You feel the Savior inviting you to change, but you keep putting it off.",
+     "ref": "Isaiah 52",
+     "note": "Lesson 123: hearkening to the Savior's invitations."
+    },
+    {
+     "prompt": "You feel too far gone for the Savior's mercy.",
+     "ref": "Jeremiah 3",
+     "note": "Lesson 131: turning to the Savior for mercy and healing."
+    },
+    {
+     "prompt": "You made a mistake and think the Savior must be disappointed in you.",
+     "ref": "Lamentations 3",
+     "note": "Lesson 136: the Savior's compassion, even when we sin."
+    },
+    {
+     "prompt": "A classmate always eats lunch alone.",
+     "ref": "Ezekiel 34",
+     "note": "Lesson 139: seeking out and caring for others, as the Savior does."
+    },
+    {
+     "prompt": "Your family is planning a temple trip, and your friend asks why you go.",
+     "ref": "Ezekiel 47",
+     "note": "Lesson 141: desiring to worship God in the temple."
     }
    ]
   },

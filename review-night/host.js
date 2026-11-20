@@ -192,9 +192,27 @@
     S.wagerDone = false;
     return deck;
   }
+  // Final Challenge (settings.finalChallenge, on by default when the pack has Doctrinal Mastery passages):
+  // a hard question generated from the passages (see RN_PACK.expandMastery). After an order round it is a
+  // word-by-word unscramble when one is available; otherwise letters or three blanks. It prefers a passage
+  // tonight's rounds did not show, so the drills can't give it away.
+  function finalChallenge(c, deck) {
+    const all = D._challenges || [];
+    if (set().finalChallenge === false || !all.length) return null;
+    const used = new Set(deck.flatMap((x) => (x.questions || x.puzzles || x.clues || x.stories || x.prompts || []).flatMap(refsOf)));
+    let pool = c.type === "order" ? all.filter((x) => x.challenge === "words") : all.filter((x) => x.challenge !== "words");
+    if (!pool.length) pool = all;
+    const fresh = pool.filter((x) => !refsOf(x).some((f) => used.has(f)));
+    const x = JSON.parse(JSON.stringify(pick(fresh.length ? fresh : pool, 1, (y) => y.q || y.prompt)[0]));
+    x.src = "Final Challenge";
+    if (x.kind === "order") return Object.assign(orderPuzzle(x), { src: x.src });
+    return Object.assign(reshuffle(x), { src: x.src });
+  }
   // The final wager question: one more item from the last round when that round has right answers,
   // otherwise a question from the pack's finals bank, then a Quick Quiz or True or False item.
   function wagerFrom(c, deck) {
+    const ch = finalChallenge(c, deck);
+    if (ch) return ch;
     const w = c._wager, src = c.title;
     if (w && c.type === "trivia") return Object.assign({ kind: "choice", src }, w);
     if (w && c.type === "tf") return Object.assign({ kind: "choice", src }, w);
@@ -304,7 +322,7 @@
     return "";
   }
   function askText(q) {
-    if (q.dm === "first-letters") return "First letters. Which passage is it? " + choiceLine(q.choices);
+    if (q.dm === "first-letters" || q.challenge === "letters") return "First letters. Which passage is it? " + choiceLine(q.choices);
     return q.tf ? "True or false. " + q.q : q.q + " " + choiceLine(q.choices);
   }
   function answerText(q) { return q.tf ? "That's " + q.choices[q.answer].toLowerCase() + "." : "The answer is " + letter(q.answer) + ", " + q.choices[q.answer] + "."; }
@@ -1047,7 +1065,7 @@
         <div class="drawings" style="grid-template-columns:repeat(${Math.max(S.drawings.length, 3)},1fr)">${draws}</div>
         ${rev ? `<div class="count">${S.res.correct} of ${S.res.guessers} guessed right${S.res.favIdx.length ? ". The star marks the class favorite." : "."}</div>` : `<div class="storylist">${list}</div>${answeredLine()}`}`;
     } else if (ph === "xw") {
-      const w = S.wagerQ, kind = w.kind === "order" ? "Put it in order" : w.tf ? "True or false" : "Multiple choice";
+      const w = S.wagerQ, kind = { letters: "Which passage? Every other first letter is hidden, and the six choices are close", blanks: "Three missing words, with six close choices", words: "Put every word of a passage in order" }[w.challenge] || (w.kind === "order" ? "Put it in order" : w.tf ? "True or false" : "Multiple choice");
       h = `<div class="rise muted" style="font-size:1.2em">Final wager</div><div class="big rise" style="color:var(--saffron);font-size:4.4em">${esc(w.src)}</div><p class="rise muted" style="font-size:1.15em">One last question: ${kind}${w.kind === "order" ? ", and only a perfect order wins" : ""}.</p><p class="rise" style="font-size:1.3em">Place your wager on your phone. You can bet up to your score, or up to ${pts().finalMaxWagerFloor || 500} if your score is lower. Right: win it. Wrong: lose it.</p>${answeredLine()}`;
     } else if (ph === "scores") {
       h = `<div class="big rise" style="margin-bottom:.4em">Standings</div><div class="leader rise">${ranked().slice(0, 5).map((p, i) => `<div class="row"><span class="rank">${i + 1}</span>${dot(p.pid)}<span class="nm">${esc(p.name)}</span><span class="pts">${p.score}</span></div>`).join("")}</div><div class="count">Everyone else can see their rank on their phone.</div>`;
