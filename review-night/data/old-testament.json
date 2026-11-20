@@ -36,8 +36,7 @@
   {
    "type": "trivia",
    "title": "Quick Quiz",
-   "mult": 1,
-   "count": 15,
+   "count": 10,
    "intro": "Questions on what we've studied this year.",
    "rules": [
     "A question and choices appear on the screen. Pick one on your phone.",
@@ -45,50 +44,6 @@
     "A correct answer scores. A faster correct answer scores a little more."
    ],
    "questions": [
-    {
-     "q": "Which scripture says “Trust in the Lord with all thine heart”?",
-     "choices": [
-      "Proverbs 3:5–6",
-      "Psalm 24:3–4",
-      "Joshua 24:15",
-      "Isaiah 5:20"
-     ],
-     "answer": 0,
-     "note": "Proverbs 3:5–6. “…and he shall direct thy paths.”"
-    },
-    {
-     "q": "Which scripture says “Woe unto them that call evil good, and good evil”?",
-     "choices": [
-      "Isaiah 5:20",
-      "Isaiah 1:18",
-      "Genesis 39:9",
-      "Daniel 2:44–45"
-     ],
-     "answer": 0,
-     "note": "Isaiah 5:20"
-    },
-    {
-     "q": "Which scripture says “Though your sins be as scarlet, they shall be as white as snow”?",
-     "choices": [
-      "Isaiah 1:18",
-      "Isaiah 53:3–5",
-      "Malachi 3:8–10",
-      "Psalm 24:3–4"
-     ],
-     "answer": 0,
-     "note": "Isaiah 1:18"
-    },
-    {
-     "q": "Which scripture says “Choose you this day whom ye will serve”?",
-     "choices": [
-      "Joshua 24:15",
-      "Moses 1:39",
-      "Exodus 20:3–17",
-      "Amos 3:7"
-     ],
-     "answer": 0,
-     "note": "Joshua 24:15"
-    },
     {
      "q": "Which scripture asks “Who shall stand in his holy place?”",
      "choices": [
@@ -99,204 +54,6 @@
      ],
      "answer": 0,
      "note": "Psalm 24:3–4. “He that hath clean hands, and a pure heart.”"
-    },
-    {
-     "q": "Which scripture says “How then can I do this great wickedness, and sin against God?”",
-     "choices": [
-      "Genesis 39:9",
-      "Genesis 2:24",
-      "Isaiah 5:20",
-      "Moses 7:18"
-     ],
-     "answer": 0,
-     "note": "Genesis 39:9. Joseph's answer to Potiphar's wife."
-    },
-    {
-     "q": "Which scripture says “a marvellous work and a wonder”?",
-     "choices": [
-      "Isaiah 29:13–14",
-      "Daniel 2:44–45",
-      "Ezekiel 37:15–17",
-      "Malachi 4:5–6"
-     ],
-     "answer": 0,
-     "note": "Isaiah 29:13–14. The phrase is in verse 14."
-    },
-    {
-     "q": "Which scripture says “Surely he hath borne our griefs, and carried our sorrows”?",
-     "choices": [
-      "Isaiah 53:3–5",
-      "Isaiah 58:6–7",
-      "Isaiah 1:18",
-      "Psalm 24:3–4"
-     ],
-     "answer": 0,
-     "note": "Isaiah 53:3–5"
-    },
-    {
-     "q": "Which scripture says “Bring ye all the tithes into the storehouse”?",
-     "choices": [
-      "Malachi 3:8–10",
-      "Isaiah 58:6–7",
-      "Joshua 24:15",
-      "Amos 3:7"
-     ],
-     "answer": 0,
-     "note": "Malachi 3:8–10"
-    },
-    {
-     "q": "Which scripture says “call the sabbath a delight”?",
-     "choices": [
-      "Isaiah 58:13–14",
-      "Genesis 2:24",
-      "Isaiah 58:6–7",
-      "Malachi 3:8–10"
-     ],
-     "answer": 0,
-     "note": "Isaiah 58:13–14"
-    },
-    {
-     "q": "Which scripture says “Before I formed thee in the belly I knew thee”?",
-     "choices": [
-      "Jeremiah 1:4–5",
-      "Abraham 3:22–23",
-      "Ezekiel 3:16–17",
-      "Amos 3:7"
-     ],
-     "answer": 0,
-     "note": "Jeremiah 1:4–5. “…I ordained thee a prophet unto the nations.”"
-    },
-    {
-     "q": "Which scripture says “I have made thee a watchman unto the house of Israel”?",
-     "choices": [
-      "Ezekiel 3:16–17",
-      "Jeremiah 1:4–5",
-      "Daniel 2:44–45",
-      "Isaiah 29:13–14"
-     ],
-     "answer": 0,
-     "note": "Ezekiel 3:16–17"
-    },
-    {
-     "q": "Which scripture says “take thee one stick… and they shall become one in thine hand”?",
-     "choices": [
-      "Ezekiel 37:15–17",
-      "Ezekiel 3:16–17",
-      "Genesis 2:24",
-      "Daniel 2:44–45"
-     ],
-     "answer": 0,
-     "note": "Ezekiel 37:15–17. The Bible and the Book of Mormon."
-    },
-    {
-     "q": "Which scripture says the God of heaven will “set up a kingdom, which shall never be destroyed”?",
-     "choices": [
-      "Daniel 2:44–45",
-      "Isaiah 29:13–14",
-      "Malachi 4:5–6",
-      "Moses 7:18"
-     ],
-     "answer": 0,
-     "note": "Daniel 2:44–45"
-    },
-    {
-     "q": "Which scripture says the Lord “revealeth his secret unto his servants the prophets”?",
-     "choices": [
-      "Amos 3:7",
-      "Ezekiel 3:16–17",
-      "Jeremiah 1:4–5",
-      "Isaiah 29:13–14"
-     ],
-     "answer": 0,
-     "note": "Amos 3:7"
-    },
-    {
-     "q": "Which scripture says Elijah will “turn the heart of the fathers to the children”?",
-     "choices": [
-      "Malachi 4:5–6",
-      "Genesis 2:24",
-      "Moses 7:18",
-      "Amos 3:7"
-     ],
-     "answer": 0,
-     "note": "Malachi 4:5–6"
-    },
-    {
-     "q": "Which scripture says “Thou shalt have no other gods before me”?",
-     "choices": [
-      "Exodus 20:3–17",
-      "Joshua 24:15",
-      "Genesis 1:26–27",
-      "Isaiah 58:13–14"
-     ],
-     "answer": 0,
-     "note": "Exodus 20:3–17. The Ten Commandments."
-    },
-    {
-     "q": "Which scripture says “God created man in his own image”?",
-     "choices": [
-      "Genesis 1:26–27",
-      "Moses 1:39",
-      "Genesis 2:24",
-      "Abraham 3:22–23"
-     ],
-     "answer": 0,
-     "note": "Genesis 1:26–27"
-    },
-    {
-     "q": "Which scripture says “a man… shall cleave unto his wife: and they shall be one”?",
-     "choices": [
-      "Genesis 2:24",
-      "Moses 7:18",
-      "Genesis 1:26–27",
-      "Ezekiel 37:15–17"
-     ],
-     "answer": 0,
-     "note": "Genesis 2:24"
-    },
-    {
-     "q": "Which scripture says “This is my work and my glory—to bring to pass the immortality and eternal life of man”?",
-     "choices": [
-      "Moses 1:39",
-      "Abraham 3:22–23",
-      "Genesis 1:26–27",
-      "Moses 7:18"
-     ],
-     "answer": 0,
-     "note": "Moses 1:39"
-    },
-    {
-     "q": "Which scripture says the people “were of one heart and one mind”?",
-     "choices": [
-      "Moses 7:18",
-      "Moses 1:39",
-      "Genesis 2:24",
-      "Abraham 2:9–11"
-     ],
-     "answer": 0,
-     "note": "Moses 7:18. The people of Zion, with no poor among them."
-    },
-    {
-     "q": "Which scripture says Abraham's seed would “bear this ministry and Priesthood unto all nations”?",
-     "choices": [
-      "Abraham 2:9–11",
-      "Moses 7:18",
-      "Daniel 2:44–45",
-      "Amos 3:7"
-     ],
-     "answer": 0,
-     "note": "Abraham 2:9–11. The phrase is in verse 9."
-    },
-    {
-     "q": "Which scripture says we “were organized before the world was”?",
-     "choices": [
-      "Abraham 3:22–23",
-      "Moses 1:39",
-      "Jeremiah 1:4–5",
-      "Genesis 1:26–27"
-     ],
-     "answer": 0,
-     "note": "Abraham 3:22–23"
     },
     {
      "q": "Maya's friends want her to watch a movie with content she knows isn't right. Which scripture helps her most?",
@@ -384,7 +141,7 @@
       "Daniel 2:44–45"
      ],
      "answer": 0,
-     "note": "Isaiah 53:3–5"
+     "note": "Isaiah 53:3–5 “Surely [Jesus Christ] hath borne our griefs, and carried our sorrows.”"
     },
     {
      "q": "Sophie wonders whether God knew her before she was born. Which scripture helps most?",
@@ -418,270 +175,6 @@
      ],
      "answer": 0,
      "note": "Ezekiel 37:15–17"
-    },
-    {
-     "q": "Amos 3:7 says the Lord reveals His secrets to:",
-     "choices": [
-      "His servants the prophets",
-      "Every king",
-      "The priests only",
-      "The scribes"
-     ],
-     "answer": 0,
-     "note": "Amos 3:7"
-    },
-    {
-     "q": "Isaiah 58:6–7 describes the blessings of:",
-     "choices": [
-      "A proper fast",
-      "Paying tithing",
-      "Keeping the Sabbath",
-      "Temple marriage"
-     ],
-     "answer": 0,
-     "note": "Isaiah 58:6–7"
-    },
-    {
-     "q": "Malachi 3:8–10 describes the blessings of:",
-     "choices": [
-      "Paying tithing",
-      "A proper fast",
-      "Keeping the Sabbath",
-      "Honoring parents"
-     ],
-     "answer": 0,
-     "note": "Malachi 3:8–10"
-    },
-    {
-     "q": "Isaiah 58:13–14 teaches how to treat:",
-     "choices": [
-      "The Sabbath day",
-      "A fast day",
-      "The tenth part of your income",
-      "Your neighbors"
-     ],
-     "answer": 0,
-     "note": "Isaiah 58:13–14"
-    },
-    {
-     "q": "In Ezekiel 37:15–17, the two sticks that become one represent:",
-     "choices": [
-      "The Bible and the Book of Mormon",
-      "Judah and Egypt",
-      "The Church and the temple",
-      "Moses and Aaron"
-     ],
-     "answer": 0,
-     "note": "Ezekiel 37:15–17"
-    },
-    {
-     "q": "Daniel 2:44–45 foretold a kingdom that would:",
-     "choices": [
-      "Never be destroyed",
-      "Fall in the latter days",
-      "Divide into two nations",
-      "Be given to the kings of the earth"
-     ],
-     "answer": 0,
-     "note": "Daniel 2:44–45"
-    },
-    {
-     "q": "Abraham 2:9–11 promised that Abraham's seed would bear the ministry and Priesthood to:",
-     "choices": [
-      "All nations",
-      "Only the tribe of Levi",
-      "Only Israel",
-      "Only Egypt"
-     ],
-     "answer": 0,
-     "note": "Abraham 2:9–11"
-    },
-    {
-     "q": "Fill in the blank: “Lean not unto thine own ____.”",
-     "choices": [
-      "understanding",
-      "wisdom",
-      "strength",
-      "judgment"
-     ],
-     "answer": 0,
-     "note": "Proverbs 3:5–6"
-    },
-    {
-     "q": "Fill in the blank: “He that hath clean hands, and a pure ____.”",
-     "choices": [
-      "heart",
-      "mind",
-      "soul",
-      "spirit"
-     ],
-     "answer": 0,
-     "note": "Psalm 24:3–4"
-    },
-    {
-     "q": "Fill in the blank: “Thou shalt not take the name of the Lord thy God in ____.”",
-     "choices": [
-      "vain",
-      "jest",
-      "anger",
-      "secret"
-     ],
-     "answer": 0,
-     "note": "Exodus 20:3–17 (verse 7)"
-    },
-    {
-     "q": "Fill in the blank: “Remember the sabbath day, to keep it ____.”",
-     "choices": [
-      "holy",
-      "sacred",
-      "quiet",
-      "blessed"
-     ],
-     "answer": 0,
-     "note": "Exodus 20:3–17 (verse 8)"
-    },
-    {
-     "q": "Fill in the blank: “God created man in his own ____.”",
-     "choices": [
-      "image",
-      "glory",
-      "name",
-      "strength"
-     ],
-     "answer": 0,
-     "note": "Genesis 1:26–27"
-    },
-    {
-     "q": "Fill in the blank: “Surely he hath borne our ____, and carried our sorrows.”",
-     "choices": [
-      "griefs",
-      "burdens",
-      "sins",
-      "pains"
-     ],
-     "answer": 0,
-     "note": "Isaiah 53:3–5"
-    },
-    {
-     "q": "Fill in the blank: “Though your sins be as ____, they shall be as white as snow.”",
-     "choices": [
-      "scarlet",
-      "crimson",
-      "purple",
-      "black"
-     ],
-     "answer": 0,
-     "note": "Isaiah 1:18"
-    },
-    {
-     "q": "Fill in the blank: “Son of man, I have made thee a ____ unto the house of Israel.”",
-     "choices": [
-      "watchman",
-      "shepherd",
-      "teacher",
-      "judge"
-     ],
-     "answer": 0,
-     "note": "Ezekiel 3:16–17"
-    },
-    {
-     "q": "Fill in the blank: “Bring ye all the ____ into the storehouse.”",
-     "choices": [
-      "tithes",
-      "firstfruits",
-      "sacrifices",
-      "talents"
-     ],
-     "answer": 0,
-     "note": "Malachi 3:8–10"
-    },
-    {
-     "q": "Fill in the blank: “Is not this the fast that I have chosen? to loose the bands of ____.”",
-     "choices": [
-      "wickedness",
-      "sorrow",
-      "pride",
-      "poverty"
-     ],
-     "answer": 0,
-     "note": "Isaiah 58:6–7"
-    },
-    {
-     "q": "Fill in the blank: “Is it not to deal thy bread to the ____?”",
-     "choices": [
-      "hungry",
-      "weary",
-      "stranger",
-      "widow"
-     ],
-     "answer": 0,
-     "note": "Isaiah 58:6–7"
-    },
-    {
-     "q": "Fill in the blank: “Come now, and let us ____ together, saith the Lord.”",
-     "choices": [
-      "reason",
-      "pray",
-      "labor",
-      "rejoice"
-     ],
-     "answer": 0,
-     "note": "Isaiah 1:18"
-    },
-    {
-     "q": "Fill in the blank: “In all thy ways acknowledge him, and he shall direct thy ____.”",
-     "choices": [
-      "paths",
-      "steps",
-      "hearts",
-      "works"
-     ],
-     "answer": 0,
-     "note": "Proverbs 3:5–6"
-    },
-    {
-     "q": "Fill in the blank: “Take thee one ____, and write upon it, For Judah.”",
-     "choices": [
-      "stick",
-      "scroll",
-      "stone",
-      "branch"
-     ],
-     "answer": 0,
-     "note": "Ezekiel 37:15–17"
-    },
-    {
-     "q": "Fill in the blank: “The ____ was cut out of the mountain without hands.”",
-     "choices": [
-      "stone",
-      "wall",
-      "tower",
-      "sword"
-     ],
-     "answer": 0,
-     "note": "Daniel 2:44–45"
-    },
-    {
-     "q": "Fill in the blank: “Before thou camest forth out of the womb I sanctified thee, and I ordained thee a prophet unto the ____.”",
-     "choices": [
-      "nations",
-      "people",
-      "tribes",
-      "cities"
-     ],
-     "answer": 0,
-     "note": "Jeremiah 1:4–5"
-    },
-    {
-     "q": "As spirits we “were organized ____ the world was.” Which word completes it?",
-     "choices": [
-      "before",
-      "after",
-      "while",
-      "until"
-     ],
-     "answer": 0,
-     "note": "Abraham 3:22–23"
     },
     {
      "q": "When Moroni first visited Joseph Smith in 1823, he began by quoting from this prophet:",
@@ -759,13 +252,504 @@
      ],
      "answer": 0,
      "note": "Also: rely on what you already know, and trust in the Lord."
+    },
+    {
+     "q": "Which passage did the lesson on sadness pair with Alma 7:11–12 to teach the Savior's power to help us?",
+     "choices": [
+      "Isaiah 53:3–5",
+      "Isaiah 58:13–14",
+      "Genesis 39:9",
+      "Amos 3:7"
+     ],
+     "answer": 0,
+     "note": "Isaiah 53:3–5 Isaiah 53:3–5"
+    },
+    {
+     "q": "President D. Todd Christofferson taught that never in history has a people been blessed with such a quantity of:",
+     "choices": [
+      "Holy writ",
+      "Prophets",
+      "Temples",
+      "Missionaries"
+     ],
+     "answer": 0,
+     "note": "“The Blessing of Scripture,” May 2010."
+    },
+    {
+     "q": "In the lesson on acting in faith, which Old Testament woman went before the king to help her people?",
+     "choices": [
+      "Esther",
+      "Ruth",
+      "Deborah",
+      "Hannah"
+     ],
+     "answer": 0,
+     "note": "Esther 4:15–17; 5:1–3 Esther 4:15–17"
+    },
+    {
+     "q": "In the lesson on acting in faith, who prepared to battle the Midianites?",
+     "choices": [
+      "Gideon",
+      "Joshua",
+      "Samson",
+      "David"
+     ],
+     "answer": 0,
+     "note": "Judges 7 Judges 7:2–8"
+    },
+    {
+     "q": "Who stopped David from taking revenge on Nabal?",
+     "choices": [
+      "Abigail",
+      "Bathsheba",
+      "Hannah",
+      "Ruth"
+     ],
+     "answer": 0,
+     "note": "1 Samuel 25. 1 Samuel 25"
+    },
+    {
+     "q": "What did Solomon humbly ask the Lord for?",
+     "choices": [
+      "Wisdom",
+      "Riches",
+      "A long life",
+      "Victory in battle"
+     ],
+     "answer": 0,
+     "note": "1 Kings 3. 1 Kings 3"
+    },
+    {
+     "q": "What healed the Israelites who were bitten by serpents?",
+     "choices": [
+      "Looking at a brass serpent on a pole",
+      "Drinking water from a rock",
+      "Washing in the Jordan River",
+      "Eating manna"
+     ],
+     "answer": 0,
+     "note": "Numbers 21. The serpent was a symbol of the Savior. Numbers 21"
+    },
+    {
+     "q": "Who helped young Samuel recognize the Lord's voice?",
+     "choices": [
+      "Eli",
+      "Saul",
+      "Nathan",
+      "Gideon"
+     ],
+     "answer": 0,
+     "note": "1 Samuel 3. 1 Samuel 3"
+    },
+    {
+     "q": "The Feast of the Passover helped Israel remember:",
+     "choices": [
+      "Their deliverance from Egypt",
+      "The Creation",
+      "The flood",
+      "Entering the promised land"
+     ],
+     "answer": 0,
+     "note": "Exodus 12–13. Exodus 12"
+    },
+    {
+     "q": "In Isaiah 11, the Lord promised to set up an ensign for the nations to:",
+     "choices": [
+      "Gather scattered Israel",
+      "Warn the wicked",
+      "Build a new temple",
+      "Choose a new king"
+     ],
+     "answer": 0,
+     "note": "Isaiah 11–12. Isaiah 11"
+    },
+    {
+     "q": "Job's experience teaches us to view our trials with:",
+     "choices": [
+      "An eternal perspective",
+      "Anger at God",
+      "Fear of the future",
+      "Indifference"
+     ],
+     "answer": 0,
+     "note": "Job 38–42. Job 38"
+    },
+    {
+     "q": "Daniel 1 teaches about obeying:",
+     "choices": [
+      "The Word of Wisdom",
+      "The law of tithing",
+      "The Sabbath day",
+      "The law of the fast"
+     ],
+     "answer": 0,
+     "note": "Daniel 1. Daniel 1"
+    },
+    {
+     "q": "Jeremiah 31 teaches about having the gospel written in our:",
+     "choices": [
+      "Hearts",
+      "Homes",
+      "Journals",
+      "Temples"
+     ],
+     "answer": 0,
+     "note": "Jeremiah 31. Jeremiah 31"
+    },
+    {
+     "q": "Daniel 3 teaches us to trust Jesus Christ:",
+     "choices": [
+      "Whatever the outcome",
+      "Only when things go well",
+      "Only in the temple",
+      "After we see a miracle"
+     ],
+     "answer": 0,
+     "note": "Daniel 3. Daniel 3"
+    },
+    {
+     "q": "Nehemiah teaches us to stay focused on:",
+     "choices": [
+      "The work Heavenly Father has given us",
+      "Rebuilding our homes",
+      "Winning arguments",
+      "Pleasing the king"
+     ],
+     "answer": 0,
+     "note": "Nehemiah. Nehemiah 4"
+    },
+    {
+     "q": "Psalm 136 helps us feel the Lord's love as we express:",
+     "choices": [
+      "Gratitude",
+      "Sorrow",
+      "Fear",
+      "Doubt"
+     ],
+     "answer": 0,
+     "note": "Psalm 136. Psalm 136"
+    },
+    {
+     "q": "Psalm 23 describes the Lord as a:",
+     "choices": [
+      "Shepherd",
+      "King",
+      "Watchman",
+      "Builder"
+     ],
+     "answer": 0,
+     "note": "Psalm 23. Psalm 23"
+    }
+   ]
+  },
+  {
+   "type": "tf",
+   "title": "True or False",
+   "count": 10,
+   "intro": "Fast true-or-false statements.",
+   "rules": [
+    "A statement appears on the screen. Tap True or False on your phone.",
+    "The clock is short, so trust your first instinct.",
+    "A correct answer scores. A faster correct answer scores a little more."
+   ],
+   "statements": [
+    {
+     "s": "President Russell M. Nelson taught that in coming days it will not be possible to survive spiritually without the constant influence of the Holy Ghost.",
+     "a": true,
+     "note": "“Revelation for the Church, Revelation for Our Lives,” May 2018."
+    },
+    {
+     "s": "Elder David P. Homer taught that the Spirit speaks to everyone in exactly the same way.",
+     "a": false,
+     "note": "He taught that the Spirit speaks to different people in different ways, and to the same person in different ways at different times (“Hearing His Voice,” May 2019)."
+    },
+    {
+     "s": "In 1 Kings 19, the Lord spoke to Elijah through a still, small voice rather than through the wind, the earthquake, or the fire.",
+     "a": true,
+     "note": "1 Kings 19:11–12. 1 Kings 19:11–12"
+    },
+    {
+     "s": "Having questions or concerns about Heavenly Father, Jesus Christ, or Their gospel is normal.",
+     "a": true,
+     "note": "From the Acting in Faith lesson."
+    },
+    {
+     "s": "President Jeffrey R. Holland counseled us to start a quest for faith by saying how much faith we do not have.",
+     "a": false,
+     "note": "He counseled the opposite: “be true to the faith you do have” (“Lord, I Believe,” May 2013)."
+    },
+    {
+     "s": "Elder Neil L. Andersen shared President Dallin H. Oaks's answer: “I don't know the answer to that question, but let me answer a question that I do know.”",
+     "a": true,
+     "note": "CES broadcast, June 2023."
+    },
+    {
+     "s": "Annotating scriptures includes marking, taking notes, and linking verses.",
+     "a": true,
+     "note": "The three skills practiced in the Annotating Scriptures lesson."
+    },
+    {
+     "s": "Elder David A. Bednar taught that writing down what we learn as we study the scriptures is a powerful invitation to the Holy Ghost.",
+     "a": true,
+     "note": "“Because We Have Them before Our Eyes,” New Era, Apr. 2006."
+    },
+    {
+     "s": "Preach My Gospel teaches that setting goals can help you make and keep covenants with God.",
+     "a": true,
+     "note": "Preach My Gospel (2023), 147."
+    },
+    {
+     "s": "Elder Ulisses Soares taught that the Lord's help with our righteous goals is limited.",
+     "a": false,
+     "note": "He taught that it is unlimited, and that the Lord supports us in any good and righteous endeavor."
+    },
+    {
+     "s": "Saying “At least it wasn't worse” is a good way to show empathy to someone who is sad.",
+     "a": false,
+     "note": "Statements that begin “At least …” do not communicate empathy."
+    },
+    {
+     "s": "Saying “You don't have to talk if you don't want to, but I'm here to listen if you do” communicates empathy.",
+     "a": true,
+     "note": "From the Coping with Sadness lesson."
+    },
+    {
+     "s": "President Russell M. Nelson taught that whatever questions or problems we have, the answer is always found in the life and teachings of Jesus Christ.",
+     "a": true,
+     "note": "“The Answer Is Always Jesus Christ,” May 2023."
+    },
+    {
+     "s": "Feelings of sadness and discouragement mean a person lacks faith.",
+     "a": false,
+     "note": "Challenging emotions are a normal part of mortal life; Jesus Christ can help us carry them."
+    },
+    {
+     "s": "The Lord fed Israel with manna in the wilderness.",
+     "a": true,
+     "note": "Exodus 16. Exodus 16"
+    },
+    {
+     "s": "Before he died, Joshua urged Israel to choose to serve the Lord.",
+     "a": true,
+     "note": "Joshua 23–24. Joshua 23"
+    },
+    {
+     "s": "Deborah and Gideon were among the deliverers the Lord raised up for Israel.",
+     "a": true,
+     "note": "Judges 2–4; 6–8. Judges 4"
+    },
+    {
+     "s": "Naaman was healed of leprosy.",
+     "a": true,
+     "note": "2 Kings 5. 2 Kings 5"
+    },
+    {
+     "s": "Micah taught us to do justly, love mercy, and walk humbly with God.",
+     "a": true,
+     "note": "Micah. Micah 6"
+    },
+    {
+     "s": "Ezekiel was called as a watchman for Israel during the Babylonian captivity.",
+     "a": true,
+     "note": "Ezekiel 1–3; 33. Ezekiel 3"
+    },
+    {
+     "s": "The tabernacle and the ordinance of sacrifice taught about Heavenly Father and Jesus Christ.",
+     "a": true,
+     "note": "Exodus 25; Leviticus. Leviticus 1"
+    },
+    {
+     "s": "In Moses 1, Moses learned that he was a child of God with a work to do.",
+     "a": true,
+     "note": "Moses 1:1–11. Moses 1"
+    },
+    {
+     "s": "Haggai taught the people to put God first.",
+     "a": true,
+     "note": "Haggai 1–2. Haggai 1"
+    },
+    {
+     "s": "Psalm 51 teaches that as we repent, the Savior can make us clean.",
+     "a": true,
+     "note": "Psalm 51. Psalm 51"
+    },
+    {
+     "s": "Isaiah 49 teaches that the Lord will not forget us.",
+     "a": true,
+     "note": "Isaiah 49. Isaiah 49"
+    },
+    {
+     "s": "Pharaoh put Joseph in charge of preparing Egypt for a war.",
+     "a": false,
+     "note": "He prepared Egypt for a famine (Genesis 41). Genesis 41"
+    },
+    {
+     "s": "Job lost his trust in the Lord because of his trials.",
+     "a": false,
+     "note": "Job kept trusting the Lord. Job 1"
+    },
+    {
+     "s": "The Fall was an accident that was never part of Heavenly Father's plan.",
+     "a": false,
+     "note": "The Fall was a necessary step in the plan, and Jesus Christ redeems us from its effects. Moses 4"
+    },
+    {
+     "s": "In the premortal life, Satan sought to protect our agency.",
+     "a": false,
+     "note": "Satan sought to destroy our agency. Moses 4"
+    },
+    {
+     "s": "Ecclesiastes teaches that the things of this world last forever.",
+     "a": false,
+     "note": "Ecclesiastes teaches that the things of this world are temporary. Ecclesiastes 1"
+    }
+   ]
+  },
+  {
+   "type": "order",
+   "title": "Put It in Order",
+   "count": 5,
+   "intro": "Put events, verses, or steps in the right order.",
+   "rules": [
+    "Your phone shows a mixed-up list.",
+    "Tap the items in order, first to last, then lock in.",
+    "You score for every item in the right place, plus a bonus for a perfect order."
+   ],
+   "puzzles": [
+    {
+     "prompt": "Put this series of events in order",
+     "items": [
+      "God Commands Hosea to Marry Gomer",
+      "Hosea and Gomer have 3 children",
+      "Gomer leaves Hosea for her past life",
+      "Gomer accrues debt and gives all of her gifts from Hosea to Baal",
+      "Hosea takes Gomer Back",
+      "This represents the Lord taking us back lovingly when we make mistakes"
+     ]
+    },
+    {
+     "prompt": "Bible books, set 1: put them in Bible order.",
+     "items": [
+      "Genesis",
+      "Exodus",
+      "Numbers",
+      "Deuteronomy",
+      "Joshua"
+     ]
+    },
+    {
+     "prompt": "Bible books, set 2: put them in Bible order.",
+     "items": [
+      "Judges",
+      "Ruth",
+      "1 Samuel",
+      "1 Kings",
+      "2 Kings"
+     ]
+    },
+    {
+     "prompt": "Bible books, set 3: put them in Bible order.",
+     "items": [
+      "Ezra",
+      "Nehemiah",
+      "Esther",
+      "Job",
+      "Psalms"
+     ]
+    },
+    {
+     "prompt": "Bible books, set 4: put them in Bible order.",
+     "items": [
+      "Proverbs",
+      "Ecclesiastes",
+      "Isaiah",
+      "Jeremiah",
+      "Lamentations"
+     ]
+    },
+    {
+     "prompt": "Bible books, set 5: put them in Bible order.",
+     "items": [
+      "Ezekiel",
+      "Daniel",
+      "Hosea",
+      "Joel",
+      "Amos"
+     ]
+    },
+    {
+     "prompt": "Bible books, set 6: put them in Bible order.",
+     "items": [
+      "Jonah",
+      "Micah",
+      "Habakkuk",
+      "Haggai",
+      "Zechariah",
+      "Malachi"
+     ]
+    },
+    {
+     "prompt": "Put the plan of salvation in order.",
+     "items": [
+      "Premortal life",
+      "The Creation",
+      "The Fall",
+      "The Atonement of Jesus Christ",
+      "The Resurrection",
+      "The Final Judgment"
+     ],
+     "note": "Lessons 2, 3, 7, 11, 12 and Ecclesiastes (Lesson 111)."
+    },
+    {
+     "prompt": "Put these events from Genesis in order.",
+     "items": [
+      "The Lord makes a covenant with Abraham",
+      "Abraham's faith is tested with his son",
+      "Isaac marries in the covenant",
+      "Jacob makes covenants with the Lord",
+      "Joseph's trials begin in Egypt"
+     ],
+     "note": "Genesis 12; Genesis 22; Genesis 24; Genesis 28; Genesis 37. Genesis 12"
+    },
+    {
+     "prompt": "Put Israel's journey in order.",
+     "items": [
+      "The Lord calls Moses",
+      "The first Passover",
+      "Israel crosses the Red Sea",
+      "The Lord sends manna",
+      "The Ten Commandments are given",
+      "Israel wanders in the wilderness"
+     ],
+     "note": "Exodus 3; Exodus 12; Exodus 14; Exodus 16; Exodus 20; Numbers 14. The Red Sea detail is from memory. Exodus 12"
+    },
+    {
+     "prompt": "Put these leaders of Israel in order.",
+     "items": [
+      "Joshua",
+      "Gideon",
+      "Samuel",
+      "Saul",
+      "David",
+      "Solomon"
+     ],
+     "note": "Joshua 1; Judges 6; 1 Samuel 3; 1 Samuel 9; 1 Samuel 16; 1 Kings 3."
+    },
+    {
+     "prompt": "Put these events from 1 and 2 Kings in order.",
+     "items": [
+      "Solomon builds the temple",
+      "Fire from heaven answers a prophet's prayer",
+      "Elisha succeeds Elijah",
+      "Naaman is healed of leprosy"
+     ],
+     "note": "1 Kings 6; 1 Kings 18; 2 Kings 2; 2 Kings 5. 1 Kings 18"
     }
    ]
   },
   {
    "type": "fib",
    "title": "Fake Out",
-   "mult": 2,
    "count": 8,
    "intro": "Write a believable fake ending, then find the real one.",
    "rules": [
@@ -1008,13 +992,124 @@
       "to honour the Lord thy God",
       "that thy days may be blessed"
      ]
+    },
+    {
+     "prompt": "Noah's family was saved from the flood because they obeyed God's commandment to ____",
+     "answer": "build an ark",
+     "alt": [
+      "build the ark"
+     ],
+     "ref": "Genesis 6",
+     "house": [
+      "gather the animals",
+      "leave the city",
+      "pray every morning"
+     ]
+    },
+    {
+     "prompt": "As a test of faith, the Lord commanded Abraham to ____",
+     "answer": "offer Isaac",
+     "alt": [
+      "sacrifice Isaac",
+      "offer his son Isaac",
+      "offer his son"
+     ],
+     "ref": "Genesis 22",
+     "house": [
+      "leave his homeland",
+      "build an altar on a mountain",
+      "teach his family the covenant"
+     ]
+    },
+    {
+     "prompt": "When the Lord chose a new king, He taught Samuel that the Lord looks on ____",
+     "answer": "the heart",
+     "alt": [
+      "our hearts",
+      "hearts",
+      "the hearts"
+     ],
+     "ref": "1 Samuel 16",
+     "house": [
+      "a person's deeds",
+      "the family line",
+      "the strength of a man"
+     ]
+    },
+    {
+     "prompt": "Hosea's marriage to Gomer symbolized the Lord's ____",
+     "answer": "unfailing covenant love",
+     "alt": [
+      "covenant love",
+      "unfailing love"
+     ],
+     "ref": "Hosea 1",
+     "house": [
+      "anger toward Israel",
+      "plan to scatter Israel",
+      "promise of a new king"
+     ]
+    },
+    {
+     "prompt": "Joel promised that the Spirit would be ____",
+     "answer": "poured out on all flesh",
+     "alt": [
+      "poured out upon all flesh",
+      "poured out on everyone"
+     ],
+     "ref": "Joel 2",
+     "house": [
+      "given only to prophets",
+      "sent in the last days to the temple",
+      "withdrawn from the earth"
+     ]
+    },
+    {
+     "prompt": "In his final counsel, Moses taught Israel to love God, remember Him, and ____",
+     "answer": "care for the poor",
+     "alt": [
+      "help the poor"
+     ],
+     "ref": "Deuteronomy 15",
+     "house": [
+      "build a temple",
+      "keep the Sabbath",
+      "obey the judges"
+     ]
+    },
+    {
+     "prompt": "The Lord taught Jonah why he should be ____",
+     "answer": "merciful to the people of Nineveh",
+     "alt": [
+      "merciful",
+      "merciful to Nineveh"
+     ],
+     "ref": "Jonah 4",
+     "house": [
+      "patient with the sailors",
+      "obedient to his parents",
+      "faithful in the storm"
+     ]
+    },
+    {
+     "prompt": "Habakkuk sought answers from the Lord and ____",
+     "answer": "maintained faith while waiting",
+     "alt": [
+      "kept his faith while waiting",
+      "kept faith"
+     ],
+     "ref": "Habakkuk 1",
+     "house": [
+      "went to the temple to pray",
+      "asked the king for help",
+      "wrote a letter to Jeremiah"
+     ]
     }
    ]
   },
   {
    "type": "draw",
    "title": "Sketch It",
-   "mult": 3,
    "count": 7,
    "intro": "Draw a scripture story and guess your classmates' drawings.",
    "rules": [
@@ -1082,20 +1177,205 @@
     {
      "story": "Climbing the hill of the Lord with clean hands",
      "ref": "Psalm 24:3–4"
+    },
+    {
+     "story": "Elijah in a cave hearing a still, small voice",
+     "ref": "1 Kings 19:11–12"
+    },
+    {
+     "story": "Receiving messages from the Holy Ghost, compared with messages on a smartphone",
+     "ref": "Lesson 162"
+    },
+    {
+     "story": "The Israelites crossing the Jordan River",
+     "ref": "Joshua 3:14–17"
+    },
+    {
+     "story": "Marking, noting, and linking verses in your scriptures",
+     "ref": "Lesson 168"
+    },
+    {
+     "story": "Carrying a heavy backpack on a long journey",
+     "ref": "Lesson 185"
+    },
+    {
+     "story": "Manna falling from heaven",
+     "ref": "Exodus 16"
+    },
+    {
+     "story": "Fire from heaven consuming an altar",
+     "ref": "1 Kings 18"
+    },
+    {
+     "story": "Chariots of fire protecting a prophet",
+     "ref": "2 Kings 6"
+    },
+    {
+     "story": "Jonah and the great fish",
+     "ref": "Jonah 1"
+    },
+    {
+     "story": "Joseph's coat of many colors",
+     "ref": "Genesis 37"
+    },
+    {
+     "story": "Young Samuel hearing his name called at night",
+     "ref": "1 Samuel 3"
+    },
+    {
+     "story": "David facing Goliath with a sling",
+     "ref": "1 Samuel 17"
+    },
+    {
+     "story": "Moses parting the Red Sea",
+     "ref": "Exodus 14"
+    },
+    {
+     "story": "A family eating the Passover meal",
+     "ref": "Exodus 12"
+    },
+    {
+     "story": "Solomon's temple being built",
+     "ref": "1 Kings 6"
+    }
+   ]
+  },
+  {
+   "type": "apply",
+   "title": "Apply It",
+   "count": 6,
+   "intro": "Use a scripture to answer a real-life situation.",
+   "rules": [
+    "Your set of 3 or 4 gets the same situation and scripture.",
+    "Each of you writes how the scripture helps, in a sentence or two.",
+    "Everyone else votes for the answer they like best. You score for every vote, and the top answer gets a bonus."
+   ],
+   "prompts": [
+    {
+     "prompt": "You have a gospel question you can't answer, and a friend says it means the Church isn't true.",
+     "ref": "Proverbs 3:5–6",
+     "note": "Lesson 163: act in faith; rely on what you already know."
+    },
+    {
+     "prompt": "You're not sure whether a thought is from the Holy Ghost or just your own idea.",
+     "ref": "Psalm 24:3–4",
+     "note": "Lesson 162: recognizing revelation."
+    },
+    {
+     "prompt": "A friend is searching online for answers about the Church and finding mostly critics.",
+     "ref": "Amos 3:7",
+     "note": "Lesson 165: turning to divinely appointed sources."
+    },
+    {
+     "prompt": "You want to read your scriptures more, but they feel hard to understand.",
+     "ref": "Isaiah 53:3–5",
+     "note": "Lesson 166: focusing on Jesus Christ in the scriptures."
+    },
+    {
+     "prompt": "A friend says your worth depends on how many followers you have.",
+     "ref": "Genesis 1:26–27",
+     "note": "Lesson 173: our divine identity and purpose."
+    },
+    {
+     "prompt": "Your phone keeps pulling you toward content you know isn't good.",
+     "ref": "Genesis 39:9",
+     "note": "Lesson 174: taking charge of technology."
+    },
+    {
+     "prompt": "You're nervous about a new calling to teach a class.",
+     "ref": "Jeremiah 1:4–5",
+     "note": "Lesson 176: accepting and fulfilling callings."
+    },
+    {
+     "prompt": "You earned money from your first job and wonder how to use it.",
+     "ref": "Malachi 3:8–10",
+     "note": "Lesson 179: managing financial resources wisely."
+    },
+    {
+     "prompt": "A family in your ward is struggling to buy groceries.",
+     "ref": "Isaiah 58:6–7",
+     "note": "Lesson 180: caring for those in need."
+    },
+    {
+     "prompt": "A friend says what you do with your body doesn't matter to God.",
+     "ref": "Genesis 1:26–27",
+     "note": "Lesson 182: caring for our physical body."
+    },
+    {
+     "prompt": "You're stressed about a big test and can't stop worrying.",
+     "ref": "Proverbs 3:5–6",
+     "note": "Lesson 184: managing stress and anxiety."
+    },
+    {
+     "prompt": "A friend has felt sad for weeks and says no one understands.",
+     "ref": "Isaiah 53:3–5",
+     "note": "Lesson 185: coping with sadness and depression."
+    },
+    {
+     "prompt": "Your brother breaks something of yours and you feel angry.",
+     "ref": "Isaiah 1:18",
+     "note": "Lesson 186: resolving feelings of anger (forgiveness through Christ)."
+    },
+    {
+     "prompt": "Your friends are choosing how to spend Sunday afternoon.",
+     "ref": "Isaiah 58:13–14",
+     "note": "Lesson 171: For the Strength of Youth, inspired choices."
+    },
+    {
+     "prompt": "Your friends want you to skip seminary for a party.",
+     "ref": "Joshua 24:15",
+     "note": "Lesson 63: choosing to serve the Lord over other influences."
+    },
+    {
+     "prompt": "Someone posts something mean about you, and you want to get back at them.",
+     "ref": "1 Samuel 25",
+     "note": "Lesson 75: how Jesus Christ helps us forgive others."
+    },
+    {
+     "prompt": "You're asked to do something hard that you feel unqualified for.",
+     "ref": "Exodus 4",
+     "note": "Lessons 39–40: the Lord promised to give Moses the words he should speak."
+    },
+    {
+     "prompt": "You prayed about a question and feel like no answer came.",
+     "ref": "Habakkuk 1",
+     "note": "Lesson 153: maintaining faith when questions seem unanswered."
+    },
+    {
+     "prompt": "A friend judges a new student by how they look.",
+     "ref": "1 Samuel 16",
+     "note": "Lesson 73: seeing others as the Lord sees them."
+    },
+    {
+     "prompt": "You made a mistake and are tempted to hide it from your parents.",
+     "ref": "Isaiah 1:18",
+     "note": "Lessons 77 and 114: we can't hide sin from the Lord, but He can cleanse us."
+    },
+    {
+     "prompt": "You keep forgetting to pray and feel far from Heavenly Father.",
+     "ref": "1 Samuel 1",
+     "note": "Lesson 69: Heavenly Father hears humble prayers."
+    },
+    {
+     "prompt": "A friend says the Old Testament has nothing to do with Jesus Christ.",
+     "ref": "Numbers 21",
+     "note": "Lesson 57: the brass serpent was a symbol of the Savior."
+    },
+    {
+     "prompt": "You're getting ready to do baptisms at the temple for the first time.",
+     "ref": "Psalm 24:3–4",
+     "note": "Lesson 103: preparing to enter the temple worthily."
+    },
+    {
+     "prompt": "A friend feels like God has forgotten them.",
+     "ref": "Isaiah 49",
+     "note": "Lesson 121: the Lord will not forget us."
     }
    ]
   },
   {
    "type": "final",
    "title": "The Final Question",
-   "mult": 1,
-   "count": 1,
-   "intro": "One hard question. Everything is on the line.",
-   "rules": [
-    "Wager first, anywhere from nothing up to your whole score.",
-    "The choices are close, so read carefully.",
-    "Right: you win your wager. Wrong: you lose it. Audience members who answer correctly score too."
-   ],
    "finals": [
     {
      "q": "“Though your sins be as scarlet, they shall be as white as snow; though they be red like crimson, they shall be as ____.”",
@@ -1244,5 +1524,129 @@
     }
    ]
   }
- ]
+ ],
+ "_masteryHelp": "Doctrinal Mastery passages and key phrases, as provided by the teacher from Gospel Library. The game builds memorization drills from them.",
+ "mastery": [
+  {
+   "ref": "Moses 1:39",
+   "phrase": "“This is my work and my glory—to bring to pass the immortality and eternal life of man.”",
+   "quoted": "This is my work and my glory—to bring to pass the immortality and eternal life of man."
+  },
+  {
+   "ref": "Moses 7:18",
+   "phrase": "“The Lord called his people Zion, because they were of one heart and one mind.”",
+   "quoted": "The Lord called his people Zion, because they were of one heart and one mind."
+  },
+  {
+   "ref": "Abraham 2:9–11",
+   "phrase": "The Lord promised Abraham that his seed would “bear this ministry and Priesthood unto all nations.”",
+   "quoted": "bear this ministry and Priesthood unto all nations."
+  },
+  {
+   "ref": "Abraham 3:22–23",
+   "phrase": "As spirits we “were organized before the world was.”",
+   "quoted": "were organized before the world was."
+  },
+  {
+   "ref": "Genesis 1:26–27",
+   "phrase": "“God created man in his own image.”",
+   "quoted": "God created man in his own image."
+  },
+  {
+   "ref": "Genesis 2:24",
+   "phrase": "“A man … shall cleave unto his wife: and they shall be one.”",
+   "quoted": "A man … shall cleave unto his wife: and they shall be one."
+  },
+  {
+   "ref": "Genesis 39:9",
+   "phrase": "“How then can I do this great wickedness, and sin against God?”",
+   "quoted": "How then can I do this great wickedness, and sin against God?"
+  },
+  {
+   "ref": "Exodus 20:3–17",
+   "phrase": "The Ten Commandments",
+   "quoted": ""
+  },
+  {
+   "ref": "Joshua 24:15",
+   "phrase": "“Choose you this day whom ye will serve.”",
+   "quoted": "Choose you this day whom ye will serve."
+  },
+  {
+   "ref": "Psalm 24:3–4",
+   "phrase": "“Who shall stand in his holy place? He that hath clean hands, and a pure heart.”",
+   "quoted": "Who shall stand in his holy place? He that hath clean hands, and a pure heart."
+  },
+  {
+   "ref": "Proverbs 3:5–6",
+   "phrase": "“Trust in the Lord with all thine heart … and he shall direct thy paths.”",
+   "quoted": "Trust in the Lord with all thine heart … and he shall direct thy paths."
+  },
+  {
+   "ref": "Isaiah 1:18",
+   "phrase": "“Though your sins be as scarlet, they shall be as white as snow.”",
+   "quoted": "Though your sins be as scarlet, they shall be as white as snow."
+  },
+  {
+   "ref": "Isaiah 5:20",
+   "phrase": "“Woe unto them that call evil good, and good evil.”",
+   "quoted": "Woe unto them that call evil good, and good evil."
+  },
+  {
+   "ref": "Isaiah 29:13–14",
+   "phrase": "The restoration of the gospel is “a marvellous work and a wonder.”",
+   "quoted": "a marvellous work and a wonder."
+  },
+  {
+   "ref": "Isaiah 53:3–5",
+   "phrase": "“Surely [Jesus Christ] hath borne our griefs, and carried our sorrows.”",
+   "quoted": "Surely [Jesus Christ] hath borne our griefs, and carried our sorrows."
+  },
+  {
+   "ref": "Isaiah 58:6–7",
+   "phrase": "The blessings of a proper fast",
+   "quoted": ""
+  },
+  {
+   "ref": "Isaiah 58:13–14",
+   "phrase": "“Turn away … from doing thy pleasure on my holy day; and call the sabbath a delight.”",
+   "quoted": "Turn away … from doing thy pleasure on my holy day; and call the sabbath a delight."
+  },
+  {
+   "ref": "Jeremiah 1:4–5",
+   "phrase": "“Before I formed thee in the belly … I ordained thee a prophet unto the nations.”",
+   "quoted": "Before I formed thee in the belly … I ordained thee a prophet unto the nations."
+  },
+  {
+   "ref": "Ezekiel 3:16–17",
+   "phrase": "The prophet is “a watchman unto the house of Israel.”",
+   "quoted": "a watchman unto the house of Israel."
+  },
+  {
+   "ref": "Ezekiel 37:15–17",
+   "phrase": "The Bible and the Book of Mormon “shall become one in thine hand.”",
+   "quoted": "shall become one in thine hand."
+  },
+  {
+   "ref": "Daniel 2:44–45",
+   "phrase": "God shall “set up a kingdom, which shall never be destroyed.”",
+   "quoted": "set up a kingdom, which shall never be destroyed."
+  },
+  {
+   "ref": "Amos 3:7",
+   "phrase": "“The Lord God … revealeth his secret unto his servants the prophets.”",
+   "quoted": "The Lord God … revealeth his secret unto his servants the prophets."
+  },
+  {
+   "ref": "Malachi 3:8–10",
+   "phrase": "The blessings of paying tithing",
+   "quoted": ""
+  },
+  {
+   "ref": "Malachi 4:5–6",
+   "phrase": "Elijah “shall turn … the heart of the children to their fathers.”",
+   "quoted": "shall turn … the heart of the children to their fathers."
+  }
+ ],
+ "_source": "Built from the teacher's Google Sheet 'Review Night Content' with tools/content_sheet.py (Nov 2026)."
 }
