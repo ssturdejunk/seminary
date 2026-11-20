@@ -61,3 +61,14 @@ Fixes (approved and done, Nov 2026): the 22 quote-to-reference and 16 fill-in-th
   game only (Fake Out leader-quote drafts were held back for that reason).
 - To build the pack: export the sheet as .xlsx, run `tools/content_sheet.py topack`, check, then replace
   `web/data/old-testament.json` (use --verified-only once the teacher has marked rows Yes).
+
+## Nov 20 update
+- Every game has content; the live pack is built from the sheet plus later additions (all mirrored in the sheet).
+- Lessons 97–148: every lesson block now has at least one item (gaps filled from the teacher's Isaiah 40–43/49,
+  Isaiah 53–54 and Assess Your Learning 8 decks, and the lesson index). Assess Your Learning 9 topics covered.
+- Final Challenge (settings.finalChallenge, default on) replaces the easy wager question; the old finals bank
+  is now only a fallback for packs without Doctrinal Mastery passages.
+- Unverified drafts are live (Verified = No in the sheet, each with a source note). Items "from memory":
+  Ten Commandments order, Elijah's still small voice, Esther, Gideon, Psalm 23 shepherd, Jeremiah 16:16
+  fishers and hunters, Ezekiel 47 temple water, Daniel 6, Red Sea, Joseph's coat, Samuel at night, David and Goliath.
+- The teacher's Hosea puzzle has a note-like last item ("This represents…"); suggest moving it to the Note column.
