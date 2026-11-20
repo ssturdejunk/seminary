@@ -10,8 +10,8 @@
   const SET_PHASES = ["fw", "fready", "fg", "fr", "dw", "dready", "dg", "dr", "aw", "aready", "ag", "ar", "xw", "xq", "xr", "end"];
   // Timer name per phase. True or False uses "tf" in the tq phase (see timerFor).
   const TIMED = { tq: "trivia", oq: "order", fw: "fibWrite", fg: "fibGuess", dw: "drawDraw", dg: "drawGuess", aw: "applyWrite", ag: "applyVote", xw: "finalWager", xq: "finalQuestion" };
-  const DEFAULT_TIMERS = { trivia: 30, tf: 12, order: 45, fibWrite: 90, fibGuess: 40, drawDraw: 120, drawGuess: 40, applyWrite: 75, applyVote: 30, finalWager: 40, finalQuestion: 50 };
-  const DEFAULT_COUNT = { trivia: 10, tf: 10, order: 5, fib: 8, draw: 7, apply: 6 };
+  const DEFAULT_TIMERS = { trivia: 30, tf: 6, order: 45, fibWrite: 90, fibGuess: 40, drawDraw: 120, drawGuess: 40, applyWrite: 75, applyVote: 30, finalWager: 40, finalQuestion: 50 };
+  const DEFAULT_COUNT = { trivia: 10, tf: 15, order: 5, fib: 8, draw: 7, apply: 6 };
   const PLAN_KEY = "rn-plan-v1";
 
   const EXTRAS_KEY = "rn-host-extras-v1";
@@ -253,6 +253,10 @@
   const set = () => D.settings || {};
   const pts = () => (set().points || {});
   const timerSecs = (name) => ((set().timers || {})[name] || DEFAULT_TIMERS[name] || 30);
+  // True or False plays as a blitz (settings.tfBlitz, default on): no reading aloud, no pause for
+  // the host, the answer flashes for TF_FLASH ms and the next statement starts by itself.
+  const TF_FLASH = 1600;
+  const blitz = () => set().tfBlitz !== false && !!round() && round().type === "tf" && (S.phase === "tq" || S.phase === "tr");
   const timerFor = (phase) => (phase === "tq" && round() && round().type === "tf" ? "tf" : TIMED[phase]);
 
   function makeCode() {
@@ -407,12 +411,16 @@
     S.hold = false;
     if (t) { S.total = timerSecs(t) * 1000; S.deadline = Date.now() + S.total; } else { S.deadline = 0; S.total = 0; }
     VO.cancel();
-    if (HOLD_PHASES.includes(phase) && VO.enabled()) { S.hold = true; S.deadline = 0; }
+    if (HOLD_PHASES.includes(phase) && VO.enabled() && !blitz()) { S.hold = true; S.deadline = 0; }
     clearTimeout(autoTimer);
     if (!reveal) sfx.whoosh();
     if (phase === "intro") setTimeout(sfx.start, 280);
     if (phase === "end") setTimeout(() => AU.fx("end"), 150);
     update(true);
+    if (blitz()) {
+      if (phase === "tr") { const k = S.key; autoTimer = setTimeout(() => { if (S.key === k) next(); }, TF_FLASH); }
+      return;
+    }
     if (VO.enabled()) setTimeout(() => { if (S.phase === phase) speakPhase(); }, phase === "intro" || phase === "end" ? 700 : 250);
   }
   function update(all) {
@@ -505,7 +513,7 @@
     if (ex.length && ex.every(answered)) {
       const k = S.key;
       clearTimeout(autoTimer);
-      autoTimer = setTimeout(() => { if (S.key === k) next(); }, 900);
+      autoTimer = setTimeout(() => { if (S.key === k) next(); }, blitz() ? 300 : 900);
     }
   }
   const inCurrentSet = (pid) => {
@@ -1065,7 +1073,7 @@
         <div class="drawings" style="grid-template-columns:repeat(${Math.max(S.drawings.length, 3)},1fr)">${draws}</div>
         ${rev ? `<div class="count">${S.res.correct} of ${S.res.guessers} guessed right${S.res.favIdx.length ? ". The star marks the class favorite." : "."}</div>` : `<div class="storylist">${list}</div>${answeredLine()}`}`;
     } else if (ph === "xw") {
-      const w = S.wagerQ, kind = { letters: "Which passage? Every other first letter is hidden, and the six choices are close", blanks: "Three missing words, with six close choices", words: "Put every word of a passage in order" }[w.challenge] || (w.kind === "order" ? "Put it in order" : w.tf ? "True or false" : "Multiple choice");
+      const w = S.wagerQ, kind = { letters: "Which passage? You see the first word, then only first letters, and the six choices are close", blanks: "Three missing words, with six close choices", words: "Put every word of a passage in order" }[w.challenge] || (w.kind === "order" ? "Put it in order" : w.tf ? "True or false" : "Multiple choice");
       h = `<div class="rise muted" style="font-size:1.2em">Final wager</div><div class="big rise" style="color:var(--saffron);font-size:4.4em">${esc(w.src)}</div><p class="rise muted" style="font-size:1.15em">One last question: ${kind}${w.kind === "order" ? ", and only a perfect order wins" : ""}.</p><p class="rise" style="font-size:1.3em">Place your wager on your phone. You can bet up to your score, or up to ${pts().finalMaxWagerFloor || 500} if your score is lower. Right: win it. Wrong: lose it.</p>${answeredLine()}`;
     } else if (ph === "scores") {
       h = `<div class="big rise" style="margin-bottom:.4em">Standings</div><div class="leader rise">${ranked().slice(0, 5).map((p, i) => `<div class="row"><span class="rank">${i + 1}</span>${dot(p.pid)}<span class="nm">${esc(p.name)}</span><span class="pts">${p.score}</span></div>`).join("")}</div><div class="count">Everyone else can see their rank on their phone.</div>`;

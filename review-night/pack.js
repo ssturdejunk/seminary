@@ -14,7 +14,7 @@
   // Names and rules used when a pack leaves them out. Course-neutral on purpose.
   P.DEFAULTS = {
     trivia: { title: "Quick Quiz", intro: "Questions on what we've studied.", rules: ["A question and choices appear on the screen. Pick one on your phone.", "The clock starts after the question is read aloud.", "A correct answer scores. A faster correct answer scores a little more."] },
-    tf: { title: "True or False", intro: "Fast true-or-false statements.", rules: ["A statement appears on the screen. Tap True or False on your phone.", "The clock is short, so trust your first instinct.", "A correct answer scores. A faster correct answer scores a little more."] },
+    tf: { title: "True or False", intro: "A rapid-fire blitz of true-or-false statements.", rules: ["Statements come one right after another. Tap True or False on your phone.", "Each one has only a few seconds, so trust your first instinct.", "A correct answer scores, and a faster correct answer scores more."] },
     order: { title: "Put It in Order", intro: "Put events, verses, or steps in the right order.", rules: ["Your phone shows a mixed-up list.", "Tap the items in order, first to last, then lock in.", "You score for every item in the right place, plus a bonus for a perfect order."] },
     fib: { title: "Fake Out", intro: "Write a believable fake ending, then find the real one.", rules: ["Your set of 3 or 4 gets one clue. Write a fake ending that sounds real.", "Everyone else sees the real ending mixed in with the fakes and picks the one they trust.", "Pick the real one and score. Fool a classmate with your fake and score every time."] },
     draw: { title: "Sketch It", intro: "Draw a scripture story and guess your classmates' drawings.", rules: ["Your set draws the same story on your phone. No words or letters.", "Everyone else sees the drawings and guesses which story it is.", "Guess right and score. Draw clearly, because you score when classmates guess your story. Pick a favorite drawing for a bonus."] },
@@ -60,7 +60,7 @@
       if (r.type === "final") {
         if (r.finals) checkItems("final", r.finals, n + " finals");
         else { if (!r.q) throw new Error(n + " needs finals (a list of questions) or a q."); checkChoices(r, n); }
-      } else checkItems(r.type, r[KEYS[r.type]], n + " " + KEYS[r.type], hasMastery && ["trivia", "order", "draw"].includes(r.type));
+      } else checkItems(r.type, r[KEYS[r.type]], n + " " + KEYS[r.type], hasMastery && ["trivia", "tf", "order", "draw"].includes(r.type));
       if (r.type === "draw" && r.stories.length < 2 && !hasMastery) throw new Error(n + " needs at least 2 stories.");
       if (r.count != null && !(r.count >= 1)) throw new Error(n + " has a bad count.");
     });
@@ -148,7 +148,7 @@
   }
   P.expandMastery = function (d) {
     const M = (d.mastery || []).filter((m) => m && m.ref && (m.quoted || m.phrase));
-    d._mastery = { quiz: 0, order: 0, draw: 0 };
+    d._mastery = { quiz: 0, tf: 0, order: 0, draw: 0 };
     if (M.length < 4) return d;
     const opt = (d.settings && d.settings.mastery) || {};
     const round = (type) => d.rounds.find((r) => r.type === type);
@@ -183,6 +183,17 @@
       quiz.questions = quiz.questions.concat(add); d._mastery.quiz = add.length;
     }
 
+    const tfr = round("tf");
+    if (tfr && opt.tf !== false) { // each passage: its phrase with the right reference (true) and a nearby wrong one (false)
+      const add = [];
+      M.forEach((m, i) => {
+        const wrong = M[i + 1 < M.length ? i + 1 : i - 1].ref;
+        const say = (ref) => (m.quoted ? "“" + m.quoted.replace(/[.,;:!]+$/, "") + "” is found in " + ref + "." : ref + " is about " + m.phrase.charAt(0).toLowerCase() + m.phrase.slice(1).replace(/[.]$/, "") + ".");
+        add.push(tag({ s: say(m.ref), a: true, note: m.ref + "." }, m, "tf-ref"));
+        add.push(tag({ s: say(wrong), a: false, note: "It's " + m.ref + ", not " + wrong + "." }, m, "tf-ref"));
+      });
+      tfr.statements = tfr.statements.concat(add); d._mastery.tf = add.length;
+    }
     const ord = round("order");
     if (ord && opt.order !== false) {
       const add = [];
@@ -217,9 +228,10 @@
     Q.forEach((m, i) => {
       const words = dmWords(m.quoted), plain = words.filter((w) => w !== "…");
       const fl = words.map((w) => (w === "…" ? "…" : (bare(w)[0] || "") + (/[,.;:?!]$/.test(w) ? w.slice(-1) : ""))).join(" ");
-      const hard = fl.split(" ").map((x, k) => (x === "…" || k % 2 === 0 ? x : "_")).join(" ");
       const refs = [m.ref].concat(near(i, 5).map((x) => x.ref));
-      if (refs.length === 6 && plain.length >= 7) d._challenges.push({ kind: "choice", challenge: "letters", ref: m.ref, q: "Final challenge: which passage has these first letters? “" + hard + "”", choices: refs, answer: 0, note: m.ref + ": “" + m.quoted + "”" });
+      // The first word in full, then the first letter of every other word.
+      const shown = words.map((w, k) => (k === 0 || w === "…" ? w : (bare(w)[0] || "") + (/[,.;:?!]$/.test(w) ? w.slice(-1) : ""))).join(" ");
+      if (refs.length === 6 && plain.length >= 6) d._challenges.push({ kind: "choice", challenge: "letters", ref: m.ref, q: "Final challenge: which passage is this? “" + shown + "”", choices: refs, answer: 0, note: m.ref + ": “" + m.quoted + "”" });
       const cw = contentWords(m.quoted).sort((a, b) => b.w.length - a.w.length || a.i - b.i).slice(0, 3);
       if (cw.length === 3) {
         const set3 = new Set(cw.map((x) => x.i)), pick = (xs) => xs.slice().sort((a, b) => a.i - b.i).map((x) => x.w).join(" … ");
@@ -265,7 +277,7 @@
     });
     if (!d.rounds.some((r) => P.PLAYABLE.includes(r.type))) warnings.push("The pack has no playable rounds.");
     const g = d._mastery;
-    if (g && g.quiz + g.order + g.draw) lines.push("Doctrinal Mastery drills mixed in: " + [g.quiz && g.quiz + " quiz", g.order && g.order + " order", g.draw && g.draw + " drawing"].filter(Boolean).join(", "));
+    if (g && g.quiz + (g.tf || 0) + g.order + g.draw) lines.push("Doctrinal Mastery drills mixed in: " + [g.quiz && g.quiz + " quiz", g.tf && g.tf + " true/false", g.order && g.order + " order", g.draw && g.draw + " drawing"].filter(Boolean).join(", "));
     return { lines, warnings };
   };
 

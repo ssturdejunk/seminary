@@ -45,7 +45,7 @@ def make_pack():
     finals = [{"q": "Fallback final: which letter comes first?", "choices": ["A", "B", "C", "D", "E"], "answer": 0},
               {"q": "Fallback final: which color is the sky?", "choices": ["Blue", "Green", "Red", "Yellow", "Purple"], "answer": 0}]
     timers = {k: TIMER for k in ["trivia", "tf", "order", "fibWrite", "fibGuess", "drawDraw", "drawGuess", "applyWrite", "applyVote", "finalWager", "finalQuestion"]}
-    return {"title": "Test Pack", "course": "Tests", "settings": {"setSize": 4, "timers": timers, "points": {
+    return {"title": "Test Pack", "course": "Tests", "settings": {"setSize": 4, "tfBlitz": False, "timers": timers, "points": {
         "triviaCorrect": 100, "triviaSpeedBonus": 50, "tfCorrect": 50, "tfSpeedBonus": 25, "orderPerItem": 25, "orderPerfect": 50,
         "fibTruth": 100, "fibFooled": 50, "drawCorrect": 100, "drawArtistMax": 100, "drawFavorite": 50,
         "applyVote": 50, "applyWin": 100, "finalMaxWagerFloor": FLOOR, "finalAudienceCorrect": 100}},
@@ -59,6 +59,7 @@ def make_pack():
             {"type": "final", "title": "Bonus Bank", "finals": finals}]}
 
 PACK = make_pack()
+PACK_BLITZ = json.loads(json.dumps(PACK)); PACK_BLITZ["settings"]["tfBlitz"] = True; PACK_BLITZ["title"] = "Test Pack Blitz"
 PTS = PACK["settings"]["points"]
 TRIVIA, TF, ORDER, FIB, DRAW, APPLY = range(6)
 
@@ -76,10 +77,10 @@ def check(ok, msg):
 
 
 class Game:
-    def __init__(self, ctx, name):
+    def __init__(self, ctx, name, pack="__test-pack.json"):
         self.ctx, self.name, self.phones = ctx, name, {}
         self.host = ctx.new_page(); self.host.on("pageerror", lambda e: errs.append(name + " board: " + str(e)))
-        self.host.goto(BASE + "/host.html?net=local&extras=none&data=data/__test-pack.json")
+        self.host.goto(BASE + "/host.html?net=local&extras=none&data=data/" + pack)
         self.host.wait_for_function("window.RN_HOST && document.querySelector('#cNext') && !document.querySelector('#cNext').disabled", timeout=10000)
         self.code = self.H("return S.code")
 
@@ -93,7 +94,8 @@ class Game:
         return self.phase()
 
     # ----- setup screen: tonight's rounds -----
-    def plan(self): return self.host.evaluate("""() => { const all = JSON.parse(localStorage.getItem('rn-plan-v1') || '{}'); const v = Object.values(all)[0]; return v || null; }""")
+    def plan(self): return self.host.evaluate("""() => { const all = JSON.parse(localStorage.getItem('rn-plan-v1') || '{}'), t = document.querySelector('#where').textContent;
+        const e = Object.entries(all).find(([k]) => k.startsWith(t + '|')); return e ? e[1] : null; }""")
     def cur_plan(self): return self.plan() or {"order": list(range(6)), "wager": True, "vote": True}  # nothing saved yet = defaults
     def checked(self, i): return self.host.locator(f'.rrow input[data-r="{i}"]').is_checked()
     def set_plan(self, want, wager, vote=False):
@@ -199,6 +201,7 @@ with sync_playwright() as pw:
     ctx = b.new_context(viewport={"width": 1280, "height": 720})
     ctx.add_init_script("try{localStorage.setItem('rn-voice',JSON.stringify({on:false}))}catch(e){}")
     ctx.route("**/data/__test-pack.json", lambda route: route.fulfill(status=200, content_type="application/json", body=json.dumps(PACK)))
+    ctx.route("**/data/__test-blitz.json", lambda route: route.fulfill(status=200, content_type="application/json", body=json.dumps(PACK_BLITZ)))
 
     # =================== Game 1: every round type ===================
     g = Game(ctx, "G1")
@@ -448,6 +451,28 @@ with sync_playwright() as pw:
     types = g.H("return S.rounds.map(r => r.type)")
     check(len(types) == 5 and types[-1] == "tf" and set(types[2:4]) == {"order", "trivia"} and len({"fib", "apply", "draw"} & set(types[:2])) == 2,
           f"G6: capped at 5 rounds, one of the 1-vote games dropped, favorite last: {types}")
+    g.close()
+
+    # =================== Game 7: True or False blitz ===================
+    g = Game(ctx, "G7", "__test-blitz.json")
+    g.set_plan([TF], False)
+    g.nxt(); g.wait_phase("lobby")
+    for l in "ABCD": g.join(l)
+    g.nxt(); g.wait_phase("intro"); g.nxt()
+    n = g.H("return S.rounds[S.r].questions.length"); seen = set(); t0 = time.time()
+    while True:
+        ph = g.wait_phase("tq", "scores", timeout=(TIMER + 6) * 1000)
+        if ph == "scores": break
+        k = g.key()
+        if k in seen: time.sleep(0.1); continue
+        seen.add(k)
+        ans = g.H("return S.rounds[S.r].questions[S.i].answer")
+        for l in "ABC": g.tap(l, k, ans)
+        g.tap("D", k, 1 - ans)
+    sc = g.scores()
+    check(len(seen) == n, f"G7: blitz played all {n} statements with no clicks on the board ({len(seen)} seen)")
+    check(time.time() - t0 < n * (TIMER + 2.5), f"G7: blitz moved on by itself ({time.time() - t0:.1f}s for {n})")
+    check(sc[g.pid("A")] > 0 and sc[g.pid("D")] == 0, "G7: right answers scored, wrong answers didn't")
     g.close()
 
     check(not errs, "no uncaught page errors" + (": " + "; ".join(errs[:3]) if errs else ""))
