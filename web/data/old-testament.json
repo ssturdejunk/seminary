@@ -177,6 +177,83 @@
      "note": "Ezekiel 37:15–17"
     },
     {
+     "q": "Amos 3:7 says the Lord reveals His secrets to:",
+     "choices": [
+      "His servants the prophets",
+      "Every king",
+      "The priests only",
+      "The scribes"
+     ],
+     "answer": 0,
+     "note": "Amos 3:7"
+    },
+    {
+     "q": "Isaiah 58:6–7 describes the blessings of:",
+     "choices": [
+      "A proper fast",
+      "Paying tithing",
+      "Keeping the Sabbath",
+      "Temple marriage"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:6–7"
+    },
+    {
+     "q": "Malachi 3:8–10 describes the blessings of:",
+     "choices": [
+      "Paying tithing",
+      "A proper fast",
+      "Keeping the Sabbath",
+      "Honoring parents"
+     ],
+     "answer": 0,
+     "note": "Malachi 3:8–10"
+    },
+    {
+     "q": "Isaiah 58:13–14 teaches how to treat:",
+     "choices": [
+      "The Sabbath day",
+      "A fast day",
+      "The tenth part of your income",
+      "Your neighbors"
+     ],
+     "answer": 0,
+     "note": "Isaiah 58:13–14"
+    },
+    {
+     "q": "In Ezekiel 37:15–17, the two sticks that become one represent:",
+     "choices": [
+      "The Bible and the Book of Mormon",
+      "Judah and Egypt",
+      "The Church and the temple",
+      "Moses and Aaron"
+     ],
+     "answer": 0,
+     "note": "Ezekiel 37:15–17"
+    },
+    {
+     "q": "Daniel 2:44–45 foretold a kingdom that would:",
+     "choices": [
+      "Never be destroyed",
+      "Fall in the latter days",
+      "Divide into two nations",
+      "Be given to the kings of the earth"
+     ],
+     "answer": 0,
+     "note": "Daniel 2:44–45"
+    },
+    {
+     "q": "Abraham 2:9–11 promised that Abraham's seed would bear the ministry and Priesthood to:",
+     "choices": [
+      "All nations",
+      "Only the tribe of Levi",
+      "Only Israel",
+      "Only Egypt"
+     ],
+     "answer": 0,
+     "note": "Abraham 2:9–11"
+    },
+    {
      "q": "When Moroni first visited Joseph Smith in 1823, he began by quoting from this prophet:",
      "choices": [
       "Malachi",
@@ -397,7 +474,7 @@
      "note": "Jeremiah 31. Jeremiah 31"
     },
     {
-     "q": "Daniel 3 teaches us to trust Jesus Christ:",
+     "q": "Daniel 3, Shadrach, Meschach, and Abednego's example teaches us to trust Jesus Christ:",
      "choices": [
       "Whatever the outcome",
       "Only when things go well",
@@ -433,9 +510,9 @@
      "q": "Psalm 23 describes the Lord as a:",
      "choices": [
       "Shepherd",
-      "King",
-      "Watchman",
-      "Builder"
+      "King of Kings",
+      "Counselor",
+      "Lord of Lords"
      ],
      "answer": 0,
      "note": "Psalm 23. Psalm 23"
@@ -565,9 +642,9 @@
      "q": "How old was Joseph Smith when he had the First Vision?",
      "choices": [
       "14",
-      "12",
+      "15",
       "16",
-      "18"
+      "12"
      ],
      "answer": 0,
      "note": "Joseph Smith—History 1:7, 14."
@@ -857,6 +934,7 @@
      "items": [
       "Genesis",
       "Exodus",
+      "Leviticus",
       "Numbers",
       "Deuteronomy",
       "Joshua"
@@ -1002,7 +1080,7 @@
       "Ronald A. Rasband",
       "Gary E. Stevenson"
      ],
-     "note": "Quorum of the Twelve in order of seniority, from the teacher's list (Nov 2026)."
+     "note": "Quorum of the Twelve in order of seniority."
     },
     {
      "prompt": "Put these apostles in order of seniority in the Quorum of the Twelve (most senior first), part 2.",
@@ -1014,7 +1092,7 @@
       "Gérald Caussé",
       "Clark G. Gilbert"
      ],
-     "note": "Quorum of the Twelve in order of seniority, from the teacher's list (Nov 2026)."
+     "note": "Quorum of the Twelve in order of seniority."
     }
    ]
   },
@@ -2005,5 +2083,5 @@
    "quoted": "shall turn … the heart of the children to their fathers."
   }
  ],
- "_source": "Built from the teacher's Google Sheet 'Review Night Content' with tools/content_sheet.py (Nov 2026)."
+ "_source": "Built from the teacher's Google Sheet 'Review Night Content' with tools/content_sheet.py (Nov 20, 2026)."
 }
