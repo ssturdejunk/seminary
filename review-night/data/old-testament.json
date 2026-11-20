@@ -516,6 +516,94 @@
      ],
      "answer": 0,
      "note": "Daniel 6. Daniel 6"
+    },
+    {
+     "q": "In which scripture does the Lord tell Joseph Smith, “Peace be unto thy soul; thine adversity and thine afflictions shall be but a small moment”?",
+     "choices": [
+      "Doctrine and Covenants 121:7",
+      "Doctrine and Covenants 76:22",
+      "Doctrine and Covenants 4:2",
+      "Doctrine and Covenants 89:18"
+     ],
+     "answer": 0,
+     "note": "Doctrine and Covenants 121:7."
+    },
+    {
+     "q": "Who wrote the book of Jarom?",
+     "choices": [
+      "Jarom, son of Enos",
+      "Enos",
+      "Omni",
+      "Jacob"
+     ],
+     "answer": 0,
+     "note": "Jarom 1."
+    },
+    {
+     "q": "What is the shortest verse in the Bible?",
+     "choices": [
+      "John 11:35",
+      "Genesis 1:1",
+      "Psalm 23:1",
+      "John 3:16"
+     ],
+     "answer": 0,
+     "note": "John 11:35: “Jesus wept.”"
+    },
+    {
+     "q": "According to Alma 37:6, what is brought to pass by small and simple things?",
+     "choices": [
+      "Great things",
+      "Miracles",
+      "Mighty works",
+      "Eternal life"
+     ],
+     "answer": 0,
+     "note": "Alma 37:6."
+    },
+    {
+     "q": "How old was Joseph Smith when he had the First Vision?",
+     "choices": [
+      "14",
+      "12",
+      "16",
+      "18"
+     ],
+     "answer": 0,
+     "note": "Joseph Smith—History 1:7, 14."
+    },
+    {
+     "q": "Who was the first person baptized in this dispensation?",
+     "choices": [
+      "Oliver Cowdery",
+      "Joseph Smith",
+      "Hyrum Smith",
+      "Samuel Smith"
+     ],
+     "answer": 0,
+     "note": "Joseph Smith baptized Oliver Cowdery first; then Oliver baptized Joseph (Joseph Smith—History 1:70–71)."
+    },
+    {
+     "q": "Who were the Three Witnesses of the Book of Mormon?",
+     "choices": [
+      "Oliver Cowdery, David Whitmer, and Martin Harris",
+      "Hyrum Smith, Samuel Smith, and Martin Harris",
+      "Oliver Cowdery, Sidney Rigdon, and Parley P. Pratt",
+      "David Whitmer, Emma Smith, and Hyrum Smith"
+     ],
+     "answer": 0,
+     "note": "The Testimony of Three Witnesses."
+    },
+    {
+     "q": "Which handcart companies were rescued from early snowstorms in Wyoming in 1856?",
+     "choices": [
+      "The Willie and Martin handcart companies",
+      "The Mormon Battalion",
+      "Zion's Camp",
+      "The first pioneer company of 1847"
+     ],
+     "answer": 0,
+     "note": "Church history, 1856."
     }
    ]
   },
@@ -729,6 +817,16 @@
      "s": "Jeremiah 36 shows how the scriptures can turn us to Jesus Christ for forgiveness.",
      "a": true,
      "note": "Jeremiah 36. Jeremiah 36"
+    },
+    {
+     "s": "Jonah was swallowed by a great fish after trying to flee from his mission to Nineveh.",
+     "a": true,
+     "note": "Jonah 1–2."
+    },
+    {
+     "s": "The first temple of this dispensation was dedicated in Kirtland, Ohio, in 1836.",
+     "a": true,
+     "note": "Church history, 1836."
     }
    ]
   },
