@@ -439,6 +439,17 @@
      ],
      "answer": 0,
      "note": "Psalm 23. Psalm 23"
+    },
+    {
+     "q": "In Jeremiah 16:14–16, the Lord compares those who gather Israel in the last days to:",
+     "choices": [
+      "Fishers and hunters",
+      "Shepherds and sheep",
+      "Farmers and harvesters",
+      "Soldiers and kings"
+     ],
+     "answer": 0,
+     "note": "Jeremiah 16:16. Jeremiah 16:14–16"
     }
    ]
   },
@@ -602,6 +613,11 @@
      "s": "Ecclesiastes teaches that the things of this world last forever.",
      "a": false,
      "note": "Ecclesiastes teaches that the things of this world are temporary. Ecclesiastes 1"
+    },
+    {
+     "s": "Jeremiah prophesied the gathering of Israel in the latter days.",
+     "a": true,
+     "note": "Jeremiah 16. Jeremiah 16"
     }
    ]
   },
@@ -1370,6 +1386,21 @@
      "prompt": "A friend feels like God has forgotten them.",
      "ref": "Isaiah 49",
      "note": "Lesson 121: the Lord will not forget us."
+    },
+    {
+     "prompt": "You and a friend are missionary companions for a day. Someone asks why we need the Church of Jesus Christ today.",
+     "ref": "Daniel 2:44–45",
+     "note": "Assess Your Learning 9: prophecies of the Restoration (Isaiah 29:13–14 and Ezekiel 37:15–17 also fit)."
+    },
+    {
+     "prompt": "You wonder whether Heavenly Father really has a purpose for your life.",
+     "ref": "Doctrine and Covenants 138:53–56",
+     "note": "Assess Your Learning 9: feeling the power of your divine mission (Jeremiah 1:4–5 also fits)."
+    },
+    {
+     "prompt": "You feel prompted to share the gospel but aren't sure whom to invite or how.",
+     "ref": "Jeremiah 16:14–16",
+     "note": "Assess Your Learning 9: participating in the gathering of Israel."
     }
    ]
   },
