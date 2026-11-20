@@ -17,6 +17,8 @@ Game 3: Apply It last; the wager falls back to the pack's finals bank.
 Game 4: final wager turned off; the game ends after the last round's standings.
 Game 6: all six games get votes, so the 5-round cap drops one.
 Game 5: students vote in the lobby (up to 3 picks); top 5 by votes, least popular first, unpicked games dropped.
+Game 7: True or False blitz.
+Game 8: all-time leaderboard, Play again with the same players, and restoring players after a board reload.
 (Game 1 also has voting on with no votes cast, so the host's order is used.)
 """
 import os, sys, json, threading, http.server, time, math
@@ -473,6 +475,44 @@ with sync_playwright() as pw:
     check(len(seen) == n, f"G7: blitz played all {n} statements with no clicks on the board ({len(seen)} seen)")
     check(time.time() - t0 < n * (TIMER + 2.5), f"G7: blitz moved on by itself ({time.time() - t0:.1f}s for {n})")
     check(sc[g.pid("A")] > 0 and sc[g.pid("D")] == 0, "G7: right answers scored, wrong answers didn't")
+    g.close()
+
+    # =================== Game 8: all-time leaderboard, play again, restore after reload ===================
+    def blitz_round(g):
+        g.nxt(); g.wait_phase("intro"); g.nxt(); seen = set()
+        while True:
+            if g.wait_phase("tq", "scores", timeout=(TIMER + 6) * 1000) == "scores": return
+            k = g.key()
+            if k in seen: time.sleep(0.1); continue
+            seen.add(k); ans = g.H("return S.rounds[S.r].questions[S.i].answer")
+            g.tap("A", k, ans); g.tap("B", k, ans); g.tap("C", k, 1 - ans); g.tap("D", k, 1 - ans)
+    alltime = lambda g: g.H("return JSON.parse(localStorage.getItem('rn-alltime-v1') || '{}')")
+    g = Game(ctx, "G8", "__test-blitz.json")
+    g.set_plan([TF], False)
+    g.nxt(); g.wait_phase("lobby")
+    for l in "ABCD": g.join(l)
+    before = alltime(g); code = g.code
+    blitz_round(g); g.nxt(); g.wait_phase("end")
+    s1 = g.scores(); a1 = alltime(g)
+    check(all(a1[g.pid(l)]["total"] - before.get(g.pid(l), {}).get("total", 0) == s1[g.pid(l)] for l in "ABCD"), "G8: finished game added each score to the all-time totals")
+    check("All-time leaders" in g.host.locator("#stage").inner_text(), "G8: end screen shows the all-time leaders")
+    check(g.host.locator("#cNext").inner_text().strip().startswith("Play again"), "G8: end screen offers Play again")
+    g.nxt(); g.wait_phase("lobby"); k = g.key()
+    check(g.H("return S.code") == code and g.H("return S.order.length") == 4, "G8: Play again keeps the room code and all 4 players")
+    check(all(v == 0 for v in g.scores().values()), "G8: Play again starts everyone at 0")
+    for l in "ABCD": g.page(l).wait_for_function("k => RN_PHONE.view() && RN_PHONE.view().key === k", arg=k, timeout=5000)
+    check(True, "G8: all phones moved to the new lobby without rejoining")
+    blitz_round(g); g.nxt(); g.wait_phase("end")
+    s2 = g.scores(); a2 = alltime(g)
+    check(all(a2[g.pid(l)]["total"] == a1[g.pid(l)]["total"] + s2[g.pid(l)] and a2[g.pid(l)]["games"] == a1[g.pid(l)]["games"] + 1 for l in "ABCD"), "G8: second game added to the running totals")
+    g.host.reload(); g.host.wait_for_selector("#roster", timeout=10000)
+    check("4 players" in g.host.locator("#roster").inner_text(), "G8: after a reload the setup screen offers a new game with the 4 players")
+    g.host.click("#roster"); g.wait_phase("lobby")
+    check(g.H("return S.code") == code, "G8: restored game uses the same room code")
+    g.host.wait_for_function("() => Object.values(RN_HOST.state().players).filter(p => p.connected).length === 4", timeout=15000)
+    k = g.key()
+    for l in "ABCD": g.page(l).wait_for_function("k => RN_PHONE.view() && RN_PHONE.view().key === k", arg=k, timeout=8000)
+    check(True, "G8: after the reload all 4 phones reconnected by themselves and show the lobby")
     g.close()
 
     check(not errs, "no uncaught page errors" + (": " + "; ".join(errs[:3]) if errs else ""))

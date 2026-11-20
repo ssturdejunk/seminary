@@ -25,6 +25,8 @@
   let seq = [], seqKey = null; // put-it-in-order: indexes tapped so far, and the screen they belong to
 
   // ---------- connection ----------
+  // Join (or moderator hello). Also sent when the board asks, e.g. after it reloads.
+  function sayHello() { if (!client) return; if (modPin) client.send({ t: "mod", pin: modPin }); else client.send({ t: "join", pid, name }); }
   function connect(code) {
     if (client) client.close();
     room = code; gotView = false; view = null; sig = "";
@@ -37,7 +39,7 @@
         if (st === "connected") {
           c.classList.add("hidden");
           // This can fire before connect() has stored the client, so send on the next tick.
-          const hello = () => { if (!client) return; if (modPin) client.send({ t: "mod", pin: modPin }); else client.send({ t: "join", pid, name }); };
+          const hello = sayHello;
           setTimeout(hello, 0);
           // If the board's reply goes missing, ask again until a screen arrives.
           clearInterval(helloTimer);
@@ -50,6 +52,7 @@
       },
       onMessage(m) {
         if (!m || !m.v) return;
+        if (m.v === "rejoin") { if (name || modPin) sayHello(); return; }
         gotView = true;
         if (m.v === "modbad") return showMessage("That moderator code didn't work.", "Scan the code on the board's setup screen again.");
         render(m);

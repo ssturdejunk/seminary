@@ -387,6 +387,43 @@
     S.subs = {};
   }
 
+  // ---------- all-time leaderboard (kept on this computer) ----------
+  // Each finished game adds every player's final score to their running total, keyed by phone (pid).
+  const ALL_KEY = "rn-alltime-v1";
+  const allTime = () => { try { return JSON.parse(localStorage.getItem(ALL_KEY) || "{}") || {}; } catch (e) { return {}; } };
+  function recordGame() {
+    if (S.recorded) return;
+    const all = allTime();
+    people().forEach((p) => {
+      const e = all[p.pid] || (all[p.pid] = { name: p.name, total: 0, games: 0, best: null });
+      e.name = p.name; e.total += p.score; e.games += 1; e.best = e.best == null ? p.score : Math.max(e.best, p.score);
+    });
+    S.recorded = true;
+    try { localStorage.setItem(ALL_KEY, JSON.stringify(all)); } catch (e) {}
+  }
+  const allTimeRanked = () => Object.entries(allTime()).map(([pid, e]) => Object.assign({ pid }, e)).sort((a, b) => b.total - a.total);
+  function allTimeHTML(n) {
+    const rows = allTimeRanked().slice(0, n);
+    return rows.length ? rows.map((e, i) => `<div class="row"><span class="rank">${i + 1}</span><span class="nm">${esc(e.name)}</span><span class="muted" style="font-size:.8em">${e.games} ${e.games === 1 ? "game" : "games"}</span><span class="pts">${e.total}</span></div>`).join("") : `<div class="muted">No finished games yet.</div>`;
+  }
+
+  // ---------- new game, same players ----------
+  // Keeps the room code, the moderator code, the connections and the players; scores start over.
+  function keepPlayers(from) {
+    const players = from.players, order = from.order, removed = from.removed || {};
+    Object.values(players).forEach((p) => { p.score = 0; p.set = -1; p.role = "player"; });
+    newGame();
+    Object.assign(S, { code: from.code, pin: from.pin, players, order, removed });
+  }
+  function playAgain() { keepPlayers(S); go("lobby"); }
+  function restoreRoster() {
+    const s = savedRoster(); if (!s) return;
+    keepPlayers(s);
+    Object.values(S.players).forEach((p) => (p.connected = false));
+    links.clear(); restartNet();
+    lastKey = -1; go("lobby");
+  }
+
   // ---------- state machine ----------
   function newGame() {
     S = {
@@ -415,7 +452,7 @@
     clearTimeout(autoTimer);
     if (!reveal) sfx.whoosh();
     if (phase === "intro") setTimeout(sfx.start, 280);
-    if (phase === "end") setTimeout(() => AU.fx("end"), 150);
+    if (phase === "end") { recordGame(); setTimeout(() => AU.fx("end"), 150); }
     update(true);
     if (blitz()) {
       if (phase === "tr") { const k = S.key; autoTimer = setTimeout(() => { if (S.key === k) next(); }, TF_FLASH); }
@@ -454,6 +491,7 @@
       case "xw": go("xq"); break;
       case "xq": revealFinal(); break;
       case "xr": go("end"); break;
+      case "end": playAgain(); break;
     }
   }
   const wagerPending = () => !!(S.wagerQ && !S.wagerDone);
@@ -673,7 +711,7 @@
   // ---------- network ----------
   function startNet() {
     net = RN_NET.host(S.code, {
-      onConnect() {},
+      onConnect(id) { if (!links.has(id)) net.send(id, { v: "rejoin" }); }, // e.g. after the board reloads
       onDisconnect(id) {
         const l = links.get(id); links.delete(id);
         if (l && l.pid && S.players[l.pid] && ![...links.values()].some((x) => x.pid === l.pid)) {
@@ -974,6 +1012,7 @@
       case "xw": return "Show the question";
       case "xq": return "Reveal answer";
       case "xr": return "Final standings";
+      case "end": return "Play again (same players)";
       case "scores": return S.r + 1 < S.rounds.length ? "Next round" : wagerPending() ? "Final wager" : "Finish";
     }
     return "";
@@ -1079,7 +1118,8 @@
       h = `<div class="big rise" style="margin-bottom:.4em">Standings</div><div class="leader rise">${ranked().slice(0, 5).map((p, i) => `<div class="row"><span class="rank">${i + 1}</span>${dot(p.pid)}<span class="nm">${esc(p.name)}</span><span class="pts">${p.score}</span></div>`).join("")}</div><div class="count">Everyone else can see their rank on their phone.</div>`;
     } else if (ph === "end") {
       const r3 = ranked().slice(0, 3), hgt = [8, 5.5, 4], ord = [1, 0, 2];
-      h = `<div class="big rise" style="text-align:center">Well played</div><div class="podium rise" style="justify-content:center">${ord.filter((i) => r3[i]).map((i) => `<div class="p"><div class="nm">${esc(r3[i].name)}</div><div class="muted">${r3[i].score}</div><div class="blk" style="height:${hgt[i]}em;background:${r3[i].color}">${i + 1}</div></div>`).join("")}</div>`;
+      h = `<div class="split"><div><div class="big rise" style="text-align:center">Well played</div><div class="podium rise" style="justify-content:center">${ord.filter((i) => r3[i]).map((i) => `<div class="p"><div class="nm">${esc(r3[i].name)}</div><div class="muted">${r3[i].score}</div><div class="blk" style="height:${hgt[i]}em;background:${r3[i].color}">${i + 1}</div></div>`).join("")}</div></div>
+        <div class="board-list rise"><h3>All-time leaders</h3>${allTimeHTML(8)}</div></div>`;
     }
     document.body.classList.toggle("quiet", !["setup", "lobby"].includes(ph));
     st.innerHTML = h;
@@ -1172,7 +1212,7 @@
     const v = $("#planVote"); if (v) v.onchange = () => { plan.vote = v.checked; redo(); };
   }
   function setupHTML() {
-    const saved = savedGame();
+    const saved = savedGame(), roster = savedRoster();
     const fileWarn = location.protocol === "file:" && !cfg.playUrl && RN_NET.mode() !== "local";
     return `<div class="setup">
       <div class="big rise" style="color:var(--saffron)">Review Night</div>
@@ -1185,7 +1225,7 @@
       ${contentCardHTML()}
       ${roundsCardHTML()}
       ${fileWarn ? `<div class="card rise warn">This board is running from a file, so phones need the online address. Set playUrl in config.js.</div>` : ""}
-      ${saved ? `<div class="rise" style="margin-top:.8em"><button class="ghost" id="resume">Resume the game in room ${esc(saved.code)}</button></div>` : ""}
+      ${saved || roster ? `<div class="rise" style="margin-top:.8em;display:flex;gap:.6em;flex-wrap:wrap">${saved ? `<button class="ghost" id="resume">Resume the game in room ${esc(saved.code)}</button>` : ""}${roster ? `<button class="ghost" id="roster">New game with the ${roster.order.filter((pid) => roster.players[pid] && !(roster.removed || {})[pid]).length} players from room ${esc(roster.code)}</button>` : ""}</div>` : ""}
       </div>`;
   }
   function bindSetup() {
@@ -1205,10 +1245,11 @@
     bindVoiceSettings("vs");
     bindRounds();
     const rs = $("#resume"); if (rs) rs.onclick = resume;
+    const ro = $("#roster"); if (ro) ro.onclick = restoreRoster;
   }
-  function savedGame() {
-    try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); return s && s.phase !== "setup" && s.phase !== "end" && s.code !== S.code ? s : null; } catch (e) { return null; }
-  }
+  function savedAny() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); return s && s.phase !== "setup" && s.code !== S.code ? s : null; } catch (e) { return null; } }
+  function savedGame() { const s = savedAny(); return s && s.phase !== "end" && s.phase !== "lobby" ? s : null; }
+  function savedRoster() { const s = savedAny(); return s && s.order && s.order.filter((pid) => s.players[pid] && !(s.removed || {})[pid]).length ? s : null; }
   function resume() {
     const s = savedGame(); if (!s) return;
     try { const d = JSON.parse(localStorage.getItem(DATA_KEY) || "null"); if (d) { BASE = d; usingLoaded = true; rebuildD(); } } catch (e) {}
@@ -1244,8 +1285,14 @@
   function openTools() { fillTools(); $("#tools").showModal(); }
   function fillTools() {
     const stats = D ? RN_PACK.summary(D).lines.join(", ") : "";
-    $("#toolsBody").innerHTML = voiceSettingsHTML("vt") + `<div class="voiceset"><div class="muted">Question banks: ${esc(stats)}</div><div><button id="resetSeen" class="ghost">Reset question history</button> <span id="resetMsg" class="muted"></span></div></div>` + `<div class="setup"><div class="modqr" style="display:flex;gap:1em;align-items:center"><div>${qr(modUrl(), 4)}</div><div>Moderator code <b>${S.pin}</b><br><span class="muted">Room ${S.code}</span></div></div></div>`;
+    $("#toolsBody").innerHTML = voiceSettingsHTML("vt") + `<div class="voiceset"><div class="muted">Question banks: ${esc(stats)}</div><div><button id="resetSeen" class="ghost">Reset question history</button> <span id="resetMsg" class="muted"></span></div></div>` +
+      `<div class="voiceset"><div class="muted">All-time leaders (on this computer)</div><div class="leader">${allTimeHTML(50)}</div><div><button id="resetAll" class="ghost">Reset all-time scores</button> <span id="resetAllMsg" class="muted"></span></div></div>` + `<div class="setup"><div class="modqr" style="display:flex;gap:1em;align-items:center"><div>${qr(modUrl(), 4)}</div><div>Moderator code <b>${S.pin}</b><br><span class="muted">Room ${S.code}</span></div></div></div>`;
     bindVoiceSettings("vt");
+    $("#resetAll").onclick = (e) => {
+      const b = e.target;
+      if (!b.dataset.armed) { b.dataset.armed = "1"; b.textContent = "Tap again to erase all-time scores"; return; }
+      try { localStorage.removeItem(ALL_KEY); } catch (er) {} fillTools(); $("#resetAllMsg").textContent = "Cleared.";
+    };
     $("#resetSeen").onclick = () => { seen = {}; try { localStorage.removeItem(SEEN_KEY); } catch (e) {} $("#resetMsg").textContent = "Cleared. The next game can draw any question."; };
   }
   let askYes = null;
