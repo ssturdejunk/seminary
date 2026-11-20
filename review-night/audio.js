@@ -101,16 +101,23 @@
   }
 
   // ---------- pipe organ (lobby) ----------
-  // An original hymn-style prelude in G major: 32 chords of two beats, as
-  // [pedal bass, tenor, alto, soprano] in MIDI notes. Four phrases (A, B, A, D).
-  const PH_A = [[43, 62, 67, 71], [48, 64, 67, 72], [50, 62, 66, 69], [43, 62, 67, 71],
-                [52, 64, 67, 71], [45, 64, 69, 72], [50, 60, 66, 69], [43, 59, 62, 67]];
-  const PH_B = [[43, 67, 71, 74], [48, 64, 67, 72], [47, 62, 67, 71], [45, 60, 64, 69],
-                [47, 62, 66, 71], [48, 64, 67, 72], [45, 64, 69, 72], [50, 66, 69, 74]];
-  const PH_D = [[48, 64, 67, 72], [43, 62, 67, 71], [45, 64, 69, 72], [50, 66, 69, 74],
-                [52, 64, 67, 71], [48, 64, 67, 72], [50, 57, 66, 72], [43, 62, 67, 71]];
-  const ORGAN_SEQ = PH_A.concat(PH_B, PH_A, PH_D);
-  const ORGAN_BPM = 66;
+  // An upbeat processional in D major, 3/4 time: a bright tune over "oom-pah-pah"
+  // (pedal on beat 1, chords on beats 2 and 3). The opening phrase follows the opening of the
+  // public-domain hymn tune LASST UNS ERFREUEN ("All Creatures of Our God and King"); the
+  // alleluia-style phrases after it are original. Each bar: chord name and melody as [midi, beats].
+  const CH = { D: { bass: 50, hand: [62, 66, 69] }, A: { bass: 45, hand: [61, 64, 69] }, G: { bass: 43, hand: [62, 67, 71] }, A7: { bass: 45, hand: [61, 64, 67] } };
+  const ORGAN_BARS = [
+    // opening phrase, twice
+    ["D", [[74, 1], [74, 1], [76, 1]]], ["D", [[78, 1], [74, 1], [78, 1]]], ["A", [[76, 1], [69, 2]]],
+    ["D", [[74, 1], [74, 1], [76, 1]]], ["D", [[78, 1], [74, 1], [78, 1]]], ["A", [[76, 1], [69, 2]]],
+    // rising alleluias
+    ["A", [[81, 1], [83, 1], [85, 1]]], ["D", [[86, 2], [81, 1]]], ["G", [[83, 1], [85, 1], [86, 1]]], ["A", [[88, 3]]],
+    // stepping home
+    ["G", [[86, 1], [85, 1], [83, 1]]], ["D", [[81, 1], [79, 1], [78, 1]]], ["A", [[76, 1], [78, 1], [76, 1]]], ["D", [[74, 3]]],
+    // tag
+    ["D", [[81, 1], [81, 1], [83, 1]]], ["A", [[81, 1], [79, 1], [78, 1]]], ["A7", [[79, 1], [78, 1], [76, 1]]], ["D", [[74, 3]]]
+  ];
+  const ORGAN_BPM = 126;
 
   function organWave(g) {
     if (!g.organWave) {
@@ -144,19 +151,21 @@
       o.connect(a); a.connect(dest); o.start(t); o.stop(t + dur + 0.4);
     });
   }
-  function organEvent(g, ev, t, dur, full) {
-    const out = organOut(g);
-    organNote(g, out, t, ev[0], dur, 0.9);        // pedal 8'
-    organNote(g, out, t, ev[0] - 12, dur, 0.45);  // pedal 16'
-    for (let i = 1; i < 4; i++) organNote(g, out, t, ev[i], dur, i === 3 ? 0.8 : 0.65);
-    if (full) { organNote(g, out, t, ev[3] + 12, dur, 0.3); organNote(g, out, t, ev[2] + 12, dur, 0.22); } // louder phrases add a 4' rank
-  }
   function scheduleOrgan(g, upTo) {
-    const ev = (60 / ORGAN_BPM) * 2;
+    const beat = 60 / ORGAN_BPM, out = organOut(g);
     while (g.next < upTo) {
-      const n = g.step % ORGAN_SEQ.length;
-      organEvent(g, ORGAN_SEQ[n], g.next, ev + 0.08, (n >= 8 && n < 16) || n >= 24);
-      g.next += ev; g.step++;
+      const n = g.step % ORGAN_BARS.length, [name, mel] = ORGAN_BARS[n], ch = CH[name], t = g.next;
+      const bright = n >= 6; // the alleluia phrases add a 4' rank to the tune
+      organNote(g, out, t, ch.bass, beat * 2.4, 0.8);                 // pedal 8' on beat 1
+      organNote(g, out, t, ch.bass - 12, beat * 2.4, 0.4);            // pedal 16'
+      [1, 2].forEach((b) => ch.hand.forEach((m) => organNote(g, out, t + b * beat, m, beat * 0.55, 0.32))); // pah-pah
+      let at = 0;
+      mel.forEach(([m, len]) => {
+        organNote(g, out, t + at * beat, m, beat * len * 0.88, 0.75);
+        if (bright) organNote(g, out, t + at * beat, m + 12, beat * len * 0.88, 0.18);
+        at += len;
+      });
+      g.next += beat * 3; g.step++;
     }
   }
 
